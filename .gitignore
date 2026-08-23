@@ -1,0 +1,23 @@
+# Sistema
+.DS_Store
+Thumbs.db
+.env.local
+
+# Histórico
+*.log
+*.bak
+*.swp
+
+# Dependencias (futuro backend)
+node_modules/
+venv/
+__pycache__/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+
+# Builds
+dist/
+build/
