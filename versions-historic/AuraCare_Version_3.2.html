@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AuraCare · Registro de cuidado para centros de protección</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --tinta:#0E3A5D; --tinta-2:#16507C;
+    --fondo:#F4F8FA; --panel:#FFFFFF;
+    --vital:#0FA47A; --vital-suave:#E2F5EE;
+    --alerta:#D8492B; --alerta-suave:#FCEAE5;
+    --vigilancia:#DB9A2E; --vigilancia-suave:#FBF1DE;
+    --texto:#1E2F38; --texto-2:#56707D; --linea:#DCE7EC;
+    --radio:14px;
+    --sombra:0 1px 2px rgba(14,58,93,.06),0 8px 24px -12px rgba(14,58,93,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--fondo);color:var(--texto);font-size:15px;line-height:1.5}
+  h1,h2,h3{font-family:'Sora',sans-serif;letter-spacing:-.01em}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  button{font-family:inherit;cursor:pointer;border:none}
+  input,select,textarea{font-family:inherit;font-size:15px;color:var(--texto)}
+  :focus-visible{outline:3px solid rgba(15,164,122,.45);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:
+    radial-gradient(900px 500px at 85% -10%, rgba(15,164,122,.14), transparent 60%),
+    radial-gradient(700px 420px at -10% 110%, rgba(14,58,93,.10), transparent 55%), var(--fondo);padding:24px}
+  .login-card{background:var(--panel);border:1px solid var(--linea);border-radius:20px;box-shadow:var(--sombra);width:100%;max-width:420px;padding:40px 36px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-name{font-family:'Sora';font-weight:700;font-size:22px;color:var(--tinta)}
+  .brand-name em{font-style:normal;color:var(--vital)}
+  .login-card h1{font-size:24px;margin:26px 0 6px;color:var(--tinta)}
+  .login-card p.sub{color:var(--texto-2);font-size:14px;margin-bottom:26px}
+  .auth-tabs{display:flex;border-bottom:2px solid var(--linea);margin-bottom:20px}
+  .auth-tabs button{flex:1;padding:10px;background:none;color:var(--texto-2);font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px}
+  .auth-tabs button.active{color:var(--vital);border-bottom-color:var(--vital)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--texto-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+  .field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1.5px solid var(--linea);border-radius:10px;background:#FBFDFE;transition:border-color .15s}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--vital);outline:none;box-shadow:0 0 0 3px rgba(15,164,122,.15)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:11px;font-weight:600;font-size:15px;transition:transform .1s,box-shadow .15s,background .15s}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{background:var(--vital);color:#fff;box-shadow:0 6px 16px -6px rgba(15,164,122,.55)}
+  .btn-primary:hover:not(:disabled){background:#0C8E69}
+  .btn-ghost{background:transparent;color:var(--tinta);border:1.5px solid var(--linea)}
+  .btn-ghost:hover{border-color:var(--tinta-2);background:#F2F7FA}
+  .btn-tinta{background:var(--tinta);color:#fff}
+  .btn-tinta:hover{background:var(--tinta-2)}
+  .btn-peligro{background:var(--alerta-suave);color:var(--alerta);border:1px solid #F2C4B6}
+  .login-foot{margin-top:22px;font-size:12.5px;color:var(--texto-2);text-align:center}
+
+  .shell{display:flex;min-height:100vh}
+  .sidebar{width:240px;flex:none;background:linear-gradient(180deg,var(--tinta) 0%,#0B2F4C 100%);color:#fff;display:flex;flex-direction:column;padding:22px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .sidebar .brand-name{color:#fff;font-size:19px}
+  .sede-select{margin:20px 0 8px}
+  .sede-select label{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#9FC2D8;display:block;margin-bottom:6px}
+  .sede-select select{width:100%;background:#0B2F4C;color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:9px;padding:9px 10px}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:4px}
+  .nav button{display:flex;align-items:center;gap:11px;background:transparent;color:#C9DDEA;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:500;text-align:left;width:100%;transition:background .15s,color .15s}
+  .nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+  .nav button.active{background:var(--vital);color:#fff;font-weight:600}
+  .nav .badge{margin-left:auto;background:var(--alerta);color:#fff;font-size:11px;font-weight:700;border-radius:99px;padding:1px 8px}
+  .sidebar-foot{margin-top:auto;font-size:11.5px;color:#9FC2D8;line-height:1.5;border-top:1px solid rgba(255,255,255,.12);padding-top:14px}
+
+  .main{flex:1;min-width:0;padding:26px 34px 60px}
+  .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:26px}
+  .topbar .titulo h2{font-size:21px;color:var(--tinta)}
+  .topbar .titulo p{font-size:13px;color:var(--texto-2)}
+  .topbar .spacer{flex:1}
+  .jornada-pill{display:flex;border:1.5px solid var(--linea);border-radius:99px;overflow:hidden;background:#fff}
+  .jornada-pill button{padding:7px 16px;font-size:13px;font-weight:600;background:#fff;color:var(--texto-2)}
+  .jornada-pill button.on{background:var(--tinta);color:#fff}
+  .user-chip{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--linea);border-radius:99px;padding:6px 14px 6px 6px}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--vital-suave);color:var(--vital);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none}
+  .user-chip .nom{font-size:13px;font-weight:600;line-height:1.15}
+  .user-chip .rol{font-size:11px;color:var(--texto-2)}
+  button.user-chip{cursor:pointer;text-align:left}
+  button.user-chip:hover{border-color:var(--vital);box-shadow:0 3px 10px rgba(15,164,122,.12)}
+
+  .grid-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+  .kpi{background:var(--panel);border:1px solid var(--linea);border-radius:var(--radio);padding:18px;box-shadow:var(--sombra)}
+  .kpi .lbl{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--texto-2)}
+  .kpi .val{font-family:'IBM Plex Mono';font-weight:600;font-size:30px;color:var(--tinta);margin-top:6px}
+  .kpi .val.alerta-c{color:var(--alerta)}
+  .kpi .sub{font-size:12.5px;color:var(--texto-2);margin-top:2px}
+  .panel{background:var(--panel);border:1px solid var(--linea);border-radius:var(--radio);box-shadow:var(--sombra)}
+  .panel .panel-head{padding:16px 20px;border-bottom:1px solid var(--linea);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .panel .panel-head h3{font-size:15.5px;color:var(--tinta)}
+  .panel .panel-body{padding:14px 20px 18px}
+  .dos-col{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+  @media(max-width:1080px){.dos-col{grid-template-columns:1fr}}
+
+  .alerta-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--linea)}
+  .alerta-row:last-child{border-bottom:none}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .dot.critica{background:var(--alerta);box-shadow:0 0 0 4px var(--alerta-suave);animation:pulso 1.6s infinite}
+  .dot.vigilancia{background:var(--vigilancia);box-shadow:0 0 0 4px var(--vigilancia-suave)}
+  @keyframes pulso{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+  .alerta-row .que{flex:1;min-width:0}
+  .alerta-row .que b{font-size:14px}
+  .alerta-row .que span{display:block;font-size:12.5px;color:var(--texto-2)}
+  .alerta-row .val{font-family:'IBM Plex Mono';font-weight:600;font-size:15px}
+  .alerta-row .val.c{color:var(--alerta)} .alerta-row .val.v{color:var(--vigilancia)}
+  .mini-btn{font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:#F2F7FA;color:var(--tinta);border:1px solid var(--linea)}
+  .mini-btn:hover{background:var(--tinta);color:#fff}
+  .mini-btn.atendida,.mini-btn:disabled{background:#E2F5EE;color:#17795E;border-color:#B9E5D7;cursor:not-allowed;opacity:1}
+  .sede-select{padding:12px;border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(255,255,255,.06)}
+  .sede-select:before{content:'⌖';display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;margin-right:7px;border-radius:8px;background:rgba(15,164,122,.22);color:#BFF3E1;font-weight:700}
+  .motivo-firma{margin-top:10px;padding:12px;border:1px solid #F2C4B6;border-radius:12px;background:#FFF9F7}
+  .motivo-firma b{display:block;font-size:12px;color:var(--texto-2);margin-bottom:8px}
+  .motivo-opciones{display:flex;flex-wrap:wrap;gap:7px}
+  .motivo-opciones button{padding:7px 10px;border:1px solid var(--linea);border-radius:999px;background:#fff;color:var(--texto-2);font-size:12px;font-weight:600}
+  .motivo-opciones button.activo{background:var(--alerta);border-color:var(--alerta);color:#fff}
+  .user-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .user-actions select{min-width:128px;padding:7px 8px;border:1px solid var(--linea);border-radius:8px;background:#fff;font-size:12px}
+  .vacio{padding:26px;text-align:center;color:var(--texto-2);font-size:13.5px}
+
+  .bitacora{position:relative;padding-left:26px}
+  .bitacora:before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--linea),transparent)}
+  .nota-item{position:relative;padding:12px 0 14px;border-bottom:1px dashed var(--linea)}
+  .nota-item:last-child{border-bottom:none}
+  .nota-item:before{content:'';position:absolute;left:-23px;top:18px;width:9px;height:9px;border-radius:50%;background:#fff;border:2.5px solid var(--vital)}
+  .nota-item.tipo-novedad_salud:before{border-color:var(--vigilancia)}
+  .nota-item.tipo-activacion_emergencia:before{border-color:var(--alerta)}
+  .nota-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--texto-2);margin-bottom:5px}
+  .tag{font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px;letter-spacing:.02em}
+  .tag.evolucion{background:var(--vital-suave);color:#0A7A5A}
+  .tag.ingreso{background:#E8F0F6;color:var(--tinta)}
+  .tag.novedad_salud{background:var(--vigilancia-suave);color:#9A6A14}
+  .tag.administracion_medicamento{background:#EEEAF8;color:#5B4A9E}
+  .tag.activacion_emergencia{background:var(--alerta-suave);color:var(--alerta)}
+  .tag.actividad_salud{background:#E6F4F8;color:#11697F}
+  .tag.general_jornada{background:#EEF2F4;color:var(--texto-2)}
+  .nota-txt{font-size:14px}
+  .nota-signos{margin-top:7px;display:flex;flex-wrap:wrap;gap:6px}
+  .chip-signo{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;border-radius:7px;padding:3px 8px;background:#F2F7FA;border:1px solid var(--linea);color:var(--texto)}
+  .chip-signo.v{background:var(--vigilancia-suave);border-color:#EDD8AE;color:#9A6A14}
+  .chip-signo.c{background:var(--alerta-suave);border-color:#F2C4B6;color:var(--alerta)}
+  .nota-autor{margin-top:8px;font-size:12px;color:var(--texto-2)}
+
+  .buscador{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+  .buscador input{flex:1;min-width:200px;padding:11px 14px;border:1.5px solid var(--linea);border-radius:11px;background:#fff}
+  .grid-res{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .res-card{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);padding:16px;box-shadow:var(--sombra);text-align:left;transition:transform .12s,box-shadow .15s,border-color .15s}
+  .res-card:hover{transform:translateY(-2px);border-color:var(--vital);box-shadow:0 10px 28px -12px rgba(14,58,93,.25)}
+  .res-card .top{display:flex;gap:11px;align-items:center;margin-bottom:10px}
+  .res-card .nom{font-weight:600;font-size:14.5px;line-height:1.2}
+  .res-card .doc{font-size:12px;color:var(--texto-2)}
+  .res-card .dx{font-size:12px;color:var(--texto-2);margin-bottom:10px;min-height:18px}
+  .res-card .pie{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--texto-2)}
+  .estado-pill{font-size:11px;font-weight:700;border-radius:99px;padding:2.5px 9px}
+  .estado-pill.ok{background:var(--vital-suave);color:#0A7A5A}
+  .estado-pill.v{background:var(--vigilancia-suave);color:#9A6A14}
+  .estado-pill.c{background:var(--alerta-suave);color:var(--alerta)}
+  .estado-pill.na{background:#EEF2F4;color:var(--texto-2)}
+
+  .ficha-head{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+  .avatar-xl{width:58px;height:58px;border-radius:16px;background:var(--tinta);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Sora';font-weight:700;font-size:20px}
+  .ficha-head h2{font-size:21px;color:var(--tinta)}
+  .ficha-head .meta{font-size:13px;color:var(--texto-2)}
+  .grid-signos{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:22px}
+  .signo-card{background:#fff;border:1px solid var(--linea);border-radius:var(--radio);padding:14px 15px;box-shadow:var(--sombra);position:relative;overflow:hidden}
+  .signo-card .lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--texto-2)}
+  .signo-card .num{font-family:'IBM Plex Mono';font-weight:600;font-size:25px;margin-top:5px;color:var(--tinta)}
+  .signo-card .num small{font-size:12px;color:var(--texto-2);font-weight:500}
+  .signo-card.v .num{color:#B07914}.signo-card.c .num{color:var(--alerta)}
+  .signo-card.na .num{color:var(--texto-2);font-size:17px;padding-top:6px}
+  .signo-card .borde{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--vital)}
+  .signo-card.v .borde{background:var(--vigilancia)}.signo-card.c .borde{background:var(--alerta)}
+  .signo-card.na .borde{background:#C7D4DB}
+  .spark{margin-top:8px;display:block}
+
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+  .form-grid .full{grid-column:1/-1}
+  .campo-signo{position:relative}
+  .campo-signo .estado{position:absolute;right:10px;top:34px;font-size:10.5px;font-weight:700;border-radius:6px;padding:2px 7px}
+  .campo-signo .estado.ok{background:var(--vital-suave);color:#0A7A5A}
+  .campo-signo .estado.v{background:var(--vigilancia-suave);color:#9A6A14}
+  .campo-signo .estado.c{background:var(--alerta-suave);color:var(--alerta)}
+  .form-foot{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+  .nota-aviso{font-size:12.5px;color:var(--texto-2);display:flex;gap:7px;align-items:flex-start;background:#F2F7FA;border:1px solid var(--linea);border-radius:10px;padding:10px 13px;margin-top:16px}
+  .nota-aviso.rojo{background:var(--alerta-suave);border-color:#F2C4B6;color:#8C3018}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(14,58,93,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:40;animation:fade .15s}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{background:#fff;border-radius:18px;box-shadow:0 24px 64px -16px rgba(14,58,93,.4);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:26px}
+  .modal h3{color:var(--tinta);font-size:18px;margin-bottom:4px}
+  .modal .sub{font-size:13px;color:var(--texto-2);margin-bottom:18px}
+  .modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+
+  /* Switch */
+  .switch-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px dashed var(--linea)}
+  .switch-row:last-child{border-bottom:none}
+  .switch-row .info{flex:1}
+  .switch-row .info b{font-size:14.5px}
+  .switch-row .info p{font-size:12.5px;color:var(--texto-2);margin-top:2px}
+  .switch{position:relative;width:46px;height:26px;flex:none;background:#C7D4DB;border-radius:99px;transition:background .15s;padding:0}
+  .switch.on{background:var(--vital)}
+  .switch:after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch.on:after{left:23px}
+
+  /* Tablas operativas */
+  table.op{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.op th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--texto-2);padding:9px 10px;border-bottom:1.5px solid var(--linea)}
+  table.op td{padding:10px;border-bottom:1px dashed var(--linea);vertical-align:middle}
+  table.op tr:last-child td{border-bottom:none}
+  .seg{display:inline-flex;border:1.5px solid var(--linea);border-radius:9px;overflow:hidden}
+  .seg button{padding:6px 12px;font-size:12.5px;font-weight:600;background:#fff;color:var(--texto-2)}
+  .seg button.si{background:var(--vital);color:#fff}
+  .seg button.no{background:var(--alerta);color:#fff}
+  .seg button.nf{background:var(--vigilancia);color:#fff}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .tabs button{padding:9px 16px;border-radius:10px;font-size:13.5px;font-weight:600;background:#fff;border:1.5px solid var(--linea);color:var(--texto-2)}
+  .tabs button.on{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+  .tabs button.soon{opacity:.5;cursor:default}
+  .lim-chip{font-size:12px;font-weight:600;border-radius:8px;padding:4px 10px;background:#F2F7FA;border:1px solid var(--linea)}
+  .lim-chip.lleno{background:var(--alerta-suave);border-color:#F2C4B6;color:var(--alerta)}
+  .lim-chip.cerca{background:var(--vigilancia-suave);border-color:#EDD8AE;color:#9A6A14}
+
+  .drop{border:2px dashed var(--linea);border-radius:14px;padding:24px;text-align:center;color:var(--texto-2);font-size:13.5px;background:#FBFDFE;transition:border-color .15s,background .15s}
+  .drop.activo{border-color:var(--vital);background:var(--vital-suave)}
+  .prev-tabla{max-height:240px;overflow:auto;border:1px solid var(--linea);border-radius:10px;margin-top:12px}
+  .err-fila{font-size:12.5px;color:var(--alerta);padding:3px 0}
+
+  /* Formato SDIS (print y vista) */
+  .sdis{background:#fff;border:1.5px solid #9FB4C0;border-radius:6px;font-size:12.5px}
+  .sdis-head{display:grid;grid-template-columns:1fr 215px;border-bottom:1.5px solid #9FB4C0}
+  .sdis-head .t{padding:14px 18px;display:flex;align-items:center;gap:14px}
+  .sdis-head .t .txt{font-weight:600;font-size:12px;line-height:1.45;letter-spacing:.02em}
+  .sdis-head .codigo{border-left:1.5px solid #9FB4C0;font-size:11.5px}
+  .sdis-head .codigo div{padding:5px 12px;border-bottom:1px solid #C9D6DE}
+  .sdis-head .codigo div:last-child{border-bottom:none}
+  .sdis-sub{padding:8px 18px;border-bottom:1.5px solid #9FB4C0;font-size:11px;color:#444}
+  .sdis-campos{display:flex;flex-wrap:wrap;gap:18px;padding:11px 18px;border-bottom:1.5px solid #9FB4C0;font-size:12.5px}
+  .sdis-titulo{padding:9px 18px;font-weight:700;font-size:13px;background:#EDF3F6;border-bottom:1.5px solid #9FB4C0}
+  table.sdis-tabla{width:100%;border-collapse:collapse}
+  table.sdis-tabla th{background:#EDF3F6;font-size:11px;text-transform:uppercase;letter-spacing:.03em;padding:7px 9px;border:1px solid #C9D6DE;text-align:left}
+  table.sdis-tabla td{padding:7px 9px;border:1px solid #C9D6DE;vertical-align:top;font-size:12px}
+  .sdis-ley{padding:12px 18px;font-size:10px;color:#555;line-height:1.5;border-top:1.5px solid #9FB4C0}
+  .anulada{opacity:.55;text-decoration:line-through}
+  .print-only{display:none}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 12px 32px -8px rgba(14,58,93,.5);display:flex;gap:10px;align-items:center;animation:sube .25s ease;z-index:60;max-width:90vw}
+  @keyframes sube{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+
+  @media(max-width:880px){
+    .shell{flex-direction:column}
+    .sidebar{width:100%;height:auto;position:static;flex-direction:column;padding:16px}
+    .nav{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+    .nav button{white-space:nowrap}
+    .sidebar-foot{display:none}
+    .main{padding:20px 16px 70px}
+  }
+  @media print{
+    body *{visibility:hidden}
+    #zona-print, #zona-print *{visibility:visible}
+    #zona-print{position:absolute;left:0;top:0;width:100%;display:block!important}
+    .no-print{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useRef } = React;
+
+/* ============================ DATOS BASE ============================ */
+const SEDES = [
+  { id:'cund', nombre:'Centro de Atención Cundinamarca', cupos:60 },
+  { id:'samp', nombre:'Sede Samper', cupos:45 },
+  { id:'favo', nombre:'Sede La Favorita', cupos:40 },
+];
+const USUARIA = { id:'u1', nombre:'Claudia Marcela Ríos', doc:'CC 52.841.073', cargo:'Administradora general', rolId:'superadmin' };
+const ROLES = [
+  {id:'superadmin',nombre:'Administración general'}, {id:'admin_sede',nombre:'Administración de sede'},
+  {id:'medico',nombre:'Médico/a'}, {id:'auxiliar',nombre:'Auxiliar de enfermería'}, {id:'auditor',nombre:'Auditor/a'}
+];
+const USUARIOS_BD = [
+  {id:'u1',nombre:'Claudia Marcela Ríos',email:'claudia.rios@construyendofuturo.org.co',rolId:'superadmin',jornadaPermitida:'ambos',estado:'activo'},
+  {id:'u2',nombre:'Dr. Roberto Mendoza',email:'roberto.mendoza@construyendofuturo.org.co',rolId:'medico',jornadaPermitida:'dia',estado:'activo'},
+  {id:'u3',nombre:'Diana Carolina Vargas',email:'diana.vargas@construyendofuturo.org.co',rolId:'auxiliar',jornadaPermitida:'noche',estado:'activo'}
+];
+
+const RANGOS = {
+  ta_s:{ lbl:'TA sistólica', uni:'mmHg', vMin:100, vMax:140, cMin:90, cMax:180 },
+  ta_d:{ lbl:'TA diastólica', uni:'mmHg', vMin:60, vMax:90, cMin:50, cMax:110 },
+  fc:{ lbl:'Frec. cardiaca', uni:'lpm', vMin:60, vMax:100, cMin:50, cMax:120 },
+  fr:{ lbl:'Frec. respiratoria', uni:'rpm', vMin:12, vMax:20, cMin:10, cMax:24 },
+  temp:{ lbl:'Temperatura', uni:'°C', vMin:36, vMax:37.5, cMin:35, cMax:38.5 },
+  spo2:{ lbl:'Saturación O₂', uni:'%', vMin:93, vMax:100, cMin:90, cMax:101 },
+  glu:{ lbl:'Glucometría', uni:'mg/dL', vMin:70, vMax:180, cMin:60, cMax:250 },
+};
+function estadoSigno(key, v){
+  if(v === '' || v === null || v === undefined || isNaN(v)) return null;
+  const r = RANGOS[key]; const n = Number(v);
+  if(n < r.cMin || n > r.cMax) return 'c';
+  if(n < r.vMin || n > r.vMax) return 'v';
+  return 'ok';
+}
+
+const RESIDENTES_INI = [
+  { id:'r1', sedeId:'cund', nombres:'José Gregorio', apellidos:'Martínez Peña', doc:'CC 2.871.443', edad:78, dx:'HTA controlada',
+    signos:{ ta_s:128, ta_d:80, fc:74, fr:16, temp:36.4, spo2:96, glu:104 },
+    hist:{ ta_s:[122,130,126,135,124,131,128], fc:[70,76,72,78,75,73,74], spo2:[95,96,97,95,96,97,96] } },
+  { id:'r2', sedeId:'cund', nombres:'María del Carmen', apellidos:'Rodríguez', doc:'CC 20.114.582', edad:84, dx:'DM2 · HTA',
+    signos:{ ta_s:165, ta_d:95, fc:88, fr:18, temp:36.7, spo2:94, glu:196 },
+    hist:{ ta_s:[150,148,158,152,160,162,165], fc:[82,85,84,90,86,87,88], spo2:[95,94,95,93,94,94,94] } },
+  { id:'r3', sedeId:'cund', nombres:'Luis Alberto', apellidos:'Pineda', doc:'Cód. atención CA-0417', edad:71, dx:'En valoración inicial',
+    signos:{ ta_s:118, ta_d:76, fc:80, fr:17, temp:36.2, spo2:95, glu:null },
+    hist:{ ta_s:[120,116,119,121,117,118,118], fc:[78,82,79,81,80,79,80], spo2:[94,95,95,96,95,94,95] } },
+  { id:'r4', sedeId:'cund', nombres:'Pedro Pablo', apellidos:'Cárdenas', doc:'CC 4.512.907', edad:75, dx:'EPOC · exfumador',
+    signos:{ ta_s:134, ta_d:84, fc:96, fr:23, temp:36.9, spo2:89, glu:112 },
+    hist:{ ta_s:[130,132,131,136,133,135,134], fc:[90,92,94,93,95,94,96], spo2:[93,92,92,91,90,90,89] } },
+  { id:'r5', sedeId:'cund', nombres:'Rosa Elvira', apellidos:'Quintero', doc:'CC 24.880.131', edad:88, dx:'Demencia moderada',
+    signos:{ ta_s:122, ta_d:74, fc:68, fr:15, temp:36.1, spo2:97, glu:98 },
+    hist:{ ta_s:[118,124,120,123,119,121,122], fc:[66,70,67,69,68,67,68], spo2:[96,97,97,98,97,96,97] } },
+  { id:'r6', sedeId:'samp', nombres:'Ana Tulia', apellidos:'Vargas', doc:'CC 41.226.770', edad:80, dx:'Artrosis de rodilla',
+    signos:{ ta_s:131, ta_d:82, fc:72, fr:16, temp:36.5, spo2:96, glu:null },
+    hist:{ ta_s:[128,133,129,132,130,131,131], fc:[70,74,71,73,72,71,72], spo2:[95,96,96,97,96,95,96] } },
+  { id:'r7', sedeId:'samp', nombres:'Campo Elías', apellidos:'Suárez', doc:'CC 5.990.218', edad:69, dx:'Sin antecedentes relevantes',
+    signos:{ ta_s:124, ta_d:78, fc:75, fr:15, temp:36.3, spo2:97, glu:null },
+    hist:{ ta_s:[121,126,123,125,122,124,124], fc:[73,77,74,76,75,74,75], spo2:[96,97,96,98,97,96,97] } },
+  { id:'r8', sedeId:'favo', nombres:'Blanca Inés', apellidos:'Moreno', doc:'CC 28.453.660', edad:82, dx:'Hipotiroidismo',
+    signos:{ ta_s:119, ta_d:72, fc:64, fr:14, temp:36.0, spo2:96, glu:95 },
+    hist:{ ta_s:[116,121,118,120,117,119,119], fc:[62,66,63,65,64,63,64], spo2:[95,96,96,97,96,95,96] } },
+];
+
+const hoyISO = new Date().toISOString().slice(0,10);
+const mesActual = hoyISO.slice(0,7);
+const fmtFecha = d => new Date(d + 'T12:00:00').toLocaleDateString('es-CO',{ day:'2-digit', month:'long', year:'numeric' });
+
+let SEQ = 100;
+const NOTAS_INI = [
+  { id:'n1', sedeId:'cund', personaId:null, tipo:'general_jornada', jornada:'dia', fecha:hoyISO, hora:'06:10',
+    descripcion:'Apertura de jornada. Ingresan 42 personas mayores sin novedad al momento de la autorregulación. Se verifica hidratación y desayuno.',
+    signos:{}, autor:'Claudia Marcela Ríos — CC 52.841.073', cargo:'Auxiliar de enfermería', vigente:true },
+  { id:'n2', sedeId:'cund', personaId:'r2', tipo:'evolucion', jornada:'dia', fecha:hoyISO, hora:'07:35',
+    descripcion:'Control de signos en ronda de la mañana. Refiere cefalea leve. Se recomienda reposo y control en 2 horas.',
+    signos:{ ta_s:165, ta_d:95, fc:88, temp:36.7, spo2:94, glu:196 }, autor:'Claudia Marcela Ríos — CC 52.841.073', cargo:'Auxiliar de enfermería', vigente:true },
+  { id:'n3', sedeId:'cund', personaId:'r4', tipo:'novedad_salud', jornada:'dia', fecha:hoyISO, hora:'09:12',
+    descripcion:'Presenta dificultad respiratoria leve posterior a actividad física. Se ubica en reposo y se monitorea saturación.',
+    signos:{ fr:23, spo2:89, fc:96 }, autor:'Claudia Marcela Ríos — CC 52.841.073', cargo:'Auxiliar de enfermería', vigente:true },
+  { id:'n4', sedeId:'cund', personaId:'r5', tipo:'administracion_medicamento', jornada:'dia', fecha:hoyISO, hora:'08:00',
+    descripcion:'Se administra medicación de la mañana según plan vigente, sin reacciones adversas observadas. Tolera vía oral.',
+    signos:{}, autor:'Claudia Marcela Ríos — CC 52.841.073', cargo:'Auxiliar de enfermería', vigente:true },
+];
+const ALERTAS_INI = [
+  { id:'a1', sedeId:'cund', personaId:'r4', parametro:'spo2', valor:89, sev:'critica', estado:'activa', hora:'09:12' },
+  { id:'a2', sedeId:'cund', personaId:'r2', parametro:'ta_s', valor:165, sev:'vigilancia', estado:'activa', hora:'07:35' },
+  { id:'a3', sedeId:'cund', personaId:'r2', parametro:'glu', valor:196, sev:'vigilancia', estado:'activa', hora:'07:35' },
+];
+
+const TIPOS_NOTA = [
+  ['evolucion','Evolución / toma de signos'],['novedad_salud','Novedad de salud'],
+  ['ingreso','Observación al ingreso'],['administracion_medicamento','Administración de medicamento'],
+  ['activacion_emergencia','Activación de emergencia (Línea 123 / EPS)'],
+  ['actividad_salud','Actividad de salud / articulación'],['general_jornada','Novedad general de la jornada'],
+];
+const TIPO_LBL = Object.fromEntries(TIPOS_NOTA);
+
+const ELEMENTOS = [
+  { key:'DESODORANTE', nombre:'Desodorante barra/roll-on', regla:'Máximo 1 al mes por persona', limP:1, limU:null },
+  { key:'ROPA_INTERIOR', nombre:'Ropa interior', regla:'A necesidad · máx. 10 entregas/mes por unidad', limP:null, limU:10 },
+  { key:'MEDIAS', nombre:'Par de medias algodón 100%', regla:'A necesidad (frío o estado de salud)', limP:null, limU:null },
+  { key:'CEPILLO', nombre:'Cepillo de dientes con estuche', regla:'1 por mes o reposición a los 3 meses', limP:1, limU:null },
+  { key:'MAQUINA_AFEITAR', nombre:'Máquina de afeitar desechable', regla:'Se entrega a hombres y mujeres', limP:null, limU:null },
+];
+const EL_LBL = Object.fromEntries(ELEMENTOS.map(e => [e.key, e.nombre]));
+
+const ENTREGAS_INI = [
+  { id:'e1', sedeId:'cund', personaId:'r1', elemento:'DESODORANTE', cantidad:1, fecha:hoyISO, quien:USUARIA.nombre, obs:'' },
+  { id:'e2', sedeId:'cund', personaId:'r2', elemento:'ROPA_INTERIOR', cantidad:2, fecha:hoyISO, quien:USUARIA.nombre, obs:'Juego para mujer' },
+  { id:'e3', sedeId:'cund', personaId:'r5', elemento:'CEPILLO', cantidad:1, fecha:hoyISO, quien:USUARIA.nombre, obs:'Reposición vida útil' },
+];
+
+const PERTENENCIAS_INI = [
+  { id:'p1', sedeId:'cund', personaId:'r3', ayudas:'Bastón (1)', prendas:'2 PN, 1 CMS', lenceria:'', otros:'Radio pequeño',
+    obs:'Elementos en estado regular. Radio funcional.', fechaRecibo:hoyISO, estado:'en_custodia', fechaDev:null },
+];
+
+const ACTS_INI = [
+  { id:'ac1', sedeId:'cund', fecha:hoyISO, nombre:'Taller de memoria', linea:'Envejecimiento activo',
+    profesional:'Diana P. Gómez — Gerontóloga', participacion:{ r1:true, r2:true, r5:false } },
+];
+const ASIST_INI = {
+  ['cund|' + hoyISO + '|r1']:{ estado:'firma', motivo:'' },
+  ['cund|' + hoyISO + '|r2']:{ estado:'firma', motivo:'' },
+  ['cund|' + hoyISO + '|r4']:{ estado:'firma', motivo:'' },
+  ['cund|' + hoyISO + '|r5']:{ estado:'no_firma', motivo:'Condición de salud' },
+};
+const MOTIVOS_NF = ['No sabe firmar','Se niega a firmar','Condición de salud','Otro'];
+
+/* ============================ UI BÁSICA ============================ */
+const Logo = ({ dark }) => (
+  <div className="brand">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
+      <rect x="1" y="1" width="32" height="32" rx="9" fill={dark ? '#FFFFFF14' : '#0E3A5D'} stroke={dark ? '#ffffff44' : 'none'}/>
+      <polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0FA47A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span className="brand-name">Aura<em>Care</em></span>
+  </div>
+);
+
+const Sparkline = ({ data, estado }) => {
+  if(!data || data.length < 2) return null;
+  const w = 120, h = 26, min = Math.min(...data), max = Math.max(...data);
+  const norm = v => max === min ? h/2 : h - 3 - ((v - min)/(max - min))*(h - 6);
+  const pts = data.map((v,i)=> `${(i/(data.length-1))*w},${norm(v).toFixed(1)}`).join(' ');
+  const color = estado === 'c' ? 'var(--alerta)' : estado === 'v' ? 'var(--vigilancia)' : 'var(--vital)';
+  return <svg className="spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
+    <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"/></svg>;
+};
+
+const ChipsSignos = ({ signos }) => {
+  if(!signos) return null;
+  const chips = [];
+  if(signos.ta_s){
+    const e = [estadoSigno('ta_s',signos.ta_s), estadoSigno('ta_d',signos.ta_d)];
+    const peor = e.includes('c') ? 'c' : e.includes('v') ? 'v' : 'ok';
+    chips.push(<span key="ta" className={'chip-signo ' + (peor!=='ok'?peor:'')}>TA {signos.ta_s}/{signos.ta_d || '—'} mmHg</span>);
+  }
+  const txt = { fc:v=>`FC ${v} lpm`, fr:v=>`FR ${v} rpm`, temp:v=>`T° ${v}°C`, spo2:v=>`SpO₂ ${v}%`, glu:v=>`Glu ${v} mg/dL` };
+  ['fc','fr','temp','spo2','glu'].forEach(k=>{
+    if(signos[k] !== undefined && signos[k] !== null && signos[k] !== ''){
+      const e = estadoSigno(k, signos[k]);
+      chips.push(<span key={k} className={'chip-signo ' + (e!=='ok'?e:'')}>{txt[k](signos[k])}</span>);
+    }
+  });
+  if(signos.dolor !== undefined && signos.dolor !== null && signos.dolor !== '')
+    chips.push(<span key="dolor" className="chip-signo">Dolor {signos.dolor}/10</span>);
+  return chips.length ? <div className="nota-signos">{chips}</div> : null;
+};
+
+const SdisHead = ({ titulo, sede, jornada, extra }) => (
+  <React.Fragment>
+    <div className="sdis-head">
+      <div className="t">
+        <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" fill="#0E3A5D"/><polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0FA47A" strokeWidth="2.4" strokeLinecap="round"/></svg>
+        <div className="txt">PROCESO PRESTACIÓN DE SERVICIOS SOCIALES<br/>FORMATO ENTREGA ELEMENTOS Y REGISTRO DE ACTIVIDADES Y NOVEDADES</div>
+      </div>
+      <div className="codigo">
+        <div><b>Código:</b> FOR-PSS-729</div><div><b>Versión:</b> 1</div>
+        <div><b>Fecha:</b> Memo I2023036946 - 20/03/2023</div><div><b>Página:</b> 1 de 1</div>
+      </div>
+    </div>
+    <div className="sdis-sub">Clasificación: Información Pública Reservada</div>
+    <div className="sdis-campos">
+      <span><b>SERVICIO:</b> Centro de Protección Social — Persona Mayor</span>
+      <span><b>UNIDAD OPERATIVA:</b> {sede.nombre}</span>
+      {jornada && <span><b>JORNADA:</b> {jornada === 'dia' ? 'DÍA ☒ · NOCHE ☐' : 'DÍA ☐ · NOCHE ☒'}</span>}
+      <span><b>FECHA:</b> {fmtFecha(hoyISO)}</span>
+      {extra}
+    </div>
+    <div className="sdis-titulo">{titulo}</div>
+  </React.Fragment>
+);
+
+const LeySdis = () => (
+  <div className="sdis-ley"><b>Nota:</b> Autorización para el tratamiento de datos personales: En cumplimiento de la Ley 1581 de 2012, la Secretaría Distrital de Integración Social – SDIS es la responsable del tratamiento de los datos personales recolectados, conforme a su Política de tratamiento de datos personales. Documento generado electrónicamente por AuraCare con sello de tiempo de servidor y trazabilidad de autor; registro inalterable conforme a buenas prácticas de integridad documental.</div>
+);
+
+/* ============================ LOGIN Y SOLICITUD DE ACCESO ============================ */
+const Login = ({ onEnter, onSolicitarCuenta }) => {
+  const [tab, setTab] = useState('login');
+  const [nombre, setNombre] = useState('');
+  const [email, setEmail] = useState('');
+  const enviarSolicitud = e => { e.preventDefault(); if(nombre.trim() && email.trim()){ onSolicitarCuenta({nombre:nombre.trim(),email:email.trim()}); setNombre(''); setEmail(''); setTab('login'); } };
+  return <div className="login-wrap"><div className="login-card">
+    <Logo />
+    <h1>Registro de cuidado para centros de protección</h1>
+    <p className="sub">Notas de salud, signos vitales, asistencia, dotación y formato SDIS FOR-PSS-729 — con valor probatorio.</p>
+    <div className="auth-tabs"><button className={tab==='login'?'active':''} onClick={()=>setTab('login')}>Iniciar sesión</button><button className={tab==='solicitud'?'active':''} onClick={()=>setTab('solicitud')}>Solicitar acceso</button></div>
+    {tab === 'login' ? <><div className="field"><label>Correo institucional</label><input type="email" defaultValue="claudia.rios@construyendofuturo.org.co" /></div><div className="field"><label>Contraseña</label><input type="password" defaultValue="••••••••••" /></div><button className="btn btn-primary" style={{width:'100%'}} onClick={onEnter}>Ingresar al demo</button></> :
+      <form onSubmit={enviarSolicitud}><div className="field"><label>Nombre completo</label><input required value={nombre} onChange={e=>setNombre(e.target.value)} placeholder="Nombres y apellidos" /></div><div className="field"><label>Correo institucional</label><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="correo@institucion.org" /></div><div className="nota-aviso" style={{marginBottom:'14px'}}><span>ℹ</span><span>La cuenta quedará pendiente de aprobación por administración.</span></div><button type="submit" className="btn btn-primary" style={{width:'100%'}}>Enviar solicitud</button></form>}
+    <p className="login-foot">Demo navegable · Datos ficticios · AuraProject © 2026</p>
+  </div></div>;
+};
+
+/* ============================ DASHBOARD ============================ */
+const Dashboard = ({ sede, residentes, notas, alertas, asistencias, onAtender, jornada }) => {
+  const notasHoy = notas.filter(n => n.fecha === hoyISO && n.sedeId === sede.id);
+  const alertasSede = alertas.filter(a => a.sedeId === sede.id);
+  const activas = alertasSede.filter(a => a.estado === 'activa');
+  const criticas = activas.filter(a => a.sev === 'critica').length;
+  const asistieron = residentes.filter(r => asistencias[sede.id + '|' + hoyISO + '|' + r.id]?.estado).length;
+  const nombreDe = id => { const r = residentes.find(x=>x.id===id); return r ? r.nombres + ' ' + r.apellidos : 'Jornada (general)'; };
+  return (
+    <div>
+      <div className="grid-kpi">
+        <div className="kpi"><div className="lbl">Personas mayores activas</div>
+          <div className="val">{residentes.length}</div><div className="sub">de {sede.cupos} cupos</div></div>
+        <div className="kpi"><div className="lbl">Asistencia de hoy</div>
+          <div className="val">{asistieron}<span style={{fontSize:'16px',color:'var(--texto-2)'}}>/{residentes.length}</span></div>
+          <div className="sub">registradas en Sección 5</div></div>
+        <div className="kpi"><div className="lbl">Notas registradas hoy</div>
+          <div className="val">{notasHoy.length}</div><div className="sub">jornada {jornada === 'dia' ? 'día' : 'noche'}</div></div>
+        <div className="kpi"><div className="lbl">Alertas activas</div>
+          <div className={'val' + (criticas ? ' alerta-c' : '')}>{activas.length}</div>
+          <div className="sub">{criticas ? criticas + ' crítica(s) sin atender' : 'ninguna crítica'}</div></div>
+      </div>
+
+      <div className="dos-col">
+        <div className="panel">
+          <div className="panel-head"><h3>Últimas notas de la jornada</h3></div>
+          <div className="panel-body">
+            {notasHoy.length === 0 ? <div className="vacio">Aún no hay notas hoy en esta sede.</div> :
+            <div className="bitacora">
+              {[...notasHoy].reverse().map(n => (
+                <div key={n.id} className={'nota-item tipo-' + n.tipo}>
+                  <div className="nota-meta">
+                    <span className="mono">{n.hora}</span>
+                    <span className={'tag ' + n.tipo}>{TIPO_LBL[n.tipo]}</span>
+                    <b style={{color:'var(--texto)'}}>{nombreDe(n.personaId)}</b>
+                  </div>
+                  <div className="nota-txt">{n.descripcion}</div>
+                  <ChipsSignos signos={n.signos} />
+                </div>
+              ))}
+            </div>}
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel-head"><h3>Alertas por signos vitales</h3></div>
+          <div className="panel-body">
+            {activas.length === 0 ? <div className="vacio">Sin alertas activas. Todos los signos dentro de rango.</div> :
+              alertasSede.map(a => {
+                const r = RANGOS[a.parametro];
+                return (
+                  <div key={a.id} className="alerta-row">
+                    <span className={'dot ' + (a.sev === 'critica' ? 'critica' : 'vigilancia')} />
+                    <div className="que"><b>{nombreDe(a.personaId)}</b>
+                      <span>{r.lbl} fuera de rango · {a.hora}</span></div>
+                    <span className={'val ' + (a.sev === 'critica' ? 'c' : 'v')}>{a.valor} {r.uni}</span>
+                    <button className={'mini-btn' + (a.estado === 'atendida' ? ' atendida' : '')} disabled={a.estado === 'atendida'} onClick={() => onAtender(a.id)}>
+                      {a.estado === 'atendida' ? '✓ Atendida' : 'Atender'}
+                    </button>
+                  </div>
+                );
+              })}
+            <div className="nota-aviso" style={{marginTop:'14px'}}>
+              <span aria-hidden="true">⚡</span>
+              <span>Cada alerta crítica se dispara también por <b>WhatsApp</b> al jefe de enfermería vía n8n (Flujo A del plan de automatización).</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================ IMPORTADOR EXCEL/CSV ============================ */
+const normaliza = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').trim();
+const MAPA_COL = {
+  nombres:'nombres', nombre:'nombres',
+  apellidos:'apellidos', apellido:'apellidos',
+  tipo_documento:'tipoDoc', tipo:'tipoDoc', tipo_doc:'tipoDoc',
+  numero_documento:'numDoc', documento:'numDoc', cedula:'numDoc', numero:'numDoc', no_documento:'numDoc',
+  edad:'edad', diagnostico:'dx', diagnosticos:'dx', dx:'dx', eps:'eps',
+};
+
+const Importador = ({ sede, onImportar, cerrar }) => {
+  const [arrastrando, setArrastrando] = useState(false);
+  const [resultado, setResultado] = useState(null); // {validas:[], errores:[]}
+  const fileRef = useRef(null);
+
+  const procesar = async (file) => {
+    try {
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const filas = XLSX.utils.sheet_to_json(ws, { defval:'' });
+      const validas = [], errores = [];
+      filas.forEach((fila, i) => {
+        const r = {};
+        Object.keys(fila).forEach(k => { const destino = MAPA_COL[normaliza(k)]; if(destino) r[destino] = String(fila[k]).trim(); });
+        if(!r.nombres || !r.apellidos){
+          errores.push('Fila ' + (i+2) + ': faltan nombres o apellidos'); return;
+        }
+        if(r.edad && isNaN(Number(r.edad))){
+          errores.push('Fila ' + (i+2) + ' (' + r.nombres + '): la edad no es numérica'); return;
+        }
+        validas.push({
+          nombres:r.nombres, apellidos:r.apellidos,
+          doc:(r.tipoDoc || 'CC') + ' ' + (r.numDoc || 's/n'),
+          edad:r.edad ? Number(r.edad) : null, dx:r.dx || 'Sin registrar', eps:r.eps || '',
+        });
+      });
+      setResultado({ validas, errores, archivo:file.name });
+    } catch(err){
+      setResultado({ validas:[], errores:['No se pudo leer el archivo. Verifica que sea .xlsx, .xls o .csv válido.'], archivo:file.name });
+    }
+  };
+
+  const plantilla = () => {
+    const csv = '\uFEFFnombres,apellidos,tipo_documento,numero_documento,edad,diagnosticos,eps\n' +
+      'Carmen Cecilia,Torres Niño,CC,41555888,79,HTA,Capital Salud\n' +
+      'Rafael Antonio,Gutiérrez,CC,17222999,73,Sin antecedentes,Famisanar\n' +
+      'Esperanza,López Mora,SIN_DOCUMENTO,,76,En valoración,\n';
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'plantilla_residentes_auracare.csv'; a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  return (
+    <div className="overlay" onClick={e => { if(e.target === e.currentTarget) cerrar(); }}>
+      <div className="modal" role="dialog" aria-label="Importar residentes">
+        <h3>Importar residentes desde Excel o CSV</h3>
+        <p className="sub">Se cargarán a <b>{sede.nombre}</b>. Columnas reconocidas: nombres, apellidos, tipo_documento, numero_documento, edad, diagnosticos, eps.</p>
+
+        {!resultado && (
+          <div>
+            <div className={'drop' + (arrastrando ? ' activo' : '')}
+              onDragOver={e => { e.preventDefault(); setArrastrando(true); }}
+              onDragLeave={() => setArrastrando(false)}
+              onDrop={e => { e.preventDefault(); setArrastrando(false); if(e.dataTransfer.files[0]) procesar(e.dataTransfer.files[0]); }}>
+              Arrastra aquí el archivo .xlsx, .xls o .csv<br/>
+              <button className="btn btn-ghost" style={{marginTop:'12px'}} onClick={() => fileRef.current.click()}>Elegir archivo…</button>
+              <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" hidden
+                onChange={e => { if(e.target.files[0]) procesar(e.target.files[0]); }} />
+            </div>
+            <div style={{marginTop:'12px',textAlign:'center'}}>
+              <button className="mini-btn" onClick={plantilla}>⬇ Descargar plantilla de ejemplo</button>
+            </div>
+          </div>
+        )}
+
+        {resultado && (
+          <div>
+            <p style={{fontSize:'14px'}}><b>{resultado.archivo}</b> · <span style={{color:'var(--vital)'}}>{resultado.validas.length} fila(s) válidas</span>
+              {resultado.errores.length > 0 && <span style={{color:'var(--alerta)'}}> · {resultado.errores.length} con error</span>}</p>
+            {resultado.errores.map((e,i) => <div key={i} className="err-fila">⚠ {e}</div>)}
+            {resultado.validas.length > 0 && (
+              <div className="prev-tabla">
+                <table className="op">
+                  <thead><tr><th>Nombres</th><th>Apellidos</th><th>Documento</th><th>Edad</th><th>Diagnóstico</th></tr></thead>
+                  <tbody>{resultado.validas.slice(0,8).map((v,i) => (
+                    <tr key={i}><td>{v.nombres}</td><td>{v.apellidos}</td><td>{v.doc}</td><td>{v.edad ?? '—'}</td><td>{v.dx}</td></tr>
+                  ))}</tbody>
+                </table>
+                {resultado.validas.length > 8 && <div style={{padding:'8px',fontSize:'12px',color:'var(--texto-2)',textAlign:'center'}}>… y {resultado.validas.length - 8} más</div>}
+              </div>
+            )}
+            <div className="modal-foot">
+              <button className="btn btn-ghost" onClick={() => setResultado(null)}>← Otro archivo</button>
+              <button className="btn btn-primary" disabled={resultado.validas.length === 0}
+                onClick={() => onImportar(resultado.validas)}>Importar {resultado.validas.length} residente(s)</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ============================ NUEVO RESIDENTE (manual) ============================ */
+const NuevoResidente = ({ sede, onCrear, cerrar }) => {
+  const [f, setF] = useState({ nombres:'', apellidos:'', tipoDoc:'CC', numDoc:'', edad:'', dx:'' });
+  const set = (k,v) => setF(p => ({...p,[k]:v}));
+  const valido = f.nombres.trim() && f.apellidos.trim();
+  return (
+    <div className="overlay" onClick={e => { if(e.target === e.currentTarget) cerrar(); }}>
+      <div className="modal" role="dialog" aria-label="Nuevo residente">
+        <h3>Registrar persona mayor</h3>
+        <p className="sub">Ingreso individual a {sede.nombre}. Para grupos, usa «Importar Excel/CSV».</p>
+        <div className="form-grid">
+          <div className="field"><label>Nombres *</label><input value={f.nombres} onChange={e=>set('nombres',e.target.value)} /></div>
+          <div className="field"><label>Apellidos *</label><input value={f.apellidos} onChange={e=>set('apellidos',e.target.value)} /></div>
+          <div className="field"><label>Tipo de documento</label>
+            <select value={f.tipoDoc} onChange={e=>set('tipoDoc',e.target.value)}>
+              <option>CC</option><option>CE</option><option>PPT</option><option value="CONTRASENA">Contraseña</option><option value="SIN_DOCUMENTO">Sin documento (cód. atención)</option>
+            </select></div>
+          <div className="field"><label>Número / código</label><input value={f.numDoc} onChange={e=>set('numDoc',e.target.value)} placeholder="Sin espacios ni signos" /></div>
+          <div className="field"><label>Edad</label><input type="number" value={f.edad} onChange={e=>set('edad',e.target.value)} /></div>
+          <div className="field"><label>Diagnósticos base</label><input value={f.dx} onChange={e=>set('dx',e.target.value)} placeholder="HTA, DM2…" /></div>
+        </div>
+        <div className="modal-foot">
+          <button className="btn btn-ghost" onClick={cerrar}>Cancelar</button>
+          <button className="btn btn-primary" disabled={!valido} onClick={() => onCrear(f)}>Registrar</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================ RESIDENTES ============================ */
+const Residentes = ({ residentes, irFicha, abrirNuevo, abrirImport }) => {
+  const [q, setQ] = useState('');
+  const filtrados = residentes.filter(r => (r.nombres + ' ' + r.apellidos + ' ' + r.doc).toLowerCase().includes(q.toLowerCase()));
+  const peorEstado = r => {
+    const ests = Object.keys(RANGOS).map(k => estadoSigno(k, r.signos?.[k])).filter(Boolean);
+    if(!ests.length) return 'na';
+    return ests.includes('c') ? 'c' : ests.includes('v') ? 'v' : 'ok';
+  };
+  const ETIQ = { ok:'Signos en rango', v:'En vigilancia', c:'Alerta crítica', na:'Sin signos registrados' };
+  return (
+    <div>
+      <div className="buscador">
+        <input placeholder="Buscar por nombre o documento…" value={q} onChange={e=>setQ(e.target.value)} aria-label="Buscar persona mayor"/>
+        <button className="btn btn-ghost" onClick={abrirImport}>⬆ Importar Excel/CSV</button>
+        <button className="btn btn-primary" onClick={abrirNuevo}>+ Nuevo residente</button>
+      </div>
+      <div className="grid-res">
+        {filtrados.map(r => {
+          const e = peorEstado(r);
+          return (
+            <button key={r.id} className="res-card" onClick={() => irFicha(r.id)}>
+              <div className="top">
+                <div className="avatar" aria-hidden="true">{r.nombres[0]}{r.apellidos[0]}</div>
+                <div><div className="nom">{r.nombres} {r.apellidos}</div><div className="doc">{r.doc} · {r.edad ? r.edad + ' años' : 'edad s/r'}</div></div>
+              </div>
+              <div className="dx">{r.dx}</div>
+              <div className="pie">
+                <span className={'estado-pill ' + e}>{ETIQ[e]}</span>
+                <span style={{marginLeft:'auto'}}>Ver ficha →</span>
+              </div>
+            </button>
+          );
+        })}
+        {filtrados.length === 0 && <div className="vacio">No se encontró ninguna persona con ese criterio.</div>}
+      </div>
+    </div>
+  );
+};
+
+/* ============================ FICHA ============================ */
+const Ficha = ({ res, notas, config, volver, nuevaNotaPara }) => {
+  const s = res.signos || {};
+  const h = res.hist || {};
+  const cards = [
+    { lbl:'Tensión arterial', val: s.ta_s ? s.ta_s + '/' + s.ta_d : '—', uni:'mmHg',
+      estado:(() => { const e=[estadoSigno('ta_s',s.ta_s),estadoSigno('ta_d',s.ta_d)].filter(Boolean); return e.includes('c')?'c':e.includes('v')?'v':'ok'; })(),
+      hist: h.ta_s },
+    { lbl:'Frec. cardiaca', val: s.fc ?? '—', uni:'lpm', estado: estadoSigno('fc', s.fc) || 'ok', hist: h.fc },
+    { lbl:'Saturación O₂', val: s.spo2 ?? '—', uni:'%', estado: estadoSigno('spo2', s.spo2) || 'ok', hist: h.spo2 },
+    { lbl:'Frec. respiratoria', val: s.fr ?? '—', uni:'rpm', estado: estadoSigno('fr', s.fr) || 'ok' },
+    { lbl:'Temperatura', val: s.temp ?? '—', uni:'°C', estado: estadoSigno('temp', s.temp) || 'ok' },
+    config.glu
+      ? { lbl:'Glucometría', val: s.glu ?? '—', uni:'mg/dL', estado: s.glu ? (estadoSigno('glu', s.glu) || 'ok') : 'ok' }
+      : { lbl:'Glucometría', val:'No aplica', uni:'', estado:'na' },
+  ];
+  const notasRes = notas.filter(n => n.personaId === res.id);
+  return (
+    <div>
+      <button className="btn btn-ghost no-print" style={{marginBottom:'18px',padding:'8px 14px',fontSize:'13.5px'}} onClick={volver}>← Volver a residentes</button>
+      <div className="ficha-head">
+        <div className="avatar-xl" aria-hidden="true">{res.nombres[0]}{res.apellidos[0]}</div>
+        <div>
+          <h2>{res.nombres} {res.apellidos}</h2>
+          <div className="meta">{res.doc} · {res.edad ? res.edad + ' años' : 'edad sin registrar'} · {res.dx}</div>
+        </div>
+        <div style={{marginLeft:'auto'}}>
+          <button className="btn btn-primary" onClick={() => nuevaNotaPara(res.id)}>+ Nueva nota</button>
+        </div>
+      </div>
+
+      <div className="grid-signos">
+        {cards.map(c => (
+          <div key={c.lbl} className={'signo-card ' + (c.estado !== 'ok' ? c.estado : '')}>
+            <span className="borde" aria-hidden="true"></span>
+            <div className="lbl">{c.lbl}</div>
+            <div className="num">{c.val} <small>{c.uni}</small></div>
+            {c.hist && c.estado !== 'na' && <Sparkline data={c.hist} estado={c.estado} />}
+            {c.estado === 'na' && <div style={{fontSize:'11px',color:'var(--texto-2)',marginTop:'6px'}}>Desactivada en esta unidad (Configuración)</div>}
+          </div>
+        ))}
+      </div>
+
+      <div className="panel">
+        <div className="panel-head"><h3>Bitácora de salud (solo lectura · append-only)</h3></div>
+        <div className="panel-body">
+          {notasRes.length === 0 ? <div className="vacio">Esta persona aún no tiene notas registradas.</div> :
+          <div className="bitacora">
+            {[...notasRes].reverse().map(n => (
+              <div key={n.id} className={'nota-item tipo-' + n.tipo + (n.vigente ? '' : ' anulada')}>
+                <div className="nota-meta">
+                  <span className="mono">{fmtFecha(n.fecha)} · {n.hora}</span>
+                  <span className={'tag ' + n.tipo}>{TIPO_LBL[n.tipo]}</span>
+                  {!n.vigente && <span className="tag general_jornada">Corregida</span>}
+                </div>
+                <div className="nota-txt">{n.descripcion}</div>
+                <ChipsSignos signos={n.signos} />
+                <div className="nota-autor">Registró: {n.autor} · {n.cargo}</div>
+              </div>
+            ))}
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================ NUEVA NOTA ============================ */
+const NuevaNota = ({ sede, residentes, jornada, presel, config, onGuardar }) => {
+  const [personaId, setPersonaId] = useState(presel || '');
+  const [tipo, setTipo] = useState('evolucion');
+  const [desc, setDesc] = useState('');
+  const [sv, setSv] = useState({ ta_s:'', ta_d:'', fc:'', fr:'', temp:'', spo2:'', glu:'', dolor:'' });
+  const set = (k,v) => setSv(p => ({...p,[k]:v}));
+  const campos = [
+    ['ta_s','TA sistólica (mmHg)'],['ta_d','TA diastólica (mmHg)'],['fc','Frec. cardiaca (lpm)'],
+    ['fr','Frec. respiratoria (rpm)'],['temp','Temperatura (°C)'],['spo2','Saturación O₂ (%)'],
+  ];
+  if(config.glu) campos.push(['glu','Glucometría (mg/dL)']);
+  const valida = desc.trim().length >= 10;
+  const guardar = () => {
+    if(!valida) return;
+    const signos = {};
+    Object.keys(sv).forEach(k => {
+      if(k === 'glu' && !config.glu) return;
+      if(k === 'dolor' && !config.dolor) return;
+      if(sv[k] !== '') signos[k] = Number(sv[k]);
+    });
+    onGuardar({ personaId: personaId || null, tipo, descripcion: desc.trim(), signos });
+  };
+  return (
+    <div className="panel" style={{maxWidth:'860px'}}>
+      <div className="panel-head"><h3>Nueva nota de salud · {sede.nombre} · Jornada {jornada === 'dia' ? 'día' : 'noche'}</h3></div>
+      <div className="panel-body">
+        <div className="form-grid">
+          <div className="field">
+            <label>Persona mayor</label>
+            <select value={personaId} onChange={e=>setPersonaId(e.target.value)}>
+              <option value="">Novedad general de la jornada</option>
+              {residentes.map(r => <option key={r.id} value={r.id}>{r.nombres} {r.apellidos} — {r.doc}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label>Tipo de nota</label>
+            <select value={tipo} onChange={e=>setTipo(e.target.value)}>
+              {TIPOS_NOTA.map(([v,l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+          </div>
+
+          {campos.map(([k,l]) => {
+            const e = estadoSigno(k, sv[k]);
+            return (
+              <div key={k} className="field campo-signo">
+                <label>{l}</label>
+                <input type="number" inputMode="decimal" value={sv[k]} onChange={ev=>set(k, ev.target.value)} placeholder="—" />
+                {e && <span className={'estado ' + e}>{e==='ok'?'EN RANGO':e==='v'?'VIGILANCIA':'CRÍTICO'}</span>}
+              </div>
+            );
+          })}
+          {!config.glu && (
+            <div className="field">
+              <label>Glucometría</label>
+              <input value="No aplica en esta unidad" disabled style={{background:'#EEF2F4',color:'var(--texto-2)'}} />
+            </div>
+          )}
+          {config.dolor && (
+            <div className="field">
+              <label>Escala de dolor (0–10)</label>
+              <input type="number" min="0" max="10" value={sv.dolor} onChange={e=>set('dolor', e.target.value)} placeholder="—" />
+            </div>
+          )}
+
+          <div className="field full">
+            <label>Descripción de la novedad (mín. 10 caracteres)</label>
+            <textarea rows="4" value={desc} onChange={e=>setDesc(e.target.value)}
+              placeholder="Conducta observada, factores precipitantes, cuidados prestados y respuesta de la persona mayor; rutas activadas si aplica (Línea 123, salud mental, EPS)…"></textarea>
+          </div>
+        </div>
+
+        <div className="nota-aviso" style={{alignItems:'flex-start'}}>
+          <span aria-hidden="true">??</span>
+          <span><b>Rangos de seguridad cl?nica:</b><br/>{Object.entries(RANGOS).filter(([k]) => k !== 'glu' || config.glu).map(([k,r]) => <span key={k} style={{display:'inline-block',marginRight:'12px',marginTop:'5px'}}>{r.lbl}: seguro {r.vMin}?{r.vMax} {r.uni}; cr?tico &lt;{r.cMin} o &gt;{r.cMax}</span>)}</span>
+        </div>
+
+        <div className="form-foot">
+          <button className="btn btn-primary" disabled={!valida} onClick={guardar}>Guardar nota firmada</button>
+          <span style={{fontSize:'12.5px',color:'var(--texto-2)'}}>Firma electrónica: {USUARIA.nombre} · {USUARIA.doc} · sello de hora del servidor</span>
+        </div>
+
+        <div className="nota-aviso">
+          <span aria-hidden="true">🔒</span>
+          <span>Una vez guardada, la nota <b>no se edita ni se elimina</b>. Los errores se corrigen con una nota nueva que referencia la original — lo que exige un registro con valor probatorio.</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================ ASISTENCIA Y ACTIVIDADES (Sección 5) ============================ */
+const Asistencia = ({ sede, residentes, asistencias, setAsist, actividades, setActs, jornada, avisar }) => {
+  const [fAct, setFAct] = useState({ nombre:'', linea:'', profesional:'' });
+  const llave = rid => sede.id + '|' + hoyISO + '|' + rid;
+  const marcar = (rid, estado, motivo) => {
+    setAsist(prev => {
+      const next = {...prev};
+      if(estado === null) delete next[llave(rid)];
+      else next[llave(rid)] = { estado, motivo: motivo || '' };
+      return next;
+    });
+  };
+  const actsHoy = actividades.filter(a => a.sedeId === sede.id && a.fecha === hoyISO);
+  const asistentes = residentes.filter(r => asistencias[llave(r.id)]?.estado);
+  const crearAct = () => {
+    if(!fAct.nombre.trim() || !fAct.linea.trim() || !fAct.profesional.trim()) return;
+    setActs(prev => [...prev, { id:'ac' + Date.now(), sedeId:sede.id, fecha:hoyISO, ...fAct, participacion:{} }]);
+    setFAct({ nombre:'', linea:'', profesional:'' });
+    avisar('Actividad creada ✓');
+  };
+  const toggleParticipa = (actId, rid) => {
+    setActs(prev => prev.map(a => a.id !== actId ? a :
+      {...a, participacion:{...a.participacion, [rid]: a.participacion[rid] === undefined ? true : a.participacion[rid] ? false : undefined }}));
+  };
+
+  return (
+    <div>
+      <div className="topbar no-print" style={{marginBottom:'16px'}}>
+        <div className="titulo"><p>{asistentes.length} de {residentes.length} personas con ingreso registrado hoy</p></div>
+        <div className="spacer"></div>
+        <button className="btn btn-tinta" onClick={() => window.print()}>⬇ Exportar Sección 5 (PDF)</button>
+      </div>
+
+      <div className="dos-col">
+        <div className="panel no-print">
+          <div className="panel-head"><h3>Ingreso a la unidad operativa · hoy</h3></div>
+          <div className="panel-body">
+            <table className="op">
+              <thead><tr><th>Persona mayor</th><th>Ingreso</th><th>Firma</th></tr></thead>
+              <tbody>
+                {residentes.map(r => {
+                  const a = asistencias[llave(r.id)];
+                  return (
+                    <tr key={r.id}>
+                      <td><b>{r.nombres} {r.apellidos}</b><br/><span style={{fontSize:'12px',color:'var(--texto-2)'}}>{r.doc}</span></td>
+                      <td>
+                        <span className="seg">
+                          <button className={a ? 'si' : ''} onClick={() => marcar(r.id, a ? null : 'firma')}>{a ? 'Asistió ✓' : 'Asistió'}</button>
+                        </span>
+                      </td>
+                      <td>
+                        {a && (
+                          <span className="seg">
+                            <button className={a.estado === 'firma' ? 'si' : ''} onClick={() => marcar(r.id,'firma')}>Firma</button>
+                            <button className={a.estado === 'no_firma' ? 'nf' : ''} onClick={() => marcar(r.id,'no_firma', a.motivo || MOTIVOS_NF[0])}>No firma</button>
+                          </span>
+                        )}
+                        {a && a.estado === 'no_firma' && (
+                          <div className="motivo-firma">
+                            <b>Motivo registrado para la no firma</b>
+                            <div className="motivo-opciones">
+                              {MOTIVOS_NF.map(m => <button key={m} className={a.motivo === m ? 'activo' : ''} onClick={() => marcar(r.id,'no_firma',m)}>{m}</button>)}
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className="nota-aviso" style={{marginTop:'12px'}}>
+              <span aria-hidden="true">✍</span>
+              <span>El instructivo SDIS exige que si la persona no firma, quede el <b>motivo en observaciones</b>. AuraCare lo vuelve obligatorio: cero hallazgos por casillas vacías.</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="panel no-print">
+          <div className="panel-head"><h3>Actividades de la jornada</h3></div>
+          <div className="panel-body">
+            <div className="form-grid" style={{gridTemplateColumns:'1fr',gap:'10px'}}>
+              <div className="field" style={{marginBottom:0}}><label>Nombre de la actividad</label>
+                <input value={fAct.nombre} onChange={e=>setFAct(p=>({...p,nombre:e.target.value}))} placeholder="Taller de memoria" /></div>
+              <div className="field" style={{marginBottom:0}}><label>Línea de atención (sin abreviaturas)</label>
+                <input value={fAct.linea} onChange={e=>setFAct(p=>({...p,linea:e.target.value}))} placeholder="Envejecimiento activo" /></div>
+              <div className="field" style={{marginBottom:0}}><label>Profesional que realiza</label>
+                <input value={fAct.profesional} onChange={e=>setFAct(p=>({...p,profesional:e.target.value}))} placeholder="Nombres y apellidos completos" /></div>
+              <button className="btn btn-primary" onClick={crearAct}
+                disabled={!fAct.nombre.trim() || !fAct.linea.trim() || !fAct.profesional.trim()}>+ Agregar actividad</button>
+            </div>
+
+            {actsHoy.map(act => (
+              <div key={act.id} style={{marginTop:'18px',borderTop:'1px dashed var(--linea)',paddingTop:'14px'}}>
+                <b style={{fontSize:'14.5px'}}>{act.nombre}</b>
+                <div style={{fontSize:'12.5px',color:'var(--texto-2)',marginBottom:'8px'}}>Línea: {act.linea} · {act.profesional}</div>
+                {asistentes.length === 0 ? <div className="vacio" style={{padding:'10px'}}>Marca primero el ingreso de las personas.</div> :
+                <div style={{display:'flex',flexWrap:'wrap',gap:'7px'}}>
+                  {asistentes.map(r => {
+                    const v = act.participacion[r.id];
+                    const cls = v === true ? 'si' : v === false ? 'no' : '';
+                    return (
+                      <span key={r.id} className="seg">
+                        <button className={cls} onClick={() => toggleParticipa(act.id, r.id)}>
+                          {r.nombres.split(' ')[0]} {r.apellidos.split(' ')[0]} {v === true ? '· SI' : v === false ? '· NO' : ''}
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>}
+              </div>
+            ))}
+            {actsHoy.length === 0 && <div className="vacio">Sin actividades registradas hoy.</div>}
+          </div>
+        </div>
+      </div>
+
+      {/* ----- Versión imprimible Sección 5 ----- */}
+      <div id="zona-print" className="print-only">
+        <div className="sdis">
+          <SdisHead titulo="SECCIÓN 5. REGISTRO DE PARTICIPACIÓN EN ACTIVIDADES" sede={sede} jornada={jornada}
+            extra={<span><b>Registra:</b> {USUARIA.nombre}</span>} />
+          <table className="sdis-tabla">
+            <thead><tr>
+              <th>Documento</th><th>Nombres</th><th>Apellidos</th><th>Firma</th><th>Observaciones</th>
+              {actsHoy.map((a,i) => <th key={a.id}>Act. {i+1}: {a.nombre}<br/>Línea: {a.linea}<br/>{a.profesional}</th>)}
+            </tr></thead>
+            <tbody>
+              {residentes.map(r => {
+                const a = asistencias[llave(r.id)];
+                if(!a) return null;
+                return (
+                  <tr key={r.id}>
+                    <td>{r.doc}</td><td>{r.nombres}</td><td>{r.apellidos}</td>
+                    <td>{a.estado === 'firma' ? 'Firma electrónica registrada' : 'NO FIRMA'}</td>
+                    <td>{a.estado === 'no_firma' ? a.motivo : ''}</td>
+                    {actsHoy.map(act => <td key={act.id}>{act.participacion[r.id] === true ? 'SI' : act.participacion[r.id] === false ? 'NO' : ''}</td>)}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <LeySdis />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================ DOTACIÓN (Secciones 1 y 4) ============================ */
+const Dotacion = ({ sede, residentes, entregas, setEntregas, pertenencias, setPert, avisar }) => {
+  const [tab, setTab] = useState('aseo');
+  const [fE, setFE] = useState({ personaId:'', elemento:'DESODORANTE', cantidad:1, obs:'' });
+  const [fP, setFP] = useState({ personaId:'', ayudas:'', prendas:'', lenceria:'', otros:'', obs:'' });
+
+  const entregasMes = entregas.filter(e => e.sedeId === sede.id && e.fecha.slice(0,7) === mesActual);
+  const cuentaPersona = (pid, el) => entregasMes.filter(e => e.personaId === pid && e.elemento === el).reduce((s,e)=>s+e.cantidad,0);
+  const cuentaUnidad = el => entregasMes.filter(e => e.elemento === el).reduce((s,e)=>s+e.cantidad,0);
+
+  const elSel = ELEMENTOS.find(e => e.key === fE.elemento);
+  const yaPersona = fE.personaId ? cuentaPersona(fE.personaId, fE.elemento) : 0;
+  const yaUnidad = cuentaUnidad(fE.elemento);
+  const excedeP = elSel.limP !== null && fE.personaId && (yaPersona + Number(fE.cantidad||0)) > elSel.limP;
+  const excedeU = elSel.limU !== null && (yaUnidad + Number(fE.cantidad||0)) > elSel.limU;
+
+  const registrarEntrega = () => {
+    if(!fE.personaId || excedeP || excedeU) return;
+    setEntregas(prev => [...prev, { id:'e'+Date.now(), sedeId:sede.id, personaId:fE.personaId,
+      elemento:fE.elemento, cantidad:Number(fE.cantidad), fecha:hoyISO, quien:USUARIA.nombre, obs:fE.obs }]);
+    setFE({ personaId:'', elemento:'DESODORANTE', cantidad:1, obs:'' });
+    avisar('Entrega registrada ✓ (queda en el consolidado mensual)');
+  };
+
+  const registrarPert = () => {
+    if(!fP.personaId) return;
+    setPert(prev => [...prev, { id:'p'+Date.now(), sedeId:sede.id, personaId:fP.personaId,
+      ayudas:fP.ayudas, prendas:fP.prendas, lenceria:fP.lenceria, otros:fP.otros, obs:fP.obs,
+      fechaRecibo:hoyISO, estado:'en_custodia', fechaDev:null }]);
+    setFP({ personaId:'', ayudas:'', prendas:'', lenceria:'', otros:'', obs:'' });
+    avisar('Pertenencias registradas en custodia ✓');
+  };
+  const devolver = id => {
+    setPert(prev => prev.map(p => p.id === id ? {...p, estado:'devuelto', fechaDev:hoyISO} : p));
+    avisar('Devolución registrada con fecha de hoy ✓');
+  };
+
+  const nombreDe = id => { const r = residentes.find(x=>x.id===id); return r ? r.nombres + ' ' + r.apellidos : '—'; };
+  const pertsSede = pertenencias.filter(p => p.sedeId === sede.id);
+
+  return (
+    <div>
+      <div className="tabs no-print">
+        <button className={tab==='aseo'?'on':''} onClick={()=>setTab('aseo')}>Aseo y prendas · Sección 1</button>
+        <button className={tab==='pert'?'on':''} onClick={()=>setTab('pert')}>Pertenencias ingreso · Sección 4</button>
+        <button className="soon" tabIndex="-1">Lavandería · Sección 3 (fase 2)</button>
+        <button className="soon" tabIndex="-1">Decomisados · Sección 2 (fase 2)</button>
+      </div>
+
+      {tab === 'aseo' && (
+        <div>
+          <div className="topbar no-print" style={{marginBottom:'14px'}}>
+            <div className="titulo"><p>Los límites del instructivo SDIS se validan automáticamente: imposible exceder sin que el sistema lo frene.</p></div>
+            <div className="spacer"></div>
+            <button className="btn btn-tinta" onClick={() => window.print()}>⬇ Exportar entregas del mes (PDF)</button>
+          </div>
+          <div className="dos-col">
+            <div className="panel no-print">
+              <div className="panel-head"><h3>Registrar entrega</h3></div>
+              <div className="panel-body">
+                <div className="form-grid" style={{gridTemplateColumns:'1fr',gap:'10px'}}>
+                  <div className="field" style={{marginBottom:0}}><label>Persona mayor</label>
+                    <select value={fE.personaId} onChange={e=>setFE(p=>({...p,personaId:e.target.value}))}>
+                      <option value="">Seleccionar…</option>
+                      {residentes.map(r => <option key={r.id} value={r.id}>{r.nombres} {r.apellidos}</option>)}
+                    </select></div>
+                  <div className="field" style={{marginBottom:0}}><label>Elemento</label>
+                    <select value={fE.elemento} onChange={e=>setFE(p=>({...p,elemento:e.target.value}))}>
+                      {ELEMENTOS.map(el => <option key={el.key} value={el.key}>{el.nombre}</option>)}
+                    </select></div>
+                  <div style={{display:'flex',gap:'8px',flexWrap:'wrap'}}>
+                    <span className="lim-chip">{elSel.regla}</span>
+                    {elSel.limP !== null && fE.personaId &&
+                      <span className={'lim-chip ' + (yaPersona >= elSel.limP ? 'lleno' : '')}>Este mes (persona): {yaPersona}/{elSel.limP}</span>}
+                    {elSel.limU !== null &&
+                      <span className={'lim-chip ' + (yaUnidad >= elSel.limU ? 'lleno' : yaUnidad >= elSel.limU - 2 ? 'cerca' : '')}>Este mes (unidad): {yaUnidad}/{elSel.limU}</span>}
+                  </div>
+                  <div className="field" style={{marginBottom:0}}><label>Cantidad</label>
+                    <input type="number" min="1" value={fE.cantidad} onChange={e=>setFE(p=>({...p,cantidad:e.target.value}))} /></div>
+                  <div className="field" style={{marginBottom:0}}><label>Observaciones</label>
+                    <input value={fE.obs} onChange={e=>setFE(p=>({...p,obs:e.target.value}))} placeholder="Novedad de la entrega (opcional)" /></div>
+                  {(excedeP || excedeU) && (
+                    <div className="nota-aviso rojo"><span aria-hidden="true">⛔</span>
+                      <span>Esta entrega <b>excede el límite SDIS</b> {excedeP ? 'mensual por persona' : 'mensual por unidad operativa'}. La interventoría marcaría hallazgo: el sistema la bloquea.</span></div>
+                  )}
+                  <button className="btn btn-primary" disabled={!fE.personaId || excedeP || excedeU} onClick={registrarEntrega}>Registrar entrega</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="panel no-print">
+              <div className="panel-head"><h3>Entregas de {new Date().toLocaleDateString('es-CO',{month:'long', year:'numeric'})}</h3></div>
+              <div className="panel-body">
+                {entregasMes.length === 0 ? <div className="vacio">Sin entregas este mes.</div> :
+                <table className="op">
+                  <thead><tr><th>Fecha</th><th>Persona</th><th>Elemento</th><th>Cant.</th><th>Entregó</th></tr></thead>
+                  <tbody>{[...entregasMes].reverse().map(e => (
+                    <tr key={e.id}><td className="mono">{e.fecha.slice(8)}/{e.fecha.slice(5,7)}</td>
+                      <td>{nombreDe(e.personaId)}</td><td>{EL_LBL[e.elemento]}</td>
+                      <td className="mono">{e.cantidad}</td><td style={{fontSize:'12.5px'}}>{e.quien}</td></tr>
+                  ))}</tbody>
+                </table>}
+              </div>
+            </div>
+          </div>
+
+          <div id="zona-print" className="print-only">
+            <div className="sdis">
+              <SdisHead titulo="SECCIÓN 1. REGISTRO ENTREGA DE ELEMENTOS ASEO Y PRENDAS A BENEFICIARIOS DEL SERVICIO — CONSOLIDADO DEL MES" sede={sede} jornada={null} />
+              <table className="sdis-tabla">
+                <thead><tr><th>Fecha entrega</th><th>Documento</th><th>Nombres y apellidos</th><th>Elemento</th><th>Cantidad</th><th>Quien entrega</th><th>Observaciones</th></tr></thead>
+                <tbody>{entregasMes.map(e => {
+                  const r = residentes.find(x=>x.id===e.personaId) || {};
+                  return <tr key={e.id}><td>{e.fecha.split('-').reverse().join('/')}</td><td>{r.doc}</td>
+                    <td>{r.nombres} {r.apellidos}</td><td>{EL_LBL[e.elemento]}</td><td>{e.cantidad}</td><td>{e.quien}</td><td>{e.obs}</td></tr>;
+                })}</tbody>
+              </table>
+              <LeySdis />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'pert' && (
+        <div className="dos-col">
+          <div className="panel">
+            <div className="panel-head"><h3>Registrar pertenencias al ingreso</h3></div>
+            <div className="panel-body">
+              <div className="form-grid" style={{gridTemplateColumns:'1fr',gap:'10px'}}>
+                <div className="field" style={{marginBottom:0}}><label>Persona mayor</label>
+                  <select value={fP.personaId} onChange={e=>setFP(p=>({...p,personaId:e.target.value}))}>
+                    <option value="">Seleccionar…</option>
+                    {residentes.map(r => <option key={r.id} value={r.id}>{r.nombres} {r.apellidos}</option>)}
+                  </select></div>
+                <div className="field" style={{marginBottom:0}}><label>Ayudas técnicas</label>
+                  <input value={fP.ayudas} onChange={e=>setFP(p=>({...p,ayudas:e.target.value}))} placeholder="Bastón (1), caminador (1)…" /></div>
+                <div className="field" style={{marginBottom:0}}><label>Prendas de vestir</label>
+                  <input value={fP.prendas} onChange={e=>setFP(p=>({...p,prendas:e.target.value}))} placeholder="3 PN, 2 MD, 1 CMS…" /></div>
+                <div className="field" style={{marginBottom:0}}><label>Lencería</label>
+                  <input value={fP.lenceria} onChange={e=>setFP(p=>({...p,lenceria:e.target.value}))} /></div>
+                <div className="field" style={{marginBottom:0}}><label>Otros elementos</label>
+                  <input value={fP.otros} onChange={e=>setFP(p=>({...p,otros:e.target.value}))} placeholder="Celular, reloj, radio…" /></div>
+                <div className="field" style={{marginBottom:0}}><label>Observación (estado, objetos de valor)</label>
+                  <input value={fP.obs} onChange={e=>setFP(p=>({...p,obs:e.target.value}))} /></div>
+                <button className="btn btn-primary" disabled={!fP.personaId} onClick={registrarPert}>Registrar en custodia</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head"><h3>Custodia y devoluciones</h3></div>
+            <div className="panel-body">
+              {pertsSede.length === 0 ? <div className="vacio">Sin registros de pertenencias.</div> :
+              pertsSede.map(p => (
+                <div key={p.id} style={{padding:'12px 0',borderBottom:'1px dashed var(--linea)'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'10px',flexWrap:'wrap'}}>
+                    <b>{nombreDe(p.personaId)}</b>
+                    <span className={'estado-pill ' + (p.estado === 'en_custodia' ? 'v' : 'ok')}>
+                      {p.estado === 'en_custodia' ? 'En custodia' : 'Devuelto ' + p.fechaDev.split('-').reverse().join('/')}</span>
+                    {p.estado === 'en_custodia' &&
+                      <button className="mini-btn" style={{marginLeft:'auto'}} onClick={() => devolver(p.id)}>Registrar devolución</button>}
+                  </div>
+                  <div style={{fontSize:'12.5px',color:'var(--texto-2)',marginTop:'5px'}}>
+                    {p.ayudas && <span>Ayudas: {p.ayudas} · </span>}{p.prendas && <span>Prendas: {p.prendas} · </span>}
+                    {p.lenceria && <span>Lencería: {p.lenceria} · </span>}{p.otros && <span>Otros: {p.otros}</span>}
+                  </div>
+                  {p.obs && <div style={{fontSize:'12.5px',marginTop:'3px'}}>Obs: {p.obs}</div>}
+                  <div style={{fontSize:'11.5px',color:'var(--texto-2)',marginTop:'3px'}}>Recibo: {p.fechaRecibo.split('-').reverse().join('/')}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ============================ REGISTRO SDIS S6 ============================ */
+const RegistroSdis = ({ sede, notas, residentes, jornada }) => {
+  const filas = notas.filter(n => n.fecha === hoyISO && n.sedeId === sede.id && n.jornada === jornada);
+  const nombreDe = id => { const r = residentes.find(x=>x.id===id); return r ? r.nombres + ' ' + r.apellidos + ' (' + r.doc + '): ' : ''; };
+  const signosTxt = s => {
+    const parts = [];
+    if(s.ta_s) parts.push('TA ' + s.ta_s + '/' + (s.ta_d ?? '—') + ' mmHg');
+    if(s.fc) parts.push('FC ' + s.fc + ' lpm'); if(s.fr) parts.push('FR ' + s.fr + ' rpm');
+    if(s.temp) parts.push('T° ' + s.temp + '°C'); if(s.spo2) parts.push('SpO₂ ' + s.spo2 + '%');
+    if(s.glu) parts.push('Glu ' + s.glu + ' mg/dL'); if(s.dolor !== undefined && s.dolor !== null && s.dolor !== '') parts.push('Dolor ' + s.dolor + '/10');
+    return parts.length ? ' · Signos: ' + parts.join(', ') : '';
+  };
+  return (
+    <div>
+      <div className="topbar no-print" style={{marginBottom:'16px'}}>
+        <div className="titulo"><p>Vista idéntica al formato oficial. El PDF es lo que pide la interventoría.</p></div>
+        <div className="spacer"></div>
+        <button className="btn btn-tinta" onClick={() => window.print()}>⬇ Exportar PDF para interventoría</button>
+      </div>
+      <div id="zona-print">
+        <div className="sdis">
+          <SdisHead titulo="SECCIÓN 6. REGISTRO DIARIO NOVEDADES SALUD" sede={sede} jornada={jornada} />
+          <table className="sdis-tabla">
+            <thead><tr>
+              <th style={{width:'90px'}}>Fecha</th><th style={{width:'64px'}}>Hora</th>
+              <th>Descripción novedades de salud</th>
+              <th style={{width:'230px'}}>Nombre, identificación y firma</th>
+            </tr></thead>
+            <tbody>
+              {filas.length === 0 && <tr><td colSpan="4" style={{textAlign:'center',color:'#777',padding:'18px'}}>Sin registros en esta jornada.</td></tr>}
+              {filas.map(n => (
+                <tr key={n.id} className={n.vigente ? '' : 'anulada'}>
+                  <td className="mono">{n.fecha.split('-').reverse().join('-')}</td>
+                  <td className="mono">{n.hora}</td>
+                  <td>{nombreDe(n.personaId)}{n.descripcion}{signosTxt(n.signos)}</td>
+                  <td>{n.autor}<br/><span style={{color:'#777'}}>{n.cargo} · Firma electrónica verificada</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <LeySdis />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ============================ CONFIGURACIÓN ============================ */
+/* ============================ PERFIL ============================ */
+const PerfilUsuario = ({ sede, jornada, volver }) => (
+  <div className="panel" style={{maxWidth:'720px'}}>
+    <div className="panel-head"><h3>Configuraci?n de perfil</h3></div>
+    <div className="panel-body">
+      <div className="form-grid"><div className="field full"><label>Nombre</label><input value={USUARIA.nombre} disabled /></div><div className="field"><label>Rol</label><input value={USUARIA.cargo} disabled /></div><div className="field"><label>Unidad operativa</label><input value={sede.nombre} disabled /></div><div className="field"><label>Jornada activa</label><input value={jornada === 'dia' ? 'Jornada d?a' : 'Jornada noche'} disabled /></div></div>
+      <div className="nota-aviso"><span>?</span><span>La cuenta superadministradora se conserva protegida y no se puede modificar desde Gesti?n de usuarios.</span></div>
+      <button className="btn btn-ghost" style={{marginTop:'16px'}} onClick={volver}>Volver</button>
+    </div>
+  </div>
+);
+const Config = ({ sedes, setSedes, sede, config, setConfig, avisar }) => {
+  const [nuevaSede, setNuevaSede] = useState({nombre:'',cupos:40});
+  const toggle = k => {
+    setConfig(prev => ({...prev, [sede.id]: {...prev[sede.id], [k]: !prev[sede.id][k]}}));
+    avisar('Configuración guardada para ' + sede.nombre + ' ✓');
+  };
+  const agregarSede = () => {
+    if(!nuevaSede.nombre.trim()) return;
+    const id = 'sede_' + Date.now();
+    setSedes(prev => [...prev,{id,nombre:nuevaSede.nombre.trim(),cupos:Number(nuevaSede.cupos) || 30}]);
+    setConfig(prev => ({...prev,[id]:{glu:true,dolor:true}}));
+    setNuevaSede({nombre:'',cupos:40});
+    avisar('Nueva unidad operativa agregada ✓');
+  };
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:'20px',maxWidth:'720px'}}><div className="panel">
+      <div className="panel-head"><h3>Parámetros clínicos · {sede.nombre}</h3></div>
+      <div className="panel-body">
+        <div className="switch-row">
+          <div className="info"><b>Glucometría</b>
+            <p>Algunas unidades no realizan este examen. Al desactivarla, el campo desaparece del formulario de notas y la ficha muestra «No aplica». Las notas históricas con glucometría no se tocan.</p></div>
+          <button className={'switch' + (config.glu ? ' on' : '')} role="switch" aria-checked={config.glu} aria-label="Glucometría" onClick={() => toggle('glu')}></button>
+        </div>
+        <div className="switch-row">
+          <div className="info"><b>Escala de dolor (0–10)</b>
+            <p>Valoración subjetiva del dolor en cada nota. Útil para seguimiento de manejo del dolor en personas con condiciones crónicas.</p></div>
+          <button className={'switch' + (config.dolor ? ' on' : '')} role="switch" aria-checked={config.dolor} aria-label="Escala de dolor" onClick={() => toggle('dolor')}></button>
+        </div>
+        <div className="nota-aviso">
+          <span aria-hidden="true">🏥</span>
+          <span>Cada unidad operativa configura sus propios parámetros: lo que aplica en un centro de protección no siempre aplica en un hogar gerontológico privado. Por eso el producto escala a cualquier institución.</span>
+        </div>
+      </div>
+    </div><div className="panel"><div className="panel-head"><h3>Agregar unidad operativa / sede</h3></div><div className="panel-body"><p className="sub" style={{marginBottom:'14px'}}>Registra una nueva sede con parámetros clínicos independientes.</p><div className="form-grid" style={{gridTemplateColumns:'1fr 120px',gap:'10px'}}><div className="field" style={{marginBottom:0}}><label>Nombre de la sede</label><input value={nuevaSede.nombre} onChange={e=>setNuevaSede(p=>({...p,nombre:e.target.value}))} placeholder="Ej: Sede Suba" /></div><div className="field" style={{marginBottom:0}}><label>Cupos</label><input type="number" min="1" value={nuevaSede.cupos} onChange={e=>setNuevaSede(p=>({...p,cupos:e.target.value}))} /></div></div><button className="btn btn-primary" style={{marginTop:'12px'}} disabled={!nuevaSede.nombre.trim()} onClick={agregarSede}>+ Registrar nueva sede</button><div style={{marginTop:'18px',borderTop:'1px dashed var(--linea)',paddingTop:'14px'}}><b>Unidades operativas registradas ({sedes.length})</b><div style={{display:'flex',gap:'8px',flexWrap:'wrap',marginTop:'8px'}}>{sedes.map(s=><span key={s.id} className="lim-chip">🏢 {s.nombre} ({s.cupos} cupos)</span>)}</div></div></div></div></div>
+  );
+};
+
+/* ============================ GESTIÓN DE USUARIOS ============================ */
+const GestionUsuarios = ({ usuarios, setUsuarios, avisar }) => {
+  const [fInv, setFInv] = useState({nombre:'',email:'',rolId:'auxiliar',jornadaPermitida:'ambos'});
+  const actualizar = (id, campo, valor) => {
+    setUsuarios(prev => prev.map(u => u.id === id ? {...u, [campo]:valor} : u));
+    avisar('Usuario actualizado ✓');
+  };
+  const eliminar = id => {
+    const u = usuarios.find(x => x.id === id);
+    if(u.id === USUARIA.id){ avisar('No puedes eliminar la cuenta activa.'); return; }
+    if(window.confirm(`¿Eliminar a ${u.nombre}? Esta acción no se puede deshacer en la demo.`)){
+      setUsuarios(prev => prev.filter(x => x.id !== id));
+      avisar('Usuario eliminado ✓');
+    }
+  };
+  const invitar = () => {
+    if(!fInv.nombre.trim() || !fInv.email.trim()) return;
+    setUsuarios(prev => [...prev,{id:'u'+Date.now(),nombre:fInv.nombre.trim(),email:fInv.email.trim(),rolId:fInv.rolId,jornadaPermitida:fInv.jornadaPermitida,estado:'activo'}]);
+    setFInv({nombre:'',email:'',rolId:'auxiliar',jornadaPermitida:'ambos'});
+    avisar('Invitación creada y cuenta activada ✓');
+  };
+  const pendientes = usuarios.filter(u => u.estado === 'pendiente');
+  return <div className="panel">
+    <div className="panel-head"><h3>Gestión de usuarios</h3></div>
+    <div className="panel-body">
+      <div className="dos-col" style={{marginBottom:'24px'}}>
+        <div className="panel"><div className="panel-head"><h3>Crear invitación de cuenta</h3></div><div className="panel-body"><div className="form-grid" style={{gridTemplateColumns:'1fr',gap:'10px'}}>
+          <div className="field" style={{marginBottom:0}}><label>Nombre completo</label><input value={fInv.nombre} onChange={e=>setFInv(p=>({...p,nombre:e.target.value}))} placeholder="Nombres y apellidos" /></div>
+          <div className="field" style={{marginBottom:0}}><label>Correo institucional</label><input type="email" value={fInv.email} onChange={e=>setFInv(p=>({...p,email:e.target.value}))} placeholder="correo@institucion.org" /></div>
+          <div className="user-actions"><select value={fInv.rolId} onChange={e=>setFInv(p=>({...p,rolId:e.target.value}))}>{ROLES.map(r=><option key={r.id} value={r.id}>{r.nombre}</option>)}</select><select value={fInv.jornadaPermitida} onChange={e=>setFInv(p=>({...p,jornadaPermitida:e.target.value}))}><option value="ambos">Día y noche</option><option value="dia">Solo día</option><option value="noche">Solo noche</option></select></div>
+          <button className="btn btn-primary" disabled={!fInv.nombre.trim() || !fInv.email.trim()} onClick={invitar}>Generar invitación</button>
+        </div></div></div>
+        <div className="panel"><div className="panel-head"><h3>Solicitudes pendientes de aprobación</h3></div><div className="panel-body">{pendientes.length === 0 ? <div className="vacio">No hay solicitudes pendientes.</div> : pendientes.map(u=><div key={u.id} style={{padding:'10px 0',borderBottom:'1px dashed var(--linea)'}}><b>{u.nombre}</b><br/><span style={{fontSize:'12px',color:'var(--texto-2)'}}>{u.email}</span><div className="user-actions" style={{marginTop:'8px'}}><select value={u.rolId} onChange={e=>actualizar(u.id,'rolId',e.target.value)}>{ROLES.map(r=><option key={r.id} value={r.id}>{r.nombre}</option>)}</select><select value={u.jornadaPermitida} onChange={e=>actualizar(u.id,'jornadaPermitida',e.target.value)}><option value="ambos">Día y noche</option><option value="dia">Solo día</option><option value="noche">Solo noche</option></select><button className="mini-btn" onClick={()=>actualizar(u.id,'estado','activo')}>Aprobar y activar</button></div></div>)}</div></div>
+      </div>
+      <p className="sub" style={{marginBottom:'14px'}}>Actualiza rol, jornada y estado desde cada perfil. La eliminación requiere confirmación.</p>
+      <table className="op"><thead><tr><th>Usuario</th><th>Accesos</th><th>Acción</th></tr></thead><tbody>
+        {usuarios.map(u => <tr key={u.id}><td><b>{u.nombre}</b><br/><span style={{fontSize:'12px',color:'var(--texto-2)'}}>{u.email}</span></td>
+          <td><div className="user-actions">
+            <select disabled={u.id === USUARIA.id} aria-label={'Rol de ' + u.nombre} value={u.rolId} onChange={e=>actualizar(u.id,'rolId',e.target.value)}>{ROLES.map(r=><option key={r.id} value={r.id}>{r.nombre}</option>)}</select>
+            <select disabled={u.id === USUARIA.id} aria-label={'Jornada de ' + u.nombre} value={u.jornadaPermitida} onChange={e=>actualizar(u.id,'jornadaPermitida',e.target.value)}><option value="ambos">Día y noche</option><option value="dia">Solo día</option><option value="noche">Solo noche</option></select>
+            <select disabled={u.id === USUARIA.id} aria-label={'Estado de ' + u.nombre} value={u.estado} onChange={e=>actualizar(u.id,'estado',e.target.value)}><option value="activo">Activo (en turno)</option><option value="inactivo">Inactivo (fuera de turno)</option><option value="pendiente">Pendiente</option></select>
+          </div></td>
+          <td><button className="mini-btn" disabled={u.id === USUARIA.id} onClick={()=>eliminar(u.id)}>Eliminar</button></td></tr>)}
+      </tbody></table>
+    </div>
+  </div>;
+};
+
+/* ============================ APP ============================ */
+const App = () => {
+  const [pantalla, setPantalla] = useState('login');
+  const [view, setView] = useState('panel');
+  const [sedes, setSedes] = useState(SEDES);
+  const [sedeId, setSedeId] = useState('cund');
+  const [jornada, setJornada] = useState(new Date().getHours() >= 6 && new Date().getHours() < 18 ? 'dia' : 'noche');
+  const [residentes, setResidentes] = useState(RESIDENTES_INI);
+  const [notas, setNotas] = useState(NOTAS_INI);
+  const [alertas, setAlertas] = useState(ALERTAS_INI);
+  const [asistencias, setAsistencias] = useState(ASIST_INI);
+  const [actividades, setActividades] = useState(ACTS_INI);
+  const [entregas, setEntregas] = useState(ENTREGAS_INI);
+  const [pertenencias, setPertenencias] = useState(PERTENENCIAS_INI);
+  const [configSedes, setConfigSedes] = useState({ cund:{glu:true,dolor:true}, samp:{glu:false,dolor:true}, favo:{glu:true,dolor:false} });
+  const [usuarios, setUsuarios] = useState(USUARIOS_BD);
+  const [fichaId, setFichaId] = useState(null);
+  const [preselNota, setPreselNota] = useState('');
+  const [modal, setModal] = useState(null); // 'nuevo' | 'import'
+  const [toast, setToast] = useState(null);
+
+  const sede = sedes.find(s => s.id === sedeId) || sedes[0];
+  const config = configSedes[sedeId];
+  const resSede = residentes.filter(r => r.sedeId === sedeId);
+  const alertasActivas = alertas.filter(a => a.estado === 'activa' && a.sedeId === sedeId).length;
+
+  const avisar = msg => { setToast(msg); setTimeout(() => setToast(null), 3400); };
+
+  const atender = id => {
+    setAlertas(prev => prev.map(a => a.id === id ? {...a, estado:'atendida'} : a));
+    avisar('Alerta marcada como atendida ✓');
+  };
+
+  const guardarNota = ({ personaId, tipo, descripcion, signos }) => {
+    const hora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',hour12:false});
+    const nueva = { id:'n' + (++SEQ), sedeId, personaId, tipo, jornada, fecha:hoyISO, hora,
+      descripcion, signos, autor: USUARIA.nombre + ' — ' + USUARIA.doc, cargo:USUARIA.cargo, vigente:true };
+    setNotas(prev => [...prev, nueva]);
+    const nuevas = [];
+    Object.keys(signos).forEach(k => {
+      if(k === 'dolor') return;
+      const e = estadoSigno(k, signos[k]);
+      if(e === 'c' || e === 'v') nuevas.push({ id:'a' + (++SEQ), sedeId, personaId, parametro:k, valor:signos[k],
+        sev: e === 'c' ? 'critica' : 'vigilancia', estado:'activa', hora });
+    });
+    if(nuevas.length) setAlertas(prev => [...prev, ...nuevas]);
+    if(personaId) setResidentes(prev => prev.map(r => r.id === personaId ? {...r, signos:{...r.signos, ...signos}} : r));
+    avisar(nuevas.some(a=>a.sev==='critica') ? '⚠ Nota guardada · Alerta CRÍTICA generada y notificada'
+      : nuevas.length ? 'Nota guardada · Alerta de vigilancia generada' : 'Nota guardada y firmada ✓');
+    if(personaId){ setFichaId(personaId); setView('ficha'); } else setView('panel');
+    setPreselNota('');
+  };
+
+  const crearResidente = f => {
+    const doc = f.tipoDoc === 'SIN_DOCUMENTO' ? 'Cód. atención ' + (f.numDoc || 'pendiente') : f.tipoDoc + ' ' + (f.numDoc || 's/n');
+    setResidentes(prev => [...prev, { id:'r' + Date.now(), sedeId, nombres:f.nombres.trim(), apellidos:f.apellidos.trim(),
+      doc, edad: f.edad ? Number(f.edad) : null, dx: f.dx || 'Sin registrar', signos:{}, hist:{} }]);
+    setModal(null);
+    avisar('Persona registrada en ' + sede.nombre + ' ✓');
+  };
+
+  const importarResidentes = lista => {
+    setResidentes(prev => [...prev, ...lista.map((v,i) => ({ id:'r' + Date.now() + '_' + i, sedeId,
+      nombres:v.nombres, apellidos:v.apellidos, doc:v.doc, edad:v.edad, dx:v.dx, signos:{}, hist:{} }))]);
+    setModal(null);
+    avisar(lista.length + ' residente(s) importados a ' + sede.nombre + ' ✓');
+  };
+
+  const solicitarCuenta = ({nombre,email}) => {
+    setUsuarios(prev => [...prev,{id:'u'+Date.now(),nombre,email,rolId:'auxiliar',jornadaPermitida:'ambos',estado:'pendiente'}]);
+    avisar('Solicitud enviada ✓ Pendiente de aprobación.');
+  };
+
+  if(pantalla === 'login') return <Login onEnter={() => setPantalla('app')} onSolicitarCuenta={solicitarCuenta} />;
+
+  const TITULOS = {
+    panel:['Panel de la jornada', sede.nombre],
+    residentes:['Personas mayores', resSede.length + ' activas en ' + sede.nombre],
+    nueva:['Nueva nota de salud','Se firma electrónicamente y queda inalterable'],
+    asistencia:['Asistencia y actividades','FOR-PSS-729 · Sección 5'],
+    dotacion:['Dotación y elementos','FOR-PSS-729 · Secciones 1 y 4'],
+    sdis:['Registro Diario Novedades Salud','FOR-PSS-729 · Sección 6 · Versión 1'],
+    config:['Configuración de la unidad','Parámetros clínicos por sede'],
+    usuarios:['Gestión de usuarios','Roles, jornadas y estados de acceso'],
+    ficha:['Ficha de la persona mayor','Bitácora completa y tendencias'],
+  };
+  const [tituloH, tituloS] = TITULOS[view] || TITULOS.panel;
+  const fichaRes = residentes.find(r => r.id === fichaId);
+
+  return (
+    <div className="shell">
+      <aside className="sidebar no-print">
+        <Logo dark />
+        <div className="sede-select" aria-label="Selector de unidad operativa">
+          <label htmlFor="sel-sede">Unidad operativa</label>
+          <select id="sel-sede" value={sedeId} onChange={e=>{ setSedeId(e.target.value); setView('panel'); }}>
+            {sedes.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+          </select>
+        </div>
+        <nav className="nav" aria-label="Navegación principal">
+          <button className={view==='panel'?'active':''} onClick={()=>setView('panel')}>◳ Panel
+            {alertasActivas > 0 && <span className="badge">{alertasActivas}</span>}</button>
+          <button className={view==='residentes'||view==='ficha'?'active':''} onClick={()=>setView('residentes')}>♥ Residentes</button>
+          <button className={view==='nueva'?'active':''} onClick={()=>{ setPreselNota(''); setView('nueva'); }}>＋ Nueva nota</button>
+          <button className={view==='asistencia'?'active':''} onClick={()=>setView('asistencia')}>☑ Asistencia y actividades</button>
+          <button className={view==='dotacion'?'active':''} onClick={()=>setView('dotacion')}>⛨ Dotación y elementos</button>
+          <button className={view==='sdis'?'active':''} onClick={()=>setView('sdis')}>▤ Registro SDIS</button>
+          <button className={view==='config'?'active':''} onClick={()=>setView('config')}>⚙ Configuración</button>
+          {USUARIA.rolId === 'superadmin' && <button className={view==='usuarios'?'active':''} onClick={()=>setView('usuarios')}>👥 Gestión de usuarios</button>}
+        </nav>
+        <div className="sidebar-foot">
+          Fundación Construyendo Futuro ONG<br/>NIT 900310195-2 · Plan Pro<br/>
+          Datos protegidos · Ley 1581 de 2012
+        </div>
+      </aside>
+
+      <main className="main">
+        <div className="topbar no-print">
+          <div className="titulo"><h2>{tituloH}</h2><p>{tituloS} · {fmtFecha(hoyISO)}</p></div>
+          <div className="spacer"></div>
+          <div className="jornada-pill" role="group" aria-label="Jornada de atención">
+            <button className={jornada==='dia'?'on':''} onClick={()=>setJornada('dia')}>☀ Día</button>
+            <button className={jornada==='noche'?'on':''} onClick={()=>setJornada('noche')}>☾ Noche</button>
+          </div>
+          <button className="user-chip" onClick={()=>setView('perfil')} aria-label="Abrir configuraci?n de perfil">
+            <div className="avatar" aria-hidden="true">CR</div>
+            <div><div className="nom">{USUARIA.nombre}</div><div className="rol">{USUARIA.cargo}</div></div>
+          </button>
+        </div>
+
+        {view === 'panel' && <Dashboard sede={sede} residentes={resSede} notas={notas} alertas={alertas}
+          asistencias={asistencias} onAtender={atender} jornada={jornada} />}
+        {view === 'residentes' && <Residentes residentes={resSede}
+          irFicha={id=>{setFichaId(id);setView('ficha');}} abrirNuevo={()=>setModal('nuevo')} abrirImport={()=>setModal('import')} />}
+        {view === 'ficha' && fichaRes && <Ficha res={fichaRes} notas={notas} config={configSedes[fichaRes.sedeId]}
+          volver={()=>setView('residentes')} nuevaNotaPara={id=>{ setPreselNota(id); setView('nueva'); }} />}
+        {view === 'nueva' && <NuevaNota sede={sede} residentes={resSede} jornada={jornada} presel={preselNota} config={config} onGuardar={guardarNota} />}
+        {view === 'asistencia' && <Asistencia sede={sede} residentes={resSede} asistencias={asistencias} setAsist={setAsistencias}
+          actividades={actividades} setActs={setActividades} jornada={jornada} avisar={avisar} />}
+        {view === 'dotacion' && <Dotacion sede={sede} residentes={resSede} entregas={entregas} setEntregas={setEntregas}
+          pertenencias={pertenencias} setPert={setPertenencias} avisar={avisar} />}
+        {view === 'sdis' && <RegistroSdis sede={sede} notas={notas} residentes={resSede} jornada={jornada} />}
+        {view === 'config' && <Config sedes={sedes} setSedes={setSedes} sede={sede} config={config} setConfig={setConfigSedes} avisar={avisar} />}
+        {view === 'perfil' && <PerfilUsuario sede={sede} jornada={jornada} volver={()=>setView('panel')} />}
+        {view === 'usuarios' && <GestionUsuarios usuarios={usuarios} setUsuarios={setUsuarios} avisar={avisar} />}
+      </main>
+
+      {modal === 'nuevo' && <NuevoResidente sede={sede} onCrear={crearResidente} cerrar={()=>setModal(null)} />}
+      {modal === 'import' && <Importador sede={sede} onImportar={importarResidentes} cerrar={()=>setModal(null)} />}
+      {toast && <div className="toast" role="status">{toast}</div>}
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
