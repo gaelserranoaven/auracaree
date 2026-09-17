@@ -2,20 +2,18 @@
 
 ## Current State (v3.4)
 
-**Frontend:** HTML5 + CSS3 + Vanilla JavaScript  
-**Deployment:** Local browser (file-based)  
-**Storage:** None (stateless UI)  
-**Users:** Single-user interface
+**Frontend:** React 18 + Babel standalone, todo inline en un único HTML (sin build step)
+**Backend:** Supabase (Postgres, funciones RPC, Row Level Security)
+**Deployment:** Local browser (file-based), datos persistidos en la nube
+**Storage:** Postgres real vía Supabase (proyecto `auracare`)
+**Users:** Multi-usuario con roles (RBAC), autenticación por RPC con contraseñas hasheadas (bcrypt)
 
 ### Directory Structure
 
 ```
 auracare/
 ├── src/
-│   ├── index.html           (Main app v3.4)
-│   ├── styles.css           (Centralized styling)
-│   ├── main.js              (Client-side logic)
-│   └── utils.js             (Utilities - future)
+│   └── index.html           (Toda la app: UI, lógica y conexión a Supabase)
 │
 ├── docs/
 │   ├── CHANGELOG.md         (Release history)
@@ -127,11 +125,11 @@ chore: update dependencies
 
 ## Known Limitations
 
-1. **State:** No persistence between page reloads
-2. **Scale:** Single-user only
-3. **Security:** No authentication
-4. **Accessibility:** Partial WCAG compliance
-5. **Mobile:** Not optimized for mobile screens
+1. **RLS de demo:** las tablas operativas (no `usuarios`) están abiertas a la clave pública `anon` — correcto para una demo/prototipo, no para producción con datos reales de pacientes. Hace falta Supabase Auth + políticas por rol antes de un despliegue real.
+2. **Sin sesiones reales:** el login es una función RPC propia, no Supabase Auth — no hay JWT de sesión, tokens de refresco ni expiración.
+3. **Accessibility:** Partial WCAG compliance
+4. **Mobile:** Not optimized for mobile screens
+5. **Sin build step:** Babel transpila en cada carga de página (aceptable para demo, no para producción)
 
 ---
 

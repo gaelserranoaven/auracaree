@@ -27,10 +27,8 @@ http-server
 
 ```
 auracare/
-├── src/                    # Application code
-│   ├── index.html         # Main app (v3.4)
-│   ├── styles.css         # Central stylesheet
-│   └── main.js            # JavaScript logic
+├── src/
+│   └── index.html         # Toda la app (React + Babel-en-navegador, sin build step)
 │
 ├── docs/                  # Documentation
 │   ├── CHANGELOG.md       # Release history
@@ -45,6 +43,16 @@ auracare/
 ├── README.md              # This file
 └── .gitignore            # Git rules
 ```
+
+> `src/main.js` y `src/styles.css` existieron como esqueleto en versiones previas pero nunca fueron usados por `index.html` (todo el CSS/JS vive inline en ese archivo) — se eliminaron en la limpieza de v3.4 para evitar confusión.
+
+### Backend (Supabase)
+
+Desde esta revisión, AuraCare persiste datos reales en Supabase (proyecto `auracare`, Postgres) en vez de solo estado en memoria:
+- Tablas: `sedes`, `usuarios`, `residentes`, `notas`, `alertas`, `asistencias`, `actividades`, `entregas`, `pertenencias`, `config_sedes`.
+- Autenticación propia vía función RPC `login_usuario` (contraseñas con hash `bcrypt`, nunca en texto plano ni expuestas al cliente).
+- RLS activado en todas las tablas; `usuarios` solo es accesible a través de funciones RPC `SECURITY DEFINER`.
+- Es un esquema de prototipo/demo: las tablas operativas (no `usuarios`) están abiertas a la clave pública `anon` — suficiente para una demo, **no apto para producción con datos reales de pacientes** sin añadir Supabase Auth + políticas RLS por rol.
 
 ---
 
@@ -128,16 +136,18 @@ git tag -a v3.5 -m "Release v3.5"
 - [x] UI/UX foundation
 - [x] Git versioning
 - [x] Documentation structure
+- [x] Backend & base de datos real (Supabase/Postgres)
+- [x] Autenticación con contraseñas hasheadas
+- [x] Persistencia real de datos (ya no se pierden al recargar)
 
 ### Short-term (v4.0 - 2-3 weeks)
-- [ ] Backend API (Node.js/Express)
-- [ ] Database (PostgreSQL)
-- [ ] User authentication
-- [ ] Persistent data storage
+- [ ] Supabase Auth completo (sesiones/JWT) en vez de RPC de login propio
+- [ ] Políticas RLS por rol (hoy son abiertas a nivel demo)
+- [ ] Migrar de CDN+Babel-en-navegador a un build step (Vite)
 
 ### Medium-term (v4.1+ - 1-2 months)
-- [ ] Multi-user support
-- [ ] Real-time notifications
+- [ ] Multi-user support (ya persiste, falta tiempo real)
+- [ ] Real-time notifications (Supabase Realtime)
 - [ ] Advanced scheduling
 - [ ] Mobile responsive design
 
@@ -153,9 +163,9 @@ git tag -a v3.5 -m "Release v3.5"
 
 | Layer | Technology | Status |
 |-------|-----------|--------|
-| Frontend | HTML5, CSS3, Vanilla JS | ✅ Active |
-| Backend | Node.js/Express | 🔄 Planned |
-| Database | PostgreSQL | 🔄 Planned |
+| Frontend | React 18 + Babel standalone (CDN, sin build step) | ✅ Active |
+| Backend | Supabase (Postgres + RPC + RLS) | ✅ Active |
+| Database | PostgreSQL (Supabase) | ✅ Active |
 | DevOps | Docker, Git | 🔄 Planned |
 
 ---
