@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co;" />
 <title>AuraCare v3.4 · Registro de cuidado para centros de protección & Notaría Médica</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -11,6 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
     --tinta:#0E3A5D; --tinta-2:#16507C;
@@ -407,6 +408,11 @@
 <script type="text/babel" data-presets="env,react">
 const { useState, useEffect, useRef } = React;
 
+/* ============================ CONEXIÓN SUPABASE (PERSISTENCIA REAL) ============================ */
+const SUPABASE_URL = 'https://ohzptabssphpclcadvrj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_jiLclEt8YD7jwMCcN_dVLA_mklLAQKL';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 /* ============================ MOTOR CRIPTOGRÁFICO DE EXTREMO A EXTREMO (E2EE) ============================ */
 const E2EE = {
   async derivarClave(passphrase, saltHex = 'auracare_salt_2026_v34') {
@@ -481,45 +487,12 @@ function estadoSigno(key, v){
   return 'ok';
 }
 
-/* ============================ BASE DE DATOS INICIAL ============================ */
-const SEDES_INI = [
-  { id:'cund', nombre:'Centro de Atención Cundinamarca', cupos:60 },
-  { id:'samp', nombre:'Sede Samper', cupos:45 },
-  { id:'favo', nombre:'Sede La Favorita', cupos:40 },
-];
-
-const RESIDENTES_INI = [
-  { id:'r1', sedeId:'cund', nombres:'José Gregorio', apellidos:'Martínez Peña', doc:'CC 2.871.443', edad:78, dx:'HTA controlada',
-    signos:{ ta_s:128, ta_d:80, fc:74, fr:16, temp:36.4, spo2:96, glu:104 },
-    hist:{ ta_s:[122,130,126,135,124,131,128], fc:[70,76,72,78,75,73,74], spo2:[95,96,97,95,96,97,96] } },
-  { id:'r2', sedeId:'cund', nombres:'María del Carmen', apellidos:'Rodríguez', doc:'CC 20.114.582', edad:84, dx:'DM2 · HTA',
-    signos:{ ta_s:165, ta_d:95, fc:88, fr:18, temp:36.7, spo2:94, glu:196 },
-    hist:{ ta_s:[150,148,158,152,160,162,165], fc:[82,85,84,90,86,87,88], spo2:[95,94,95,93,94,94,94] } },
-  { id:'r3', sedeId:'cund', nombres:'Luis Alberto', apellidos:'Pineda', doc:'CC 4.512.907', edad:71, dx:'En valoración inicial',
-    signos:{ ta_s:118, ta_d:76, fc:80, fr:17, temp:36.2, spo2:95, glu:null },
-    hist:{ ta_s:[120,116,119,121,117,118,118], fc:[78,82,79,81,80,79,80], spo2:[94,95,95,96,95,94,95] } },
-  { id:'r4', sedeId:'cund', nombres:'Pedro Pablo', apellidos:'Cárdenas', doc:'CC 7.912.330', edad:75, dx:'EPOC · exfumador',
-    signos:{ ta_s:134, ta_d:84, fc:96, fr:23, temp:36.9, spo2:89, glu:112 },
-    hist:{ ta_s:[130,132,131,136,133,135,134], fc:[90,92,94,93,95,94,96], spo2:[93,92,92,91,90,90,89] } },
-];
-
+/* ============================ CONFIGURACIÓN ESTÁTICA DE LA APLICACIÓN ============================ */
+/* Los datos operativos (sedes, residentes, notas, alertas, usuarios, etc.) ya no viven aquí:
+   se cargan y persisten en Supabase — ver conexión `db` y el useEffect de carga inicial en <App>. */
 const hoyISO = new Date().toISOString().slice(0,10);
 const mesActual = hoyISO.slice(0,7);
 const fmtFecha = d => new Date(d + 'T12:00:00').toLocaleDateString('es-CO',{ day:'2-digit', month:'long', year:'numeric' });
-
-let SEQ = 100;
-const NOTAS_INI = [
-  { id:'n1', sedeId:'cund', personaId:null, tipo:'general_jornada', jornada:'dia', fecha:hoyISO, hora:'06:10',
-    descripcion:'Apertura de jornada diurna. Ingresan residentes sin novedad al momento de la autorregulación.',
-    signos:{}, autor:'Claudia Marcela Ríos — CC 52.841.073', cargo:'Auxiliar de Enfermería', vigente:true, e2ee:true, hash:'8f2a991b34c012ef' },
-  { id:'n2', sedeId:'cund', personaId:'r2', tipo:'evolucion', jornada:'dia', fecha:hoyISO, hora:'07:35',
-    descripcion:'Control de signos en ronda de la mañana. Refiere cefalea leve. Control en 2 horas.',
-    signos:{ ta_s:165, ta_d:95, fc:88, temp:36.7, spo2:94, glu:196 }, autor:'Claudia Marcela Ríos — CC 52.841.073', cargo:'Auxiliar de Enfermería', vigente:true, e2ee:true, hash:'4e11fa7a88b90123' },
-];
-
-const ALERTAS_INI = [
-  { id:'a2', sedeId:'cund', personaId:'r2', parametro:'ta_s', valor:165, sev:'vigilancia', estado:'activa', hora:'07:35' },
-];
 
 const TIPOS_NOTA = [
   ['evolucion','Evolución / toma de signos'],['novedad_salud','Novedad de salud'],
@@ -538,32 +511,7 @@ const ELEMENTOS = [
 ];
 const EL_LBL = Object.fromEntries(ELEMENTOS.map(e => [e.key, e.nombre]));
 
-const ENTREGAS_INI = [
-  { id:'e1', sedeId:'cund', personaId:'r1', elemento:'DESODORANTE', cantidad:1, fecha:hoyISO, quien:'Claudia M. Ríos', obs:'' },
-];
-const PERTENENCIAS_INI = [
-  { id:'p1', sedeId:'cund', personaId:'r3', ayudas:'Bastón (1)', prendas:'2 PN, 1 CMS', lenceria:'', otros:'Radio pequeño',
-    obs:'Elementos en estado regular.', fechaRecibo:hoyISO, estado:'en_custodia', fechaDev:null },
-];
-const ACTS_INI = [
-  { id:'ac1', sedeId:'cund', fecha:hoyISO, nombre:'Taller de memoria', linea:'Envejecimiento activo',
-    profesional:'Diana P. Gómez — Gerontóloga', participacion:{ r1:true, r2:true } },
-];
-const ASIST_INI = {
-  ['cund|' + hoyISO + '|r1']:{ estado:'firma', motivo:'' },
-  ['cund|' + hoyISO + '|r2']:{ estado:'firma', motivo:'' },
-};
 const MOTIVOS_NF = ['No sabe firmar','Se niega a firmar','Condición de salud','Otro'];
-
-// Usuarios iniciales del sistema
-const USUARIOS_BD = [
-  { id:'u1', nombre:'Claudia Marcela Ríos', email:'claudia.rios@construyendofuturo.org.co', clave:'Auxiliar2026!', rolId:'auxiliar', sedeId:'cund', jornadaPermitida:'ambos', estado:'activo' },
-  { id:'u2', nombre:'Dr. Roberto Mendoza', email:'roberto.mendoza@construyendofuturo.org.co', clave:'Medico2026!', rolId:'medico', sedeId:'cund', jornadaPermitida:'dia', estado:'activo' },
-  { id:'u3', nombre:'Directora Laura Restrepo', email:'laura.restrepo@construyendofuturo.org.co', clave:'SuperAdmin2026!', rolId:'superadmin', sedeId:'cund', jornadaPermitida:'ambos', estado:'activo' },
-  { id:'u4', nombre:'Andrés Felipe Torres', email:'andres.torres@construyendofuturo.org.co', clave:'Sede2026!', rolId:'admin_sede', sedeId:'samp', jornadaPermitida:'ambos', estado:'activo' },
-  { id:'u5', nombre:'Diana Carolina Vargas', email:'diana.vargas@construyendofuturo.org.co', clave:'Turno2026!', rolId:'admin_turno', sedeId:'favo', jornadaPermitida:'noche', estado:'activo' },
-  { id:'u6', nombre:'Julián Esteban Mora', email:'julian.mora@construyendofuturo.org.co', clave:'Auditor2026!', rolId:'auditor', sedeId:'cund', jornadaPermitida:'ambos', estado:'activo' },
-];
 
 /* ============================ UI BÁSICA ============================ */
 const Logo = ({ dark }) => (
@@ -668,16 +616,17 @@ const ModalLegal = ({ cerrar }) => (
 const Login = ({ usuarios, onLogin, onSolicitarCuenta, abrirTerminos }) => {
   const [tab, setTab] = useState('login');
   const [email, setEmail] = useState('claudia.rios@construyendofuturo.org.co');
-  const [pass, setPass] = useState('••••••••••');
+  const [pass, setPass] = useState('');
   const [nombreReg, setNombreReg] = useState('');
   const [emailReg, setEmailReg] = useState('');
+  const [passReg, setPassReg] = useState('');
 
   const submitLogin = (e) => { e.preventDefault(); onLogin(email, pass); };
   const submitSolicitud = (e) => {
     e.preventDefault();
-    if(!emailReg.trim() || !nombreReg.trim()) return;
-    onSolicitarCuenta({ nombre: nombreReg.trim(), email: emailReg.trim() });
-    setNombreReg(''); setEmailReg('');
+    if(!emailReg.trim() || !nombreReg.trim() || passReg.length < 6) return;
+    onSolicitarCuenta({ nombre: nombreReg.trim(), email: emailReg.trim(), password: passReg });
+    setNombreReg(''); setEmailReg(''); setPassReg('');
   };
 
   return (
@@ -714,6 +663,10 @@ const Login = ({ usuarios, onLogin, onSolicitarCuenta, abrirTerminos }) => {
               <label>Correo institucional</label>
               <input type="email" required value={emailReg} onChange={e=>setEmailReg(e.target.value)} placeholder="patricia.gomez@construyendofuturo.org.co" />
             </div>
+            <div className="field">
+              <label>Contraseña (mínimo 6 caracteres)</label>
+              <input type="password" required minLength={6} value={passReg} onChange={e=>setPassReg(e.target.value)} placeholder="Cree su contraseña de acceso" />
+            </div>
             <div className="nota-aviso" style={{marginBottom:'14px'}}>
               <span aria-hidden="true">ℹ️</span>
               <span>Por razones de seguridad médica, su cuenta quedará en estado <b>Pendiente de Aprobación</b>. Un Administrador le asignará Sede, Jornada y Rol.</span>
@@ -733,13 +686,13 @@ const Login = ({ usuarios, onLogin, onSolicitarCuenta, abrirTerminos }) => {
 
 /* ============================ GESTIÓN DE USUARIOS Y ROLES (V3.4 MEJORADA CON ESTADO ACTIVO/INACTIVO DINÁMICO) ============================ */
 const AdminUsuarios = ({ usuarios, setUsuarios, sedes, sede, jornadaActual, avisar }) => {
-  const [fInv, setFInv] = useState({ nombre:'', email:'', rolId:'auxiliar', sedeId:sede.id, jornadaPermitida:'ambos' });
+  const [fInv, setFInv] = useState({ nombre:'', email:'', clave:'', rolId:'auxiliar', sedeId:sede.id, jornadaPermitida:'ambos' });
 
   const invitar = () => {
-    if(!fInv.nombre || !fInv.email) return;
+    if(!fInv.nombre || !fInv.email || fInv.clave.length < 6) return;
     const nuevo = { id:'u' + Date.now(), ...fInv, estado:'activo' };
     setUsuarios(prev => [...prev, nuevo]);
-    setFInv({ nombre:'', email:'', rolId:'auxiliar', sedeId:sede.id, jornadaPermitida:'ambos' });
+    setFInv({ nombre:'', email:'', clave:'', rolId:'auxiliar', sedeId:sede.id, jornadaPermitida:'ambos' });
     avisar('Invitación creada y cuenta registrada ✓');
   };
 
@@ -775,6 +728,8 @@ const AdminUsuarios = ({ usuarios, setUsuarios, sedes, sede, jornadaActual, avis
                 <input value={fInv.nombre} onChange={e=>setFInv(p=>({...p,nombre:e.target.value}))} placeholder="Ej: Dr. Carlos Pérez" /></div>
               <div className="field" style={{marginBottom:0}}><label>Correo institucional *</label>
                 <input type="email" value={fInv.email} onChange={e=>setFInv(p=>({...p,email:e.target.value}))} placeholder="carlos.perez@construyendofuturo.org.co" /></div>
+              <div className="field" style={{marginBottom:0}}><label>Contraseña temporal * (mínimo 6 caracteres)</label>
+                <input type="text" value={fInv.clave} onChange={e=>setFInv(p=>({...p,clave:e.target.value}))} placeholder="Ej: Bienvenido2026!" /></div>
               <div className="field" style={{marginBottom:0}}><label>Sede asignada</label>
                 <select value={fInv.sedeId} onChange={e=>setFInv(p=>({...p,sedeId:e.target.value}))}>
                   {sedes.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
@@ -789,7 +744,7 @@ const AdminUsuarios = ({ usuarios, setUsuarios, sedes, sede, jornadaActual, avis
                 <select value={fInv.rolId} onChange={e=>setFInv(p=>({...p,rolId:e.target.value}))}>
                   {ROLES.map(r => <option key={r.id} value={r.id}>{r.nombre}</option>)}
                 </select></div>
-              <button className="btn btn-primary" onClick={invitar} disabled={!fInv.nombre || !fInv.email}>Registrar e Invitar Usuario</button>
+              <button className="btn btn-primary" onClick={invitar} disabled={!fInv.nombre || !fInv.email || fInv.clave.length < 6}>Registrar e Invitar Usuario</button>
             </div>
           </div>
         </div>
@@ -1629,23 +1584,25 @@ const App = () => {
   const [view, setView] = useState('panel');
   const [navStack, setNavStack] = useState(['panel']);
   
-  const [sedes, setSedes] = useState(SEDES_INI);
+  const [cargando, setCargando] = useState(true);
+
+  const [sedes, setSedesRaw] = useState([]);
   const [sedeId, setSedeId] = useState('cund');
   const [jornada, setJornada] = useState('dia');
 
-  const [usuarios, setUsuarios] = useState(USUARIOS_BD);
-  const [usuarioActivo, setUsuarioActivo] = useState(USUARIOS_BD.find(u => u.rolId === 'superadmin'));
-  const [rolActivo, setRolActivo] = useState(ROLES.find(r => r.id === 'superadmin'));
+  const [usuarios, setUsuariosRaw] = useState([]);
+  const [usuarioActivo, setUsuarioActivo] = useState(null);
+  const [rolActivo, setRolActivo] = useState(null);
   const [secretPass, setSecretPass] = useState('••••••••••');
 
-  const [residentes, setResidentes] = useState(RESIDENTES_INI);
-  const [notas, setNotas] = useState(NOTAS_INI);
-  const [alertas, setAlertas] = useState(ALERTAS_INI);
-  const [asistencias, setAsistencias] = useState(ASIST_INI);
-  const [actividades, setActividades] = useState(ACTS_INI);
-  const [entregas, setEntregas] = useState(ENTREGAS_INI);
-  const [pertenencias, setPertenencias] = useState(PERTENENCIAS_INI);
-  const [configSedes, setConfigSedes] = useState({ cund:{glu:true,dolor:true}, samp:{glu:false,dolor:true}, favo:{glu:true,dolor:false} });
+  const [residentes, setResidentesRaw] = useState([]);
+  const [notas, setNotasRaw] = useState([]);
+  const [alertas, setAlertasRaw] = useState([]);
+  const [asistencias, setAsistenciasRaw] = useState({});
+  const [actividades, setActividadesRaw] = useState([]);
+  const [entregas, setEntregasRaw] = useState([]);
+  const [pertenencias, setPertenenciasRaw] = useState([]);
+  const [configSedes, setConfigSedesRaw] = useState({});
 
   const [fichaId, setFichaId] = useState(null);
   const [preselNota, setPreselNota] = useState('');
@@ -1658,6 +1615,174 @@ const App = () => {
     const consent = localStorage.getItem('auracare_cookie_consent');
     if(!consent) setShowCookie(true);
   }, []);
+
+  /* ---- Carga inicial desde Supabase ---- */
+  useEffect(() => {
+    (async () => {
+      const [sedesR, usuariosR, residentesR, notasR, alertasR, asistR, actsR, entregasR, pertR, configR] = await Promise.all([
+        db.from('sedes').select('*').order('nombre'),
+        db.rpc('listar_usuarios'),
+        db.from('residentes').select('*'),
+        db.from('notas').select('*').order('fecha', { ascending: true }),
+        db.from('alertas').select('*'),
+        db.from('asistencias').select('*'),
+        db.from('actividades').select('*'),
+        db.from('entregas').select('*'),
+        db.from('pertenencias').select('*'),
+        db.from('config_sedes').select('*'),
+      ]);
+      setSedesRaw((sedesR.data || []).map(s => ({ id:s.id, nombre:s.nombre, cupos:s.cupos })));
+      setUsuariosRaw((usuariosR.data || []).map(u => ({ id:u.id, nombre:u.nombre, email:u.email, rolId:u.rol_id, sedeId:u.sede_id, jornadaPermitida:u.jornada_permitida, estado:u.estado })));
+      setResidentesRaw((residentesR.data || []).map(r => ({ id:r.id, sedeId:r.sede_id, nombres:r.nombres, apellidos:r.apellidos, doc:r.doc, edad:r.edad, dx:r.dx, signos:r.signos || {}, hist:r.hist || {} })));
+      setNotasRaw((notasR.data || []).map(n => ({ id:n.id, sedeId:n.sede_id, personaId:n.persona_id, tipo:n.tipo, jornada:n.jornada, fecha:n.fecha, hora:n.hora, descripcion:n.descripcion, descripcionCifrada:n.descripcion_cifrada, signos:n.signos || {}, autor:n.autor, cargo:n.cargo, vigente:n.vigente, e2ee:n.e2ee, hash:n.hash })));
+      setAlertasRaw((alertasR.data || []).map(a => ({ id:a.id, sedeId:a.sede_id, personaId:a.persona_id, parametro:a.parametro, valor:a.valor, sev:a.sev, estado:a.estado, hora:a.hora })));
+      const asistMap = {};
+      (asistR.data || []).forEach(a => { asistMap[a.id] = { estado:a.estado, motivo:a.motivo || '' }; });
+      setAsistenciasRaw(asistMap);
+      setActividadesRaw((actsR.data || []).map(a => ({ id:a.id, sedeId:a.sede_id, fecha:a.fecha, nombre:a.nombre, linea:a.linea, profesional:a.profesional, participacion:a.participacion || {} })));
+      setEntregasRaw((entregasR.data || []).map(e => ({ id:e.id, sedeId:e.sede_id, personaId:e.persona_id, elemento:e.elemento, cantidad:e.cantidad, fecha:e.fecha, quien:e.quien, obs:e.obs })));
+      setPertenenciasRaw((pertR.data || []).map(p => ({ id:p.id, sedeId:p.sede_id, personaId:p.persona_id, ayudas:p.ayudas, prendas:p.prendas, lenceria:p.lenceria, otros:p.otros, obs:p.obs, fechaRecibo:p.fecha_recibo, estado:p.estado, fechaDev:p.fecha_dev })));
+      const cfgMap = {};
+      (configR.data || []).forEach(c => { cfgMap[c.sede_id] = { glu:c.glu, dolor:c.dolor }; });
+      setConfigSedesRaw(cfgMap);
+      setCargando(false);
+    })();
+  }, []);
+
+  /* ---- Escritores con persistencia en Supabase (envuelven el estado local) ---- */
+  const setSedes = (updater) => {
+    setSedesRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(s => !prev.some(p => p.id === s.id)).forEach(s => {
+        db.from('sedes').insert({ id:s.id, nombre:s.nombre, cupos:s.cupos }).then(({error})=>{ if(error) console.error(error); });
+      });
+      return next;
+    });
+  };
+
+  const setUsuarios = (updater) => {
+    setUsuariosRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(u => !prev.some(p => p.id === u.id)).forEach(u => {
+        db.rpc('crear_usuario', { p_nombre:u.nombre, p_email:u.email, p_password:u.clave || 'Cambiar2026!', p_rol_id:u.rolId, p_sede_id:u.sedeId, p_jornada:u.jornadaPermitida, p_estado:u.estado })
+          .then(({ data, error }) => {
+            if(error){ console.error(error); return; }
+            if(data && data[0]) setUsuariosRaw(cur => cur.map(x => x.id === u.id ? { ...x, id:data[0].id } : x));
+          });
+      });
+      next.forEach(u => {
+        const old = prev.find(p => p.id === u.id);
+        if(old && (old.nombre!==u.nombre || old.rolId!==u.rolId || old.sedeId!==u.sedeId || old.jornadaPermitida!==u.jornadaPermitida || old.estado!==u.estado)){
+          db.rpc('actualizar_usuario', { p_id:u.id, p_nombre:u.nombre, p_rol_id:u.rolId, p_sede_id:u.sedeId, p_jornada:u.jornadaPermitida, p_estado:u.estado }).then(({error})=>{ if(error) console.error(error); });
+        }
+      });
+      return next.map(u => { const { clave, ...resto } = u; return resto; });
+    });
+  };
+
+  const setResidentes = (updater) => {
+    setResidentesRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(r => !prev.some(p => p.id === r.id)).forEach(r => {
+        db.from('residentes').insert({ id:r.id, sede_id:r.sedeId, nombres:r.nombres, apellidos:r.apellidos, doc:r.doc, edad:r.edad, dx:r.dx, signos:r.signos||{}, hist:r.hist||{} }).then(({error})=>{ if(error) console.error(error); });
+      });
+      next.forEach(r => {
+        const old = prev.find(p => p.id === r.id);
+        if(old && JSON.stringify(old.signos) !== JSON.stringify(r.signos)){
+          db.from('residentes').update({ signos:r.signos }).eq('id', r.id).then(({error})=>{ if(error) console.error(error); });
+        }
+      });
+      return next;
+    });
+  };
+
+  const setNotas = (updater) => {
+    setNotasRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(n => !prev.some(p => p.id === n.id)).forEach(n => {
+        db.from('notas').insert({ id:n.id, sede_id:n.sedeId, persona_id:n.personaId, tipo:n.tipo, jornada:n.jornada, fecha:n.fecha, hora:n.hora, descripcion:n.descripcion, descripcion_cifrada:n.descripcionCifrada||null, signos:n.signos||{}, autor:n.autor, cargo:n.cargo, vigente:n.vigente, e2ee:n.e2ee, hash:n.hash }).then(({error})=>{ if(error) console.error(error); });
+      });
+      return next;
+    });
+  };
+
+  const setAlertas = (updater) => {
+    setAlertasRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(a => !prev.some(p => p.id === a.id)).forEach(a => {
+        db.from('alertas').insert({ id:a.id, sede_id:a.sedeId, persona_id:a.personaId, parametro:a.parametro, valor:a.valor, sev:a.sev, estado:a.estado, hora:a.hora }).then(({error})=>{ if(error) console.error(error); });
+      });
+      next.forEach(a => {
+        const old = prev.find(p => p.id === a.id);
+        if(old && old.estado !== a.estado){
+          db.from('alertas').update({ estado:a.estado }).eq('id', a.id).then(({error})=>{ if(error) console.error(error); });
+        }
+      });
+      return next;
+    });
+  };
+
+  const setAsistencias = (updater) => {
+    setAsistenciasRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      Object.keys(next).forEach(k => {
+        const anterior = prev[k];
+        if(!anterior || anterior.estado !== next[k].estado || anterior.motivo !== next[k].motivo){
+          const [sedeIdK, fecha, personaId] = k.split('|');
+          db.from('asistencias').upsert({ id:k, sede_id:sedeIdK, persona_id:personaId, fecha, estado:next[k].estado, motivo:next[k].motivo || '' }).then(({error})=>{ if(error) console.error(error); });
+        }
+      });
+      return next;
+    });
+  };
+
+  const setActividades = (updater) => {
+    setActividadesRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.forEach(a => {
+        const old = prev.find(p => p.id === a.id);
+        if(!old){
+          db.from('actividades').insert({ id:a.id, sede_id:a.sedeId, fecha:a.fecha, nombre:a.nombre, linea:a.linea, profesional:a.profesional, participacion:a.participacion||{} }).then(({error})=>{ if(error) console.error(error); });
+        } else if(JSON.stringify(old) !== JSON.stringify(a)){
+          db.from('actividades').update({ nombre:a.nombre, linea:a.linea, profesional:a.profesional, participacion:a.participacion||{} }).eq('id', a.id).then(({error})=>{ if(error) console.error(error); });
+        }
+      });
+      return next;
+    });
+  };
+
+  const setEntregas = (updater) => {
+    setEntregasRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(e => !prev.some(p => p.id === e.id)).forEach(e => {
+        db.from('entregas').insert({ id:e.id, sede_id:e.sedeId, persona_id:e.personaId, elemento:e.elemento, cantidad:e.cantidad, fecha:e.fecha, quien:e.quien, obs:e.obs }).then(({error})=>{ if(error) console.error(error); });
+      });
+      return next;
+    });
+  };
+
+  const setPertenencias = (updater) => {
+    setPertenenciasRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      next.filter(p => !prev.some(x => x.id === p.id)).forEach(p => {
+        db.from('pertenencias').insert({ id:p.id, sede_id:p.sedeId, persona_id:p.personaId, ayudas:p.ayudas, prendas:p.prendas, lenceria:p.lenceria, otros:p.otros, obs:p.obs, fecha_recibo:p.fechaRecibo, estado:p.estado, fecha_dev:p.fechaDev }).then(({error})=>{ if(error) console.error(error); });
+      });
+      return next;
+    });
+  };
+
+  const setConfigSedes = (updater) => {
+    setConfigSedesRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      Object.keys(next).forEach(sid => {
+        const old = prev[sid];
+        if(!old || old.glu !== next[sid].glu || old.dolor !== next[sid].dolor){
+          db.from('config_sedes').upsert({ sede_id:sid, glu:next[sid].glu, dolor:next[sid].dolor }).then(({error})=>{ if(error) console.error(error); });
+        }
+      });
+      return next;
+    });
+  };
 
   const avisar = msg => { setToast(msg); setTimeout(() => setToast(null), 3400); };
 
@@ -1680,34 +1805,34 @@ const App = () => {
     }
   };
 
-  const loginUsuario = (email, password) => {
-    const enco = usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if(!enco){
-      avisar('⛔ Usuario no encontrado. Regístrese o solicite invitación.');
+  const loginUsuario = async (email, password) => {
+    const { data, error } = await db.rpc('login_usuario', { p_email: email, p_password: password });
+    if(error){ avisar('⛔ Error de conexión con el servidor.'); return; }
+    if(!data || data.length === 0){
+      const existe = usuarios.some(u => u.email.toLowerCase() === email.toLowerCase());
+      avisar(existe ? '⛔ Contraseña incorrecta.' : '⛔ Usuario no encontrado. Regístrese o solicite invitación.');
       return;
     }
+    const enco = data[0];
     if(enco.estado === 'pendiente'){
       avisar('ℹ️ Cuenta Pendiente de Aprobación por un Administrador.');
       return;
     }
-    if(enco.clave !== password){
-      avisar('⛔ Contraseña incorrecta.');
-      return;
-    }
-    const r = ROLES.find(x => x.id === enco.rolId) || ROLES[0];
-    setUsuarioActivo(enco);
+    const usuarioApp = { id:enco.id, nombre:enco.nombre, email:enco.email, rolId:enco.rol_id, sedeId:enco.sede_id, jornadaPermitida:enco.jornada_permitida, estado:enco.estado };
+    const r = ROLES.find(x => x.id === usuarioApp.rolId) || ROLES[0];
+    setUsuarioActivo(usuarioApp);
     setRolActivo(r);
     setSecretPass(password);
-    setSedeId(enco.sedeId || 'cund');
+    setSedeId(usuarioApp.sedeId || 'cund');
     setJornada('dia');
     setPantalla('app');
     setNavStack(['panel']);
     setView('panel');
-    avisar(`Sesión iniciada: ${enco.nombre} (${r.nombre}) ✓`);
+    avisar(`Sesión iniciada: ${usuarioApp.nombre} (${r.nombre}) ✓`);
   };
 
-  const solicitarCuenta = ({ nombre, email }) => {
-    const nuevo = { id:'u' + Date.now(), nombre, email, rolId:'auxiliar', sedeId:'cund', jornadaPermitida:'ambos', estado:'pendiente' };
+  const solicitarCuenta = ({ nombre, email, password }) => {
+    const nuevo = { id:'pend_' + Date.now(), nombre, email, rolId:'auxiliar', sedeId:'cund', jornadaPermitida:'ambos', estado:'pendiente', clave:password };
     setUsuarios(prev => [...prev, nuevo]);
     avisar('Solicitud enviada ✓ Pendiente de aprobación.');
   };
@@ -1720,7 +1845,8 @@ const App = () => {
   };
 
   const actualizarNombre = nombre => {
-    setUsuarios(prev => prev.map(u => u.id === usuarioActivo.id ? {...u, nombre} : u));
+    db.rpc('actualizar_usuario', { p_id:usuarioActivo.id, p_nombre:nombre, p_rol_id:usuarioActivo.rolId, p_sede_id:usuarioActivo.sedeId, p_jornada:usuarioActivo.jornadaPermitida, p_estado:usuarioActivo.estado }).then(({error})=>{ if(error) console.error(error); });
+    setUsuariosRaw(prev => prev.map(u => u.id === usuarioActivo.id ? {...u, nombre} : u));
     setUsuarioActivo(prev => ({...prev, nombre}));
     avisar('Nombre actualizado ✓');
   };
@@ -1737,13 +1863,14 @@ const App = () => {
     const descCifrada = await E2EE.cifrarTexto(descripcion, secretPass);
     const prevNota = notas[notas.length - 1];
     const prevHash = prevNota ? prevNota.hash : "GENESIS_2026";
-    const notaTemp = { id:'n' + (++SEQ), sedeId, personaId, tipo, jornada, fecha:hoyISO, hora, descripcion, autor: autorStr };
+    const idUnico = () => Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+    const notaTemp = { id:'n' + idUnico(), sedeId, personaId, tipo, jornada, fecha:hoyISO, hora, descripcion, autor: autorStr };
     const nuevoHash = await E2EE.generarHashNota(notaTemp, prevHash);
 
     const nuevasAlertas = [];
     Object.keys(signos).forEach(k => {
       const e = estadoSigno(k, signos[k]);
-      if(e === 'c' || e === 'v') nuevasAlertas.push({ id:'a' + (++SEQ), sedeId, personaId, parametro:k, valor:signos[k], sev: e==='c'?'critica':'vigilancia', estado:'activa', hora });
+      if(e === 'c' || e === 'v') nuevasAlertas.push({ id:'a' + idUnico(), sedeId, personaId, parametro:k, valor:signos[k], sev: e==='c'?'critica':'vigilancia', estado:'activa', hora });
     });
 
     const nueva = {
@@ -1769,6 +1896,13 @@ const App = () => {
     setAlertas(prev => prev.map(a => a.id === id ? {...a, estado:'atendida'} : a));
     avisar('Alerta marcada como atendida ✓');
   };
+
+  if(cargando) return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',flexDirection:'column',gap:'14px'}}>
+      <Logo />
+      <p style={{color:'var(--texto-2)'}}>Conectando con la base de datos…</p>
+    </div>
+  );
 
   if(pantalla === 'login') return (
     <React.Fragment>
