@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { matrizAResidentes, parseCSV } from '../lib/importar.js';
-import { useAccion } from './ui.jsx';
+import { Modal, useAccion } from './ui.jsx';
 
 export const Importador = ({ sede, onImportar, cerrar }) => {
   const [resultado, setResultado] = useState(null);
@@ -23,10 +23,8 @@ export const Importador = ({ sede, onImportar, cerrar }) => {
   };
 
   return (
-    <div className="overlay" onClick={(e) => { if (e.target === e.currentTarget) cerrar(); }}>
-      <div className="modal">
-        <h3>Importar residentes desde Excel / CSV</h3>
-        <p className="sub">Carga masiva a {sede.nombre}. Columnas: nombres, apellidos, documento, edad, diagnóstico. Los documentos repetidos se omiten.</p>
+    <Modal titulo="Importar personas mayores desde Excel o CSV" cerrar={cerrar}
+      sub={`Carga masiva a ${sede.nombre}. Columnas: nombres, apellidos, documento, edad, diagnóstico. Los documentos repetidos se omiten.`}>
         {!resultado ? (
           <div className="drop" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (e.dataTransfer.files[0]) procesar(e.dataTransfer.files[0]); }}>
             Arrastra aquí tu archivo .xlsx o .csv<br />
@@ -51,8 +49,7 @@ export const Importador = ({ sede, onImportar, cerrar }) => {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -63,10 +60,7 @@ const FormResidente = ({ inicial, onGuardar, cerrar, titulo, sub, etiquetaBoton 
   const set = (k, v) => setF((p) => ({ ...p, [k]: v }));
   const edadMala = f.edad !== '' && f.edad !== null && !(Number(f.edad) > 0 && Number(f.edad) < 125);
   return (
-    <div className="overlay" onClick={(e) => { if (e.target === e.currentTarget) cerrar(); }}>
-      <div className="modal">
-        <h3>{titulo}</h3>
-        <p className="sub">{sub}</p>
+    <Modal titulo={titulo} sub={sub} cerrar={cerrar}>
         <div className="form-grid">
           <div className="field"><label htmlFor="fr-nombres">Nombres *</label><input id="fr-nombres" maxLength={80} value={f.nombres} onChange={(e) => set('nombres', e.target.value)} /></div>
           <div className="field"><label htmlFor="fr-apellidos">Apellidos *</label><input id="fr-apellidos" maxLength={80} value={f.apellidos} onChange={(e) => set('apellidos', e.target.value)} /></div>
@@ -79,8 +73,7 @@ const FormResidente = ({ inicial, onGuardar, cerrar, titulo, sub, etiquetaBoton 
           <button className="btn btn-ghost" onClick={cerrar}>Cancelar</button>
           <button className="btn btn-primary" disabled={ocupado || edadMala || !f.nombres.trim() || !f.apellidos.trim()} onClick={() => ejecutar(() => onGuardar(f))}>{ocupado ? 'Guardando…' : etiquetaBoton}</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -98,10 +91,7 @@ export const EgresoResidente = ({ res, onEgresar, cerrar }) => {
   const [motivo, setMotivo] = useState('');
   const [ocupado, ejecutar] = useAccion();
   return (
-    <div className="overlay" onClick={(e) => { if (e.target === e.currentTarget) cerrar(); }}>
-      <div className="modal">
-        <h3>Registrar egreso</h3>
-        <p className="sub">{res.nombres} {res.apellidos} dejará de aparecer en la lista activa. Su historial clínico se conserva.</p>
+    <Modal titulo="Registrar egreso" cerrar={cerrar} sub={`${res.nombres} ${res.apellidos} dejará de aparecer en la lista activa. Su historial clínico se conserva.`}>
         <div className="field"><label htmlFor="egreso-motivo">Motivo del egreso *</label>
           <select id="egreso-motivo" value={motivo} onChange={(e) => setMotivo(e.target.value)}>
             <option value="">Seleccionar…</option>
@@ -111,8 +101,7 @@ export const EgresoResidente = ({ res, onEgresar, cerrar }) => {
           <button className="btn btn-ghost" onClick={cerrar}>Cancelar</button>
           <button className="btn btn-peligro" disabled={ocupado || !motivo} onClick={() => ejecutar(() => onEgresar(motivo))}>Confirmar egreso</button>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -128,13 +117,13 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
     <div>
       <div className="buscador">
         <input aria-label="Buscar persona mayor" type="search" placeholder="Buscar por nombre o cédula" value={q} onChange={(e) => setQ(e.target.value)}
-          style={{ fontSize: '14.5px', borderColor: q ? 'var(--vital)' : 'var(--borde-control)' }} />
+          style={{ borderColor: q ? 'var(--vital)' : 'var(--borde-control)' }} />
         {puedeCrear && <button className="btn btn-ghost" onClick={abrirImport}>Importar Excel o CSV</button>}
         {puedeCrear && <button className="btn btn-primary" onClick={abrirNuevo}>+ Registrar persona mayor</button>}
       </div>
-      <div className="tabs">
-        <button className={!verEgresados ? 'on' : ''} onClick={() => setVerEgresados(false)}>Activos ({residentes.length - nEgresados})</button>
-        <button className={verEgresados ? 'on' : ''} onClick={() => setVerEgresados(true)}>Egresados ({nEgresados})</button>
+      <div className="tabs" role="tablist" aria-label="Estado">
+        <button role="tab" aria-selected={!verEgresados} className={!verEgresados ? 'on' : ''} onClick={() => setVerEgresados(false)}>Activos ({residentes.length - nEgresados})</button>
+        <button role="tab" aria-selected={verEgresados} className={verEgresados ? 'on' : ''} onClick={() => setVerEgresados(true)}>Egresados ({nEgresados})</button>
       </div>
       {q && <div style={{ fontSize: '13px', color: 'var(--texto-2)', marginBottom: '14px' }}>Filtrando por: <b>"{q}"</b> ({filtrados.length} resultado(s))</div>}
       <div className="grid-res">

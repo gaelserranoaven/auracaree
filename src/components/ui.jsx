@@ -1,4 +1,4 @@
-import { Component, createContext, useContext, useState } from 'react';
+import { Component, createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import { estadoSigno } from '../lib/clinico.js';
 import { fmtFecha } from '../lib/util.js';
 
@@ -34,8 +34,41 @@ const TRAZOS = {
   refrescar: 'M20 11a8 8 0 10-2.3 5.7M20 4v7h-7',
   perfil: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',
   salir: 'M15 4h4v16h-4M10 16l-4-4 4-4M6 12h10',
+  mas: 'M4 12a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M10.5 12a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M17 12a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
 };
 export const Icono = ({ n }) => <svg className="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={TRAZOS[n]} /></svg>;
+
+/* Diálogo modal accesible: foco dentro al abrir, Tab no se escapa, Esc cierra y el foco vuelve al botón que lo abrió */
+const ENFOCABLES = 'button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+export const Modal = ({ titulo, sub, cerrar, children }) => {
+  const caja = useRef(null);
+  const idTitulo = useId();
+  useEffect(() => {
+    const previo = document.activeElement;
+    const nodo = caja.current;
+    (nodo.querySelector('input:not([disabled]),select:not([disabled]),textarea:not([disabled])') || nodo).focus();
+    const alTeclado = (e) => {
+      if (e.key === 'Escape') { e.stopPropagation(); cerrar(); return; }
+      if (e.key !== 'Tab') return;
+      const lista = [...nodo.querySelectorAll(ENFOCABLES)];
+      if (!lista.length) return;
+      const primero = lista[0], ultimo = lista[lista.length - 1];
+      if (e.shiftKey && document.activeElement === primero) { e.preventDefault(); ultimo.focus(); }
+      else if (!e.shiftKey && document.activeElement === ultimo) { e.preventDefault(); primero.focus(); }
+    };
+    nodo.addEventListener('keydown', alTeclado);
+    return () => { nodo.removeEventListener('keydown', alTeclado); if (previo && previo.focus) previo.focus(); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="overlay" onClick={(e) => { if (e.target === e.currentTarget) cerrar(); }}>
+      <div className="modal" ref={caja} role="dialog" aria-modal="true" aria-labelledby={idTitulo} tabIndex={-1}>
+        <h3 id={idTitulo}>{titulo}</h3>
+        {sub && <p className="sub">{sub}</p>}
+        {children}
+      </div>
+    </div>
+  );
+};
 
 /* Ejecuta una acción async una sola vez a la vez y muestra el error si falla */
 export function useAccion() {

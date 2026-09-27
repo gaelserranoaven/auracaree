@@ -37,9 +37,9 @@ export const Login = ({ onLogin, onSolicitarCuenta, abrirTerminos }) => {
         <h1>{tab === 'login' ? 'Ingresa a AuraCare' : 'Solicita tu acceso'}</h1>
         <p className="sub">Solo para personal autorizado de los centros de protección. Cada acción queda registrada con tu nombre.</p>
 
-        <div className="auth-tabs">
-          <button type="button" className={tab === 'login' ? 'active' : ''} onClick={() => setTab('login')}>Iniciar sesión</button>
-          <button type="button" className={tab === 'solicitud' ? 'active' : ''} onClick={() => setTab('solicitud')}>Solicitar acceso</button>
+        <div className="auth-tabs" role="tablist" aria-label="Acceso">
+          <button type="button" role="tab" aria-selected={tab === 'login'} className={tab === 'login' ? 'active' : ''} onClick={() => setTab('login')}>Iniciar sesión</button>
+          <button type="button" role="tab" aria-selected={tab === 'solicitud'} className={tab === 'solicitud' ? 'active' : ''} onClick={() => setTab('solicitud')}>Solicitar acceso</button>
         </div>
 
         {tab === 'login' ? (

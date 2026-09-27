@@ -1,3 +1,5 @@
+import { Modal } from './ui.jsx';
+
 export const CookieBanner = ({ onAceptar, onRechazar, abrirTerminos }) => (
   <div className="cookie-banner" role="dialog" aria-label="Aviso de almacenamiento local">
     <div className="cookie-txt">
@@ -12,10 +14,8 @@ export const CookieBanner = ({ onAceptar, onRechazar, abrirTerminos }) => (
 
 /* TEXTO PROVISIONAL: debe ser revisado por asesoría jurídica de la Fundación antes de operar con datos reales. */
 export const ModalLegal = ({ cerrar }) => (
-  <div className="overlay" onClick={(e) => { if (e.target === e.currentTarget) cerrar(); }}>
-    <div className="modal" role="dialog" aria-label="Términos, condiciones y tratamiento de datos">
-      <h3>Términos, Condiciones y Tratamiento de Datos (Ley 1581 / Res. 1995)</h3>
-      <p className="sub">Marco de confidencialidad médica y protección de datos para la Fundación Construyendo Futuro.</p>
+  <Modal titulo="Términos, condiciones y tratamiento de datos (Ley 1581 / Res. 1995)" cerrar={cerrar}
+    sub="Marco de confidencialidad médica y protección de datos para la Fundación Construyendo Futuro.">
       <div className="legal-box">
         <h4>1. Datos sensibles de salud (Ley 1581 de 2012)</h4>
         <p>La información de historias clínicas, diagnósticos y signos vitales es <b>DATO SENSIBLE DE SALUD</b>. Solo puede consultarla personal autorizado de la sede correspondiente, para el cuidado de la persona mayor y las obligaciones de vigilancia de la SDIS.</p>
@@ -29,6 +29,5 @@ export const ModalLegal = ({ cerrar }) => (
       <div className="modal-foot">
         <button className="btn btn-primary" onClick={cerrar}>Entendido</button>
       </div>
-    </div>
-  </div>
+  </Modal>
 );

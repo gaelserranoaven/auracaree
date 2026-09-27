@@ -57,6 +57,7 @@ export const App = () => {
   const [fichaId, setFichaId] = useState(null);
   const [preselNota, setPreselNota] = useState('');
   const [modal, setModal] = useState(null);
+  const [masAbierto, setMasAbierto] = useState(false);
   const [showCookie, setShowCookie] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
   const [toast, setToast] = useState(null);
@@ -287,7 +288,17 @@ export const App = () => {
     const fueraJornada = perfil.jornadaPermitida !== 'ambos' && perfil.jornadaPermitida !== jornada;
     const rolId = perfil.rolId;
 
-    const navItem = (id, etiqueta, activo, onClick) => puedeVer(id) && <button className={activo ? 'active' : ''} aria-current={activo ? 'page' : undefined} onClick={onClick}><Icono n={id} />{etiqueta}</button>;
+    // Una sola lista de destinos: menú lateral en escritorio, barra inferior + hoja "Más" en celular
+    const destinos = [
+      ['panel', 'Panel general', 'Panel'], ['residentes', 'Personas mayores', 'Personas'], ['nueva', 'Nueva nota', 'Nota'],
+      ['asistencia', 'Asistencia', 'Asistencia'], ['dotacion', 'Dotación', 'Dotación'], ['entrega', 'Entrega de turno', 'Turno'],
+      ['sdis', 'Registro SDIS', 'SDIS'], ['config', 'Configuración', 'Ajustes'], ['admin_usuarios', 'Usuarios', 'Usuarios'], ['auditoria', 'Auditoría', 'Auditoría'],
+    ].filter(([id]) => puedeVer(id));
+    const esActivo = (id) => vista === id || (id === 'residentes' && vista === 'ficha');
+    const ir = (id) => { setMasAbierto(false); if (id === 'nueva') setPreselNota(''); navegarA(id); };
+    const enBarra = destinos.slice(0, 4);
+    const enMas = destinos.slice(4);
+    const masActivo = enMas.some(([id]) => esActivo(id)) || vista === 'perfil';
 
     return (
       <div className="shell">
@@ -307,16 +318,9 @@ export const App = () => {
           </div>
 
           <nav className="nav" aria-label="Navegación principal">
-            {navItem('panel', 'Panel general', vista === 'panel', () => navegarA('panel'))}
-            {navItem('residentes', 'Personas mayores', vista === 'residentes' || vista === 'ficha', () => navegarA('residentes'))}
-            {navItem('nueva', 'Nueva nota', vista === 'nueva', () => { setPreselNota(''); navegarA('nueva'); })}
-            {navItem('asistencia', 'Asistencia', vista === 'asistencia', () => navegarA('asistencia'))}
-            {navItem('dotacion', 'Dotación', vista === 'dotacion', () => navegarA('dotacion'))}
-            {navItem('entrega', 'Entrega de turno', vista === 'entrega', () => navegarA('entrega'))}
-            {navItem('sdis', 'Registro SDIS', vista === 'sdis', () => navegarA('sdis'))}
-            {navItem('config', 'Configuración', vista === 'config', () => navegarA('config'))}
-            {navItem('admin_usuarios', 'Usuarios', vista === 'admin_usuarios', () => navegarA('admin_usuarios'))}
-            {navItem('auditoria', 'Auditoría', vista === 'auditoria', () => navegarA('auditoria'))}
+            {destinos.map(([id, etiqueta]) => (
+              <button key={id} className={esActivo(id) ? 'active' : ''} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{etiqueta}</button>
+            ))}
           </nav>
           <div className="sidebar-foot">
             Fundación Construyendo Futuro ONG<br />NIT 900310195-2 · Ley 1581 / SDIS<br />
@@ -329,7 +333,7 @@ export const App = () => {
           {fueraJornada && <div className="aviso-global jornada no-print">Estás fuera de tu jornada autorizada ({perfil.jornadaPermitida === 'dia' ? 'Día' : 'Noche'}). Tus registros quedan marcados con la jornada real ({jornada === 'dia' ? 'Día' : 'Noche'}).</div>}
 
           <div className="topbar no-print">
-            <div className="nav-global">{vista !== 'panel' && <button className="btn-nav-top" onClick={goBack}><Icono n="atras" />Atrás</button>}</div>
+            <div className="nav-global">{vista !== 'panel' && <button className="btn-nav-top" onClick={goBack} aria-label="Atrás"><Icono n="atras" /><span className="txt">Atrás</span></button>}</div>
             <div className="titulo">
               <h2>{TITULOS[vista] || 'Mi Perfil'}</h2>
               <p>{sede.nombre} · {fmtFecha(hoy)}</p>
@@ -342,8 +346,8 @@ export const App = () => {
             </div>
             <div className="nav-global">
               <button className="btn-nav-top" onClick={refrescar} aria-label="Actualizar datos" title="Actualizar datos"><Icono n="refrescar" /></button>
-              <button className="btn-nav-top" onClick={() => navegarA('perfil')}><Icono n="perfil" />Mi perfil</button>
-              <button className="btn-nav-top" style={{ color: 'var(--alerta)', borderColor: '#F2C4B6' }} onClick={() => logout()}><Icono n="salir" />Cerrar sesión</button>
+              <button className="btn-nav-top" onClick={() => navegarA('perfil')} aria-label="Mi perfil"><Icono n="perfil" /><span className="txt">Mi perfil</span></button>
+              <button className="btn-nav-top" style={{ color: 'var(--alerta)', borderColor: '#F2C4B6' }} onClick={() => logout()} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
             </div>
           </div>
 
@@ -383,6 +387,26 @@ export const App = () => {
           {vista === 'perfil' && <PerfilUsuario usuario={perfil} rol={rol} sede={sedes.find((s) => s.id === perfil.sedeId)} onLogout={() => logout()}
             onActualizarNombre={acciones.actualizarNombre} onCambiarPassword={api.cambiarPassword} />}
         </main>
+
+        <nav className="tabbar no-print" aria-label="Navegación principal (celular)">
+          {enBarra.map(([id, , corta]) => (
+            <button key={id} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{corta}</button>
+          ))}
+          <button aria-current={masActivo ? 'page' : undefined} aria-haspopup="dialog" aria-expanded={masAbierto} onClick={() => setMasAbierto(true)}><Icono n="mas" />Más</button>
+        </nav>
+        {masAbierto && (
+          <div className="hoja-mas no-print" onClick={(e) => { if (e.target === e.currentTarget) setMasAbierto(false); }}
+            onKeyDown={(e) => { if (e.key === 'Escape') setMasAbierto(false); }}>
+            <div className="hoja" role="dialog" aria-modal="true" aria-label="Más opciones">
+              <div className="asa" aria-hidden="true"></div>
+              {enMas.map(([id, etiqueta]) => (
+                <button key={id} autoFocus={id === enMas[0][0]} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{etiqueta}</button>
+              ))}
+              <button autoFocus={!enMas.length} aria-current={vista === 'perfil' ? 'page' : undefined} onClick={() => { setMasAbierto(false); navegarA('perfil'); }}><Icono n="perfil" />Mi perfil</button>
+              <button onClick={() => { setMasAbierto(false); logout(); }} style={{ color: 'var(--alerta)' }}><Icono n="salir" />Cerrar sesión</button>
+            </div>
+          </div>
+        )}
 
         {modal === 'nuevo' && <NuevoResidente sede={sede} onCrear={acciones.crearResidente} cerrar={() => setModal(null)} />}
         {modal === 'import' && <Importador sede={sede} onImportar={acciones.importar} cerrar={() => setModal(null)} />}
