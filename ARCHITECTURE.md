@@ -1,146 +1,65 @@
-# AuraCare Architecture & Roadmap
+# AuraCare — Arquitectura (v4.0)
 
-## Current State (v3.4)
-
-**Frontend:** React 18 + Babel standalone, todo inline en un único HTML (sin build step)
-**Backend:** Supabase (Postgres, funciones RPC, Row Level Security)
-**Deployment:** Local browser (file-based), datos persistidos en la nube
-**Storage:** Postgres real vía Supabase (proyecto `auracare`)
-**Users:** Multi-usuario con roles (RBAC), autenticación por RPC con contraseñas hasheadas (bcrypt)
-
-### Directory Structure
+## Visión general
 
 ```
-auracare/
-├── src/
-│   └── index.html           (Toda la app: UI, lógica y conexión a Supabase)
-│
-├── docs/
-│   ├── CHANGELOG.md         (Release history)
-│   ├── design-system.md     (Component reference)
-│   └── versions/            (Per-version features)
-│
-├── versions-historic/       (Backup of v3.0-v3.3.1)
-├── tests/                   (Future: e2e tests)
-├── dist/                    (Future: optimized builds)
-└── README.md, ARCHITECTURE.md, .gitignore
+Navegador (React 18, bundle estático en GitHub Pages)
+   │  HTTPS + JWT (Supabase Auth)
+   ▼
+Supabase: PostgREST · Auth · Realtime
+   │
+   ▼
+Postgres: tablas públicas con RLS · esquema `private` (helpers) · triggers de servidor
 ```
 
----
+- **Frontend**: React 18 empaquetado con esbuild (`npm run build` → `src/dist`). Sin CDN, sin Babel en el navegador. CSP estricta.
+- **Backend**: Supabase (proyecto `auracare`, región us-east-1). No hay servidor propio: las reglas de negocio críticas viven en Postgres.
+- **Despliegue**: GitHub Pages sirve `src/` (la raíz redirige a `src/index.html`).
 
-## Tech Stack Evolution
+## Modelo de datos (schema `public`)
 
-### Phase 1 (Current - v3.4)
-- **Frontend Framework:** Vanilla HTML/CSS/JS
-- **Styling:** Embedded CSS → modular CSS
-- **State Management:** None
-- **Deployment:** Static files
+| Tabla | Propósito | Escritura |
+|---|---|---|
+| `perfiles` | Rol, sede, jornada y estado del usuario (1:1 con `auth.users`) | Solo SuperAdmin (rol/sede/jornada/estado); cada usuario su nombre |
+| `sedes`, `config_sedes` | Unidades operativas y parámetros clínicos | SuperAdmin / Admin de sede |
+| `residentes` | Personas mayores (estado activo/egresado, rangos personalizados) | SuperAdmin, Admin sede/turno; Médico edita |
+| `notas` | Bitácora clínica **inmutable** con hash encadenado | Auxiliar, Médico, SuperAdmin (solo INSERT) |
+| `alertas` | Generadas por trigger al guardar una nota | Solo se marcan "atendida" |
+| `asistencias`, `actividades` | Sección 5 SDIS (solo del día) | Auxiliar, Admin, SuperAdmin |
+| `entregas`, `pertenencias` | Dotación (con límites) y custodia | Auxiliar, Admin, SuperAdmin |
+| `entregas_turno` | Acta de cierre de turno (inmutable) | Roles operativos y médico |
+| `rangos_clinicos`, `elementos_dotacion` | Fuente única de verdad de umbrales y reglas | Solo SuperAdmin |
+| `auditoria` | Registro append-only | Triggers + inserción de lecturas por el cliente |
 
-### Phase 2 (Planned - v4.0)
-- **Backend:** Node.js + Express API
-- **Database:** PostgreSQL
-- **Authentication:** JWT-based
-- **API Structure:** RESTful endpoints for:
-  - Patient management
-  - Care records
-  - Staff scheduling
-  - Notifications
+Esquema `private`: `rol()`, `tiene_rol()`, `puede_sede()`, `hash_nota()`, `estado_signo()`, `validar_signos()` y las funciones de trigger. No está expuesto por la API REST.
 
-### Phase 3 (Future - v5.0)
-- **Frontend Refactor:** React or Vue.js
-- **Real-time:** WebSockets for notifications
-- **Mobile:** React Native app
-- **Cloud:** AWS/Vercel deployment
+## Decisiones importantes
 
----
+1. **Sellado en servidor (no en el cliente).** El trigger `notas_antes_insert` asigna `id`, `autor`, `fecha`, `hora`, `jornada` (hora de Bogotá), `seq` por sede y `hash = SHA-256(prev_hash | id | sede | seq | persona | tipo | fecha | hora | descripción | signos | autor | timestamp)`. Un advisory lock por sede serializa la cadena. `verificar_cadena_notas(sede)` recalcula todo; una alteración directa en la BD se detecta (probado).
+2. **Sin cifrado E2EE.** La versión 3.x lo anunciaba pero no era real (la clave salía de la contraseña, el texto plano se guardaba igual y nunca se descifraba). Se retiró. La protección real es: TLS, cifrado en reposo del proveedor, RLS y auditoría. Un E2EE verdadero impediría búsqueda, impresión SDIS y recuperación de claves; no se justifica hoy.
+3. **Registro de usuarios por aprobación.** Cualquiera puede solicitar acceso; el trigger crea el perfil siempre como `pendiente/auxiliar`. Sin aprobación de un SuperAdmin, RLS no devuelve nada. Nadie comparte ni ve contraseñas.
+4. **Jornada informativa, no bloqueante.** La jornada se deriva de la hora de Bogotá y se registra en cada nota; si un usuario está fuera de su jornada autorizada ve un aviso. No se bloquea porque impedir documentar un evento clínico por 5 minutos de turno es más riesgoso que el aviso. Puede endurecerse en RLS si la Fundación lo exige.
+5. **Rangos en tabla, no en código.** Cliente y servidor leen `rangos_clinicos`; cada residente puede tener overrides. Los valores actuales son la referencia de la Fundación y **requieren validación médica**.
+6. **Confirmación real de guardado.** Todas las escrituras esperan la respuesta de la BD antes de mostrar "✓"; en error se muestra el motivo. El borrador de una nota vive en `sessionStorage` para no perderlo ante un corte.
 
-## Git Workflow
+## Pruebas
 
-### Branches
+- `tests/clinico.test.mjs`: umbrales, overrides por residente, límites de dotación, fecha/jornada en hora de Bogotá, permisos por rol, importación CSV/Excel.
+- `tests/smoke.test.mjs`: renderiza las 20 pantallas con datos de ejemplo y verifica que no se afirme E2EE ni se muestre un hash falso.
+- Pruebas de triggers en BD (ejecutadas en una transacción con rollback contra el proyecto real): alta→perfil pendiente, sellado y encadenado, alertas, inmutabilidad, validación de signos, límites de dotación, asistencia solo del día, atención de alertas, devolución de pertenencias, entrega de turno y **detección de alteración directa**.
 
-```
-main (production - stable releases)
-  ↑
-develop (staging - integration branch)
-  ↑
-feature/* (feature branches - one per feature)
-release/* (release preparation)
-hotfix/* (production fixes)
-```
+## Limitaciones conocidas
 
-### Commit Strategy
+1. **Sin modo offline completo.** Hay aviso de desconexión y borrador de nota; una cola de escrituras offline queda pendiente.
+2. **Sin módulo de medicación (MAR), alergias ni contactos familiares/EPS.** Los tipos de nota "administración de medicamento" existen, pero no hay control de dosis/horarios.
+3. **Rangos clínicos sin validar por un médico.** Los mismos umbrales aplican a todos salvo overrides individuales.
+4. **Textos legales provisionales.** Revisar con asesoría jurídica antes de operar con datos reales.
+5. **Sin verificación de correo/MFA por defecto.** Ver `docs/OPERACION.md` para las opciones de Supabase Auth.
+6. **Plan gratuito de Supabase**: pausa el proyecto tras 1 semana de inactividad y no incluye respaldos. Para producción con datos de pacientes se requiere plan Pro.
+7. **Encabezados HTTP de seguridad** (frame-ancestors, HSTS) no configurables en GitHub Pages; la CSP se aplica por `<meta>`.
 
-**Format:** `type: description`
+## Roadmap sugerido
 
-```
-feat: add patient dashboard
-fix: correct form validation
-docs: update architecture
-style: improve CSS spacing
-refactor: modularize JavaScript
-test: add e2e tests
-chore: update dependencies
-```
-
----
-
-## Development Checklist
-
-- [x] v3.4 baseline established
-- [x] CSS/JS extracted to separate files
-- [x] Git versioning setup
-- [x] Documentation structure
-- [ ] Unit tests
-- [ ] Backend API design
-- [ ] Database schema
-- [ ] Authentication system
-- [ ] Multi-user support
-- [ ] Mobile responsiveness
-
----
-
-## Security Considerations (Phase 2+)
-
-- [ ] Input validation on backend
-- [ ] SQL injection prevention
-- [ ] CSRF protection
-- [ ] Rate limiting
-- [ ] User authentication
-- [ ] Role-based access control (RBAC)
-- [ ] Data encryption
-- [ ] GDPR compliance for patient records
-
----
-
-## Performance Targets
-
-| Metric | Target | Current |
-|--------|--------|---------|
-| Page Load | < 2s | ~0.5s (static) |
-| API Response | < 200ms | N/A |
-| Bundle Size | < 500KB | ~150KB |
-| Test Coverage | > 80% | 0% |
-
----
-
-## Known Limitations
-
-1. **RLS de demo:** las tablas operativas (no `usuarios`) están abiertas a la clave pública `anon` — correcto para una demo/prototipo, no para producción con datos reales de pacientes. Hace falta Supabase Auth + políticas por rol antes de un despliegue real.
-2. **Sin sesiones reales:** el login es una función RPC propia, no Supabase Auth — no hay JWT de sesión, tokens de refresco ni expiración.
-3. **Accessibility:** Partial WCAG compliance
-4. **Mobile:** Not optimized for mobile screens
-5. **Sin build step:** Babel transpila en cada carga de página (aceptable para demo, no para producción)
-
----
-
-## Deployment Roadmap
-
-**Current:** Local browser + GitHub versioning  
-**Short-term (2-3 weeks):** Add backend + database  
-**Medium-term (1-2 months):** Multi-user + authentication  
-**Long-term (3-6 months):** Cloud deployment + mobile app
-
----
-
-**Last Updated:** 2026-08-17  
-**Maintained By:** Gael (7mo Ingeniería)
+- v4.1: cola offline, MAR (medicación), alergias/contactos, MFA para SuperAdmin.
+- v4.2: reportes mensuales SDIS, exportación auditada, notificaciones push.
+- Infra: dominio propio + hosting con encabezados de seguridad, respaldo diario y monitoreo.

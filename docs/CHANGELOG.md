@@ -1,5 +1,40 @@
 # AuraCare - Complete Changelog
 
+## [v4.0.0] - 2026-09-26
+
+### Seguridad
+- Autenticación con **Supabase Auth** (JWT) en lugar del login por RPC propio; las cuentas nuevas quedan `pendiente` hasta que un SuperAdmin asigna rol, sede y jornada.
+- **RLS por rol y sede** en todas las tablas (migración 04, ver `docs/OPERACION.md`); `anon` sin acceso; cierre de sesión por inactividad (20 min).
+- Notas clínicas **selladas en el servidor** con hash SHA-256 encadenado por sede, inmutables (UPDATE/DELETE/TRUNCATE bloqueados) y verificables desde la app.
+- Alertas, límites de dotación y validación de signos vitales se calculan en triggers de servidor.
+- **Auditoría** de consultas a fichas, cambios de permisos, altas y configuración.
+- Bundle local (React + Supabase) con **CSP estricta**: sin CDN, sin Babel en el navegador, sin `unsafe-eval`.
+- Contraseñas: mínimo 10 caracteres con letras y números; cambio de contraseña desde el perfil; ya no existen contraseñas temporales compartidas.
+
+### Corregido
+- Se retiraron los claims falsos de "cifrado E2EE" e "inalterable" (no eran reales en 3.x).
+- Fecha/hora en zona horaria de Bogotá (antes UTC: el día cambiaba a las 7 pm, en plena jornada noche).
+- La jornada se deriva de la hora, no de un botón manual.
+- Guardado con confirmación real: la UI ya no muestra "✓" cuando la BD falló.
+- La firma de entrega de turno ahora persiste; el autor de dotación ya no está fijo en el código.
+- Sparklines y último valor de signos reflejan las notas reales (antes no se actualizaban).
+- Campo de escala de dolor (existía el interruptor pero no el campo).
+
+### Añadido
+- Egreso/reingreso y edición de personas mayores; rangos de alerta personalizados por persona (indicación médica).
+- Devolución de pertenencias; lencería y observaciones al registrar custodia.
+- Límites de dotación (por persona/mes y por unidad/mes) validados en cliente y servidor.
+- Participación por actividad e impresión de actividades en la Sección 5.
+- Registro SDIS por fecha y botón **Verificar integridad**.
+- Historial de entregas de turno y resumen de turno.
+- Tiempo real entre usuarios, aviso de desconexión, borrador de nota recuperable.
+- Importación de Excel/CSV con validación de duplicados (`read-excel-file` en lugar de `xlsx` 0.18.5, con CVEs conocidos).
+- 17 pruebas automatizadas y migraciones SQL versionadas.
+
+### Retirado
+- Carpeta `versions-historic/` (contenía credenciales en texto plano).
+- Tabla `usuarios` y RPCs de login propio (migración 05, pendiente de aplicar).
+
 ## [v3.4.1] - 2026-09-16
 
 ### Added

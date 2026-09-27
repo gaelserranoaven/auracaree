@@ -1,0 +1,21 @@
+{
+  "name": "auracare",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AuraCare - registro de cuidado para centros de protección de persona mayor",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --watch",
+    "test": "node --test \"tests/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "read-excel-file": "^9.3.10"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
