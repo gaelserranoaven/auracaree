@@ -26,7 +26,7 @@ test('todas las pantallas renderizan sin lanzar errores', () => {
 test('el login ya no precarga credenciales ni menciona E2EE', () => {
   assert.doesNotMatch(html.login, /claudia\.rios/i);
   assert.doesNotMatch(html.login, /E2EE/);
-  assert.match(html.login, /Iniciar Sesión/);
+  assert.match(html.login, /Iniciar sesión/);
 });
 
 test('ninguna pantalla afirma cifrado E2EE ni muestra el hash falso 8f2a991b', () => {

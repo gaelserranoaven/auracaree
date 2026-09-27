@@ -49,30 +49,30 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
 
   return (
     <div className="panel" style={{ maxWidth: '880px' }}>
-      <div className="panel-head"><h3>Nueva Nota Médica · {sede.nombre} · Jornada {jornada === 'dia' ? 'Día' : 'Noche'}</h3></div>
+      <div className="panel-head"><h3>Nueva nota · {sede.nombre} · Jornada {jornada === 'dia' ? 'día' : 'noche'}</h3></div>
       <div className="panel-body">
         {b && (b.desc || Object.values(b.sv || {}).some(Boolean)) && (
-          <div className="nota-aviso" style={{ marginBottom: '12px' }}><span>📝</span><span>Se recuperó tu borrador sin guardar. Revísalo antes de guardar.</span></div>
+          <div className="nota-aviso" style={{ marginBottom: '12px' }} role="status"><span>Se recuperó tu borrador sin guardar. Revísalo antes de guardar.</span></div>
         )}
 
         <div className="picker-persona-v34">
-          <label htmlFor="filtro-persona" style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--tinta)', display: 'block', marginBottom: '6px' }}>
-            🔎 Buscar y Seleccionar Persona Mayor por Cédula o Nombre:
+          <label htmlFor="filtro-persona" style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--texto)', display: 'block', marginBottom: '6px' }}>
+            Persona mayor
           </label>
-          <input id="filtro-persona" placeholder="Escriba la cédula o el nombre para filtrar al instante..." value={filtro} onChange={(e) => setFiltro(e.target.value)} />
-          <div className="picker-res-list">
-            <div className={'picker-res-item ' + (personaId === '' ? 'selected' : '')} onClick={() => setPersonaId('')}>
-              <span>📢 Novedad General de la Jornada (Sin persona específica)</span>
-              <span>{personaId === '' ? '✓ Seleccionado' : ''}</span>
-            </div>
+          <input id="filtro-persona" placeholder="Buscar por nombre o cédula" value={filtro} onChange={(e) => setFiltro(e.target.value)} />
+          <div className="picker-res-list" role="group" aria-label="Elegir persona mayor">
+            <button type="button" aria-pressed={personaId === ''} className={'picker-res-item ' + (personaId === '' ? 'selected' : '')} onClick={() => setPersonaId('')}>
+              <span>Novedad general de la jornada (sin persona específica)</span>
+              <span>{personaId === '' ? '✓ Seleccionada' : ''}</span>
+            </button>
             {filtrados.map((r) => (
-              <div key={r.id} className={'picker-res-item ' + (personaId === r.id ? 'selected' : '')} onClick={() => setPersonaId(r.id)}>
-                <span><b>{r.nombres} {r.apellidos}</b> — <span className="mono">🪪 {r.doc}</span></span>
-                <span>{personaId === r.id ? '✓ Seleccionado' : 'Seleccionar'}</span>
-              </div>
+              <button type="button" key={r.id} aria-pressed={personaId === r.id} className={'picker-res-item ' + (personaId === r.id ? 'selected' : '')} onClick={() => setPersonaId(r.id)}>
+                <span><b>{r.nombres} {r.apellidos}</b> · <span className="mono">{r.doc}</span></span>
+                <span>{personaId === r.id ? '✓ Seleccionada' : 'Elegir'}</span>
+              </button>
             ))}
           </div>
-          {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--vital)', fontWeight: 600 }}>Persona mayor seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
+          {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--vital)', fontWeight: 600 }}>Seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
         </div>
 
         <div className="form-grid">
@@ -90,7 +90,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
                 <label htmlFor={'sv-' + k}>{lbl}</label>
                 <input id={'sv-' + k} type="number" step="any" inputMode="decimal" value={sv[k]} onChange={(ev) => set(k, ev.target.value)} placeholder="—" />
                 {e && !errores[k] && <span className={'estado ' + e}>{e === 'ok' ? 'EN RANGO' : e === 'v' ? 'VIGILANCIA' : 'CRÍTICO'}</span>}
-                {errores[k] && <div style={{ color: 'var(--alerta)', fontSize: '11.5px', marginTop: '3px' }}>{errores[k]}</div>}
+                {errores[k] && <div style={{ color: 'var(--alerta)', fontSize: '12.5px', marginTop: '3px' }}>{errores[k]}</div>}
               </div>
             );
           })}
@@ -104,7 +104,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
         {sinPersonaConSignos && <div className="nota-aviso rojo"><span>⚠</span><span>Ingresaste signos vitales sin seleccionar una persona mayor: no generarán alertas ni se asociarán a ninguna ficha.</span></div>}
 
         <div className="banner-rangos-v31">
-          <b>🩺 Rangos de seguridad clínica (referencia de la Fundación — pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
+          <b>Rangos de seguridad clínica (referencia de la Fundación — pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
           <div className="grid-rangos-items">
             {ORDEN_SIGNOS.filter((k) => rangos[k] && (k !== 'glu' || config.glu)).map((k) => {
               const r = rangoEfectivo(rangos, k, overrides); const t = etiquetasRango(r);

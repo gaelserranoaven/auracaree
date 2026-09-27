@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from './lib/api.js';
 import { ROLES, RANGOS_DEFAULT, puede } from './lib/clinico.js';
 import { fmtFecha, hoyBogota, jornadaDe } from './lib/util.js';
-import { Ctx, Logo, VERSION, ErrorBoundary } from './components/ui.jsx';
+import { Ctx, Logo, VERSION, ErrorBoundary, Icono } from './components/ui.jsx';
 import { CookieBanner, ModalLegal } from './components/Legal.jsx';
 import { Login } from './components/Login.jsx';
 import { AdminUsuarios } from './components/AdminUsuarios.jsx';
@@ -20,9 +20,9 @@ import { Auditoria } from './components/Auditoria.jsx';
 
 const INACTIVIDAD_MS = 20 * 60 * 1000;
 const TITULOS = {
-  panel: 'Panel General', residentes: 'Personas Mayores', ficha: 'Ficha Clínica', nueva: 'Nueva Nota Médica', asistencia: 'Asistencia & Actividades',
-  dotacion: 'Dotación de Elementos', entrega: 'Entrega de Turno', sdis: 'Registro SDIS FOR-PSS-729', config: 'Configuración',
-  admin_usuarios: 'Gestión de Usuarios', auditoria: 'Auditoría', perfil: 'Mi Perfil',
+  panel: 'Panel general', residentes: 'Personas mayores', ficha: 'Ficha clínica', nueva: 'Nueva nota', asistencia: 'Asistencia y actividades',
+  dotacion: 'Dotación de elementos', entrega: 'Entrega de turno', sdis: 'Registro SDIS FOR-PSS-729', config: 'Configuración',
+  admin_usuarios: 'Gestión de usuarios', auditoria: 'Auditoría', perfil: 'Mi perfil',
 };
 
 const upsert = (lista, item) => { const i = lista.findIndex((x) => x.id === item.id); if (i < 0) return [...lista, item]; const c = [...lista]; c[i] = item; return c; };
@@ -246,7 +246,7 @@ export const App = () => {
   const contenido = (() => {
     if (pantalla === 'cargando') {
       return (
-        <div className="pantalla-error"><Logo /><p>Conectando con la base de datos…</p></div>
+        <div className="pantalla-error" role="status"><Logo /><p>Cargando AuraCare…</p></div>
       );
     }
     if (pantalla === 'error') {
@@ -287,7 +287,7 @@ export const App = () => {
     const fueraJornada = perfil.jornadaPermitida !== 'ambos' && perfil.jornadaPermitida !== jornada;
     const rolId = perfil.rolId;
 
-    const navItem = (id, etiqueta, activo, onClick) => puedeVer(id) && <button className={activo ? 'active' : ''} onClick={onClick}>{etiqueta}</button>;
+    const navItem = (id, etiqueta, activo, onClick) => puedeVer(id) && <button className={activo ? 'active' : ''} aria-current={activo ? 'page' : undefined} onClick={onClick}><Icono n={id} />{etiqueta}</button>;
 
     return (
       <div className="shell">
@@ -307,16 +307,16 @@ export const App = () => {
           </div>
 
           <nav className="nav" aria-label="Navegación principal">
-            {navItem('panel', '◳ Panel General', vista === 'panel', () => navegarA('panel'))}
-            {navItem('residentes', '♥ Residentes', vista === 'residentes' || vista === 'ficha', () => navegarA('residentes'))}
-            {navItem('nueva', '＋ Nueva Nota', vista === 'nueva', () => { setPreselNota(''); navegarA('nueva'); })}
-            {navItem('asistencia', '☑ Asistencia & Actividades', vista === 'asistencia', () => navegarA('asistencia'))}
-            {navItem('dotacion', '⛨ Dotación de Elementos', vista === 'dotacion', () => navegarA('dotacion'))}
-            {navItem('entrega', '🤝 Entrega de Turno', vista === 'entrega', () => navegarA('entrega'))}
-            {navItem('sdis', '▤ Registro SDIS', vista === 'sdis', () => navegarA('sdis'))}
-            {navItem('config', '⚙ Configuración', vista === 'config', () => navegarA('config'))}
-            {navItem('admin_usuarios', '👥 Gestión de Usuarios', vista === 'admin_usuarios', () => navegarA('admin_usuarios'))}
-            {navItem('auditoria', '🧾 Auditoría', vista === 'auditoria', () => navegarA('auditoria'))}
+            {navItem('panel', 'Panel general', vista === 'panel', () => navegarA('panel'))}
+            {navItem('residentes', 'Personas mayores', vista === 'residentes' || vista === 'ficha', () => navegarA('residentes'))}
+            {navItem('nueva', 'Nueva nota', vista === 'nueva', () => { setPreselNota(''); navegarA('nueva'); })}
+            {navItem('asistencia', 'Asistencia', vista === 'asistencia', () => navegarA('asistencia'))}
+            {navItem('dotacion', 'Dotación', vista === 'dotacion', () => navegarA('dotacion'))}
+            {navItem('entrega', 'Entrega de turno', vista === 'entrega', () => navegarA('entrega'))}
+            {navItem('sdis', 'Registro SDIS', vista === 'sdis', () => navegarA('sdis'))}
+            {navItem('config', 'Configuración', vista === 'config', () => navegarA('config'))}
+            {navItem('admin_usuarios', 'Usuarios', vista === 'admin_usuarios', () => navegarA('admin_usuarios'))}
+            {navItem('auditoria', 'Auditoría', vista === 'auditoria', () => navegarA('auditoria'))}
           </nav>
           <div className="sidebar-foot">
             Fundación Construyendo Futuro ONG<br />NIT 900310195-2 · Ley 1581 / SDIS<br />
@@ -329,20 +329,21 @@ export const App = () => {
           {fueraJornada && <div className="aviso-global jornada no-print">Estás fuera de tu jornada autorizada ({perfil.jornadaPermitida === 'dia' ? 'Día' : 'Noche'}). Tus registros quedan marcados con la jornada real ({jornada === 'dia' ? 'Día' : 'Noche'}).</div>}
 
           <div className="topbar no-print">
-            <div className="nav-global">{vista !== 'panel' && <button className="btn-nav-top" onClick={goBack} title="Volver a la pantalla anterior">⬅ Atrás</button>}</div>
+            <div className="nav-global">{vista !== 'panel' && <button className="btn-nav-top" onClick={goBack}><Icono n="atras" />Atrás</button>}</div>
             <div className="titulo">
               <h2>{TITULOS[vista] || 'Mi Perfil'}</h2>
               <p>{sede.nombre} · {fmtFecha(hoy)}</p>
             </div>
             <div className="spacer"></div>
-            <div className="jornada-pill" role="group" aria-label="Jornada actual (según la hora de Bogotá)" title="La jornada se determina automáticamente por la hora">
-              <button className={jornada === 'dia' ? 'on' : ''} tabIndex={-1} style={{ cursor: 'default' }}>☀ Día</button>
-              <button className={jornada === 'noche' ? 'on' : ''} tabIndex={-1} style={{ cursor: 'default' }}>☾ Noche</button>
+            {/* Indicador, no control: la jornada la fija la hora de Bogotá */}
+            <div className="jornada-pill" role="img" aria-label={'Jornada actual: ' + (jornada === 'dia' ? 'día' : 'noche')} title="La jornada se determina automáticamente por la hora de Bogotá">
+              <span className={jornada === 'dia' ? 'on' : ''} aria-hidden="true">☀ Día</span>
+              <span className={jornada === 'noche' ? 'on' : ''} aria-hidden="true">☾ Noche</span>
             </div>
             <div className="nav-global">
-              <button className="btn-nav-top" onClick={refrescar} title="Actualizar datos">↻</button>
-              <button className="btn-nav-top" onClick={() => navegarA('perfil')}>👤 Mi Perfil</button>
-              <button className="btn-nav-top" style={{ color: 'var(--alerta)', borderColor: '#F2C4B6' }} onClick={() => logout()}>🚪 Salir</button>
+              <button className="btn-nav-top" onClick={refrescar} aria-label="Actualizar datos" title="Actualizar datos"><Icono n="refrescar" /></button>
+              <button className="btn-nav-top" onClick={() => navegarA('perfil')}><Icono n="perfil" />Mi perfil</button>
+              <button className="btn-nav-top" style={{ color: 'var(--alerta)', borderColor: '#F2C4B6' }} onClick={() => logout()}><Icono n="salir" />Cerrar sesión</button>
             </div>
           </div>
 

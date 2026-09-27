@@ -68,12 +68,12 @@ const FormResidente = ({ inicial, onGuardar, cerrar, titulo, sub, etiquetaBoton 
         <h3>{titulo}</h3>
         <p className="sub">{sub}</p>
         <div className="form-grid">
-          <div className="field"><label>Nombres *</label><input maxLength={80} value={f.nombres} onChange={(e) => set('nombres', e.target.value)} /></div>
-          <div className="field"><label>Apellidos *</label><input maxLength={80} value={f.apellidos} onChange={(e) => set('apellidos', e.target.value)} /></div>
-          <div className="field"><label>Cédula / Documento</label><input maxLength={30} value={f.doc} onChange={(e) => set('doc', e.target.value)} placeholder="Número de cédula o ID" /></div>
-          <div className="field"><label>Edad</label><input type="number" min="1" max="124" value={f.edad ?? ''} onChange={(e) => set('edad', e.target.value)} />
-            {edadMala && <div style={{ color: 'var(--alerta)', fontSize: '12px' }}>Edad no válida</div>}</div>
-          <div className="field full"><label>Diagnósticos base</label><input maxLength={300} value={f.dx} onChange={(e) => set('dx', e.target.value)} /></div>
+          <div className="field"><label htmlFor="fr-nombres">Nombres *</label><input id="fr-nombres" maxLength={80} value={f.nombres} onChange={(e) => set('nombres', e.target.value)} /></div>
+          <div className="field"><label htmlFor="fr-apellidos">Apellidos *</label><input id="fr-apellidos" maxLength={80} value={f.apellidos} onChange={(e) => set('apellidos', e.target.value)} /></div>
+          <div className="field"><label htmlFor="fr-doc">Cédula o documento</label><input id="fr-doc" maxLength={30} value={f.doc} onChange={(e) => set('doc', e.target.value)} placeholder="Número de cédula o ID" /></div>
+          <div className="field"><label htmlFor="fr-edad">Edad</label><input id="fr-edad" type="number" min="1" max="124" value={f.edad ?? ''} onChange={(e) => set('edad', e.target.value)} />
+            {edadMala && <div style={{ color: 'var(--alerta)', fontSize: '12.5px' }}>Escribe una edad entre 1 y 124 años.</div>}</div>
+          <div className="field full"><label htmlFor="fr-dx">Diagnósticos base</label><input id="fr-dx" maxLength={300} value={f.dx} onChange={(e) => set('dx', e.target.value)} /></div>
         </div>
         <div className="modal-foot">
           <button className="btn btn-ghost" onClick={cerrar}>Cancelar</button>
@@ -86,7 +86,7 @@ const FormResidente = ({ inicial, onGuardar, cerrar, titulo, sub, etiquetaBoton 
 
 export const NuevoResidente = ({ sede, onCrear, cerrar }) => (
   <FormResidente inicial={{ nombres: '', apellidos: '', doc: '', edad: '', dx: '' }} onGuardar={onCrear} cerrar={cerrar}
-    titulo="Registrar Persona Mayor" sub={`Ingreso a ${sede.nombre}.`} etiquetaBoton="Registrar Persona Mayor" />
+    titulo="Registrar persona mayor" sub={`Ingreso a ${sede.nombre}.`} etiquetaBoton="Registrar persona mayor" />
 );
 
 export const EditarResidente = ({ res, onGuardar, cerrar }) => (
@@ -102,8 +102,8 @@ export const EgresoResidente = ({ res, onEgresar, cerrar }) => {
       <div className="modal">
         <h3>Registrar egreso</h3>
         <p className="sub">{res.nombres} {res.apellidos} dejará de aparecer en la lista activa. Su historial clínico se conserva.</p>
-        <div className="field"><label>Motivo del egreso *</label>
-          <select value={motivo} onChange={(e) => setMotivo(e.target.value)}>
+        <div className="field"><label htmlFor="egreso-motivo">Motivo del egreso *</label>
+          <select id="egreso-motivo" value={motivo} onChange={(e) => setMotivo(e.target.value)}>
             <option value="">Seleccionar…</option>
             {['Traslado a otra institución', 'Retorno con familia', 'Hospitalización prolongada', 'Fallecimiento', 'Otro'].map((m) => <option key={m}>{m}</option>)}
           </select></div>
@@ -127,10 +127,10 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
   return (
     <div>
       <div className="buscador">
-        <input aria-label="Buscar persona mayor" placeholder="🔍 Escribe la CÉDULA o nombre de la persona mayor para filtrar…" value={q} onChange={(e) => setQ(e.target.value)}
-          style={{ fontSize: '14.5px', borderColor: q ? 'var(--vital)' : 'var(--linea)' }} />
-        {puedeCrear && <button className="btn btn-ghost" onClick={abrirImport}>⬆ Importar Excel/CSV</button>}
-        {puedeCrear && <button className="btn btn-primary" onClick={abrirNuevo}>+ Nuevo residente</button>}
+        <input aria-label="Buscar persona mayor" type="search" placeholder="Buscar por nombre o cédula" value={q} onChange={(e) => setQ(e.target.value)}
+          style={{ fontSize: '14.5px', borderColor: q ? 'var(--vital)' : 'var(--borde-control)' }} />
+        {puedeCrear && <button className="btn btn-ghost" onClick={abrirImport}>Importar Excel o CSV</button>}
+        {puedeCrear && <button className="btn btn-primary" onClick={abrirNuevo}>+ Registrar persona mayor</button>}
       </div>
       <div className="tabs">
         <button className={!verEgresados ? 'on' : ''} onClick={() => setVerEgresados(false)}>Activos ({residentes.length - nEgresados})</button>
@@ -144,7 +144,7 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
               <div className="avatar" aria-hidden="true">{r.nombres[0]}{r.apellidos[0]}</div>
               <div>
                 <div className="nom">{r.nombres} {r.apellidos}</div>
-                <div className="doc">🪪 {r.doc} · {r.edad ? r.edad + ' años' : 's/r'}</div>
+                <div className="doc">{r.doc} · {r.edad ? r.edad + ' años' : 's/r'}</div>
               </div>
             </div>
             <div className="dx">{r.dx}</div>

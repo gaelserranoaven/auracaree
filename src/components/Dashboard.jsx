@@ -75,7 +75,8 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
                   <div key={a.id} className="alerta-row">
                     <span className={'dot ' + (a.sev === 'critica' ? 'critica' : 'vigilancia')} />
                     <div className="que">
-                      <b style={{ cursor: 'pointer' }} onClick={() => a.personaId && irFicha(a.personaId)}>{nombreDe(a.personaId)}</b>
+                      {a.personaId ? <button type="button" className="btn-enlace" onClick={() => irFicha(a.personaId)}>{nombreDe(a.personaId)}</button> : <b>{nombreDe(a.personaId)}</b>}
+                      <span className={'sev ' + (a.sev === 'critica' ? 'c' : 'v')}>{a.sev === 'critica' ? 'Crítica' : 'Vigilancia'}</span>
                       <span>{r ? r.lbl : a.parametro} fuera de rango · {a.hora}{r ? ' · normal ' + etiquetasRango(r).normal : ''}</span>
                     </div>
                     <span className={'val ' + (a.sev === 'critica' ? 'c' : 'v')}>{a.valor} {r ? r.uni : ''}</span>

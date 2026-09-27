@@ -76,11 +76,11 @@ export const Ficha = ({ res, notas, config, puedeNota, puedeEditar, puedeRangos,
         <div className="avatar-xl" aria-hidden="true">{res.nombres[0]}{res.apellidos[0]}</div>
         <div>
           <h2>{res.nombres} {res.apellidos} {res.estado === 'egresado' && <span className="estado-pill inactivo" style={{ verticalAlign: 'middle' }}>Egresado</span>}</h2>
-          <div className="meta">🪪 {res.doc} · {res.edad ? res.edad + ' años' : 's/r'} · {res.dx}</div>
+          <div className="meta">{res.doc} · {res.edad ? res.edad + ' años' : 's/r'} · {res.dx}</div>
           {res.estado === 'egresado' && <div className="meta">Egreso: {res.fechaEgreso ? fmtFecha(res.fechaEgreso) : '—'} · {res.motivoEgreso}</div>}
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {puedeEditar && <button className="btn btn-ghost" onClick={onEditar}>✎ Editar datos</button>}
+          {puedeEditar && <button className="btn btn-ghost" onClick={onEditar}>Editar datos</button>}
           {puedeEditar && res.estado === 'activo' && <button className="btn btn-ghost" onClick={onEgreso}>Registrar egreso</button>}
           {puedeEditar && res.estado === 'egresado' && <button className="btn btn-ghost" disabled={ocupado} onClick={() => ejecutar(onReingreso)}>Reingresar</button>}
           {puedeNota && res.estado === 'activo' && <button className="btn btn-primary" onClick={() => nuevaNotaPara(res.id)}>+ Nueva nota</button>}
@@ -93,6 +93,7 @@ export const Ficha = ({ res, notas, config, puedeNota, puedeEditar, puedeRangos,
             <span className="borde" aria-hidden="true"></span>
             <div className="lbl">{c.lbl}</div>
             <div className="num">{c.val} <small>{c.uni}</small></div>
+            {!c.na && c.val !== '—' && (c.e === 'c' || c.e === 'v') && <span className={'sev ' + c.e}>{c.e === 'c' ? '▲ Crítico' : '● Vigilancia'}</span>}
             {c.hist && <Sparkline data={c.hist} estado={c.e} />}
           </div>
         ))}
@@ -110,7 +111,7 @@ export const Ficha = ({ res, notas, config, puedeNota, puedeEditar, puedeRangos,
       )}
 
       <div className="panel">
-        <div className="panel-head"><h3>Bitácora de salud (solo lectura · no editable)</h3></div>
+        <div className="panel-head"><h3>Bitácora de salud</h3><span className="badge-sello">Sellada · solo lectura</span></div>
         <div className="panel-body">
           {notasRes.length === 0 ? <div className="vacio">Esta persona aún no tiene notas registradas.</div> :
             <div className="bitacora">

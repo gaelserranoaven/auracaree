@@ -1,7 +1,7 @@
 export const CookieBanner = ({ onAceptar, onRechazar, abrirTerminos }) => (
   <div className="cookie-banner" role="dialog" aria-label="Aviso de almacenamiento local">
     <div className="cookie-txt">
-      <b>Almacenamiento técnico:</b> AuraCare guarda en tu navegador únicamente lo necesario para mantener tu sesión segura y recordar esta preferencia. No usamos cookies de terceros ni rastreo comercial. Consulta los <a onClick={abrirTerminos}>Términos, Condiciones y Política de Privacidad</a> (Ley 1581 de 2012).
+      <b>Almacenamiento técnico:</b> AuraCare guarda en tu navegador únicamente lo necesario para mantener tu sesión segura y recordar esta preferencia. No usamos cookies de terceros ni rastreo comercial. Consulta los <button type="button" className="btn-enlace" onClick={abrirTerminos}>Términos, condiciones y política de privacidad</button> (Ley 1581 de 2012).
     </div>
     <div className="cookie-btns">
       <button className="btn btn-ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.4)' }} onClick={onRechazar}>Solo necesarias</button>
