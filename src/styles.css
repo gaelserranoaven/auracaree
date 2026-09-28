@@ -469,7 +469,6 @@ button,.btn,.tabbar a{touch-action:manipulation}
   .sede-box-v34{margin:10px 0 0}
   .main{padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
-  .cookie-banner{bottom:calc(84px + env(safe-area-inset-bottom))}
   .topbar .nav-global .btn-nav-top span.txt{display:none}
   /* Barra de pestañas inferior: 4 destinos + Más (HIG tab bars) */
   .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:95;background:#fff;border-top:1px solid var(--linea);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
