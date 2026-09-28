@@ -21,3 +21,7 @@ __pycache__/
 # Builds (src/dist SÍ se versiona: GitHub Pages sirve archivos estáticos sin paso de build)
 /dist/
 /build/
+
+# Skills de Claude Code: viven en ~/.claude/skills (globales), no en el proyecto
+.claude/skills/
+skills-lock.json
