@@ -122,7 +122,7 @@ Aplica a `index.html` + `landing.css` (estático, sin JS). La app (`src/`) conse
 ### Neutral
 - Día: suelo `#FFFFFF`, suelo 2 `#F5F5F7`, tinta `#1D1D1F`, tinta 2 `#6E6E73` (4.66:1 sobre #F5F5F7), línea `#E2E2E7`.
 - Noche: suelo `#000000`, suelo 2 `#161617`, panel `#1C1C1E`, tinta `#F5F5F7`, tinta 2 `#A1A1A6`, línea `#2C2C2E`.
-- Modo oscuro del sistema: los capítulos de día pasan a `#101012` / `#1C1C1E` y el acento a `#7B96FF`; los de noche siguen en negro, así la alternancia se mantiene.
+- Modo oscuro del sistema: la página no cambia. Los capítulos de día y de noche se mantienen fijos en cualquier ajuste del sistema operativo (como las páginas de producto de Apple); la alternancia día/noche ya es la respuesta a ambos modos.
 
 ### Named Rules
 - **Un acento, una función.** El azul solo significa "puedes actuar aquí". Nunca decora.
@@ -134,6 +134,7 @@ Geist para todo el texto; Geist Mono solo para lo que es medición o dato: signo
 
 ### Hierarchy
 - Display (h1): clamp(3rem, 9vw, 6rem), 700, interlineado 1.02, tracking −0.04em.
+- Horas del turno (06:00 / 18:00): Geist Mono 400, clamp(4.5rem, 11vw, 8.5rem), tracking −0.03em.
 - Headline (h2): clamp(2.25rem, 5.4vw, 4rem), 700, 1.06, −0.035em.
 - Title (h3): 1.3125rem, 700, −0.015em.
 - Lead: clamp(1.125rem, 2.1vw, 1.4375rem), 400, color tinta 2.
@@ -150,7 +151,7 @@ Contenedor de 1080px, márgenes de 24px (16px en ≤480px). Capítulos a sangre 
 
 ## Elevation & Depth
 
-La profundidad existe solo en los objetos del producto (ventana de la app y teléfono): sombra con desplazamiento `0 1px 2px` + `0 30px 60px -20px` tintada azul en claro y negra en oscuro. Las piezas del bento y los paneles no llevan sombra ni borde: se separan por el tono del suelo. La barra superior es la única capa de vidrio (blur 20px, saturate 1.8), y con transparencia reducida pasa a sólida.
+La profundidad existe solo en los objetos del producto (ventana de la app y teléfono): sombra con desplazamiento `0 1px 2px` + `0 30px 60px -20px` tintada azul. Las piezas del bento y los paneles no llevan sombra ni borde: se separan por el tono del suelo. La barra superior es la única capa de vidrio (blur 20px, saturate 1.8), y con transparencia reducida pasa a sólida.
 
 ## Shapes
 

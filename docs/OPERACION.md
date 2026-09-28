@@ -8,12 +8,10 @@
 | 02 · esquema, rangos, dotación | ✅ aplicada | Columnas nuevas, `rangos_clinicos`, `elementos_dotacion`, hash de notas existentes |
 | 03 · triggers de servidor | ✅ aplicada | Sellado de notas, alertas, límites, auditoría, inmutabilidad |
 | 04a · RLS en tablas nuevas | ✅ aplicada | `alter table … enable row level security` |
-| **04 · RLS por rol y sede** | ⏳ **PENDIENTE** | Elimina el acceso abierto `acceso_demo_*` y crea las políticas |
-| **05 · retirar login legado** | ⏳ **PENDIENTE** (destructivo) | Borra `login_usuario`, `crear_usuario`, `actualizar_usuario`, `listar_usuarios` y la tabla `usuarios` |
+| 04 · RLS por rol y sede | ✅ aplicada (28-sep-2026) | Elimina el acceso abierto `acceso_demo_*` y crea las políticas |
+| 05 · retirar login legado | ✅ aplicada (28-sep-2026) | Borra `login_usuario`, `crear_usuario`, `actualizar_usuario`, `listar_usuarios` y la tabla `usuarios` |
 
-> ⚠ **Hasta aplicar la 04, cualquiera con la clave pública del HTML puede leer y modificar las tablas operativas** (acceso demo abierto). No cargar datos reales antes.
-
-Aplicar: Supabase → SQL Editor → pegar `supabase/migrations/04_rls_por_rol_y_sede.sql` → Run. Luego, con el nuevo frontend desplegado y la cuenta SuperAdmin creada, `05_retirar_login_legado.sql`.
+> Estado de seguridad (28-sep-2026): sin políticas abiertas, `anon` sin acceso a tablas y sin el login legado. Único aviso pendiente del panel de Supabase: *Leaked password protection* (requiere plan Pro).
 
 ## Checklist para el lunes
 

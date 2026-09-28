@@ -1,4 +1,4 @@
--- PENDIENTE (destructivo, requiere tu confirmación explícita).
+-- APLICADA el 28-sep-2026.
 -- Retira el login propio por RPC y la tabla `usuarios` con los hashes bcrypt cuyas contraseñas
 -- estuvieron expuestas en el historial público de git.
 -- Ejecutar SOLO después de que la migración 04 esté aplicada y el nuevo frontend desplegado.

@@ -1,5 +1,4 @@
--- PENDIENTE DE APLICAR (el clasificador de Claude Code bloqueó su ejecución vía MCP).
--- Aplicar en el SQL Editor de Supabase, o autorizar a Claude a ejecutarla.
+-- APLICADA el 28-sep-2026.
 -- Efecto: elimina el acceso abierto "acceso_demo_*" y deja RLS por rol y sede.
 -- La migración 04a (habilitar RLS en las 4 tablas nuevas) YA fue aplicada.
 

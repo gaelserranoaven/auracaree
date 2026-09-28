@@ -267,7 +267,7 @@ section h2{font-size:clamp(2.25rem,5.4vw,4rem);line-height:1.06;letter-spacing:-
 .mitad{display:grid;align-content:start;gap:14px;min-height:560px;padding-top:120px;padding-bottom:120px}
 .mitad-dia{background:var(--d-suelo-2);padding-left:max(24px,calc((100vw - 1080px)/2 + 24px));padding-right:56px}
 .mitad-noche{background:var(--n-suelo-2);color:var(--n-tinta);padding-left:56px;padding-right:max(24px,calc((100vw - 1080px)/2 + 24px));color-scheme:dark}
-.mitad .hora{font-size:clamp(4.5rem,11vw,8.5rem);font-weight:400;letter-spacing:-.05em;margin-bottom:8px;line-height:1;color:var(--acento)}
+.mitad .hora{font-size:clamp(4.5rem,11vw,8.5rem);font-weight:400;letter-spacing:-.03em;margin-bottom:8px;line-height:1;color:var(--acento)}
 .mitad-noche .hora{color:var(--acento-noche)}
 .mitad h3{font-size:clamp(1.5rem,2.6vw,2rem);letter-spacing:-.025em;line-height:1.15;max-width:14em}
 .mitad p{color:var(--d-tinta-2);max-width:26em}
