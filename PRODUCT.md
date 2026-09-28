@@ -32,7 +32,7 @@ Clinical notes that cannot be edited or deleted: the server stamps date, time an
 - Six roles enforced in the database (RLS, migration 04 applied 2026-09-28).
 - Session auto-closes after 20 minutes of inactivity.
 - Pilot starts 2026-09-28 in one real site.
-- Primary landing action: book a demo via WhatsApp (number pending from the user). Secondary: sign in; request access.
+- Primary landing action: book a demo via WhatsApp (+57 310 824 7722). Secondary: sign in; request access.
 
 ## Brand Commitments
 

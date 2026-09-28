@@ -9,7 +9,7 @@ related_targets: []
 
 Scope: public presentation page at the repo root. Visitor mode: **Persuade**.
 Audience: directors/coordinators of centros de protección de persona mayor (SDIS operators) evaluating AuraCare.
-Action: book a demo via WhatsApp (number pending from the user; token `WHATSAPP_NUMERO`). Secondary: Ingresar, Solicitar acceso.
+Action: book a demo via WhatsApp (+57 310 824 7722). Secondary: Ingresar, Solicitar acceso.
 Proof: app interface recreated with sample data (labeled), pilot in a real site since 2026-09-28, product facts and legal frame. No invented customers, numbers, testimonials or prices.
 Constraints: static HTML/CSS, no JS (CSP script-src 'none'), GitHub Pages, WCAG AA, Spanish (Colombia), tuteo.
 
