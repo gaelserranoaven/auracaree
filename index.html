@@ -2,234 +2,268 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="description" content="AuraCare es el registro de cuidado para centros de protección de persona mayor: notas clínicas selladas, signos vitales con alertas, asistencia, dotación y entrega de turno, listos para la supervisión de la SDIS.">
-<meta name="theme-color" content="#0E3A5D" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0A1822" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="AuraCare · El registro de cuidado que no se borra">
-<meta property="og:description" content="Notas clínicas selladas, signos vitales con alertas y formatos SDIS para centros de protección de persona mayor.">
+<meta name="description" content="AuraCare es el registro de cuidado para centros de protección de persona mayor: notas clínicas selladas que nadie puede alterar, alertas de signos vitales y formatos SDIS listos para la visita.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="AuraCare · Cada nota, sellada.">
+<meta property="og:description" content="El registro de cuidado para centros de protección de persona mayor en Bogotá.">
 <meta property="og:type" content="website">
-<title>AuraCare · Registro de cuidado para centros de protección de persona mayor</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect x='1' y='1' width='32' height='32' rx='9' fill='%230E3A5D'/%3E%3Cpolyline points='5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18' fill='none' stroke='%230FA47A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>AuraCare · Cada nota, sellada.</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect x='1' y='1' width='32' height='32' rx='9' fill='%231F4BE8'/%3E%3Cpolyline points='5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="landing.css">
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 
 <header class="barra">
-  <div class="barra-in">
+  <nav class="barra-in" aria-label="Principal">
     <a href="#inicio" class="marca" aria-label="AuraCare, inicio">
-      <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" class="marca-fondo"/><polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0FA47A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>Aura<em>Care</em></span>
+      <svg viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9"/><polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18"/></svg>
+      AuraCare
     </a>
-    <nav aria-label="Secciones">
-      <ul class="barra-links">
-        <li><a href="#funciones">Funciones</a></li>
-        <li><a href="#turno">Un turno</a></li>
-        <li><a href="#seguridad">Seguridad</a></li>
-        <li><a href="#equipo">Para quién</a></li>
-      </ul>
-    </nav>
-    <a href="src/index.html" class="boton boton-primario boton-chico">Ingresar</a>
-  </div>
+    <ul class="barra-links">
+      <li><a href="#sello">El sello</a></li>
+      <li><a href="#signos">Signos vitales</a></li>
+      <li><a href="#turno">Turnos</a></li>
+      <li><a href="#cumplimiento">Cumplimiento</a></li>
+    </ul>
+    <a href="src/index.html" class="barra-ingresar">Ingresar</a>
+    <a href="https://wa.me/WHATSAPP_NUMERO?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20AuraCare%20para%20mi%20centro." class="pastilla pastilla-chica" rel="noopener" target="_blank">Agendar demo</a>
+  </nav>
 </header>
 
 <main id="contenido">
 
-  <!-- HERO -->
-  <section id="inicio" class="hero">
-    <div class="hero-texto">
-      <h1>El registro de cuidado <span class="subrayado">que no se borra.</span></h1>
-      <p class="hero-sub">Para los centros de protección de persona mayor de Bogotá. AuraCare reúne en un solo lugar las notas clínicas, los signos vitales, la asistencia, la dotación y la entrega de turno de tu sede. Cada nota queda sellada con fecha, hora y autor, lista para la supervisión de la SDIS.</p>
-      <div class="hero-acciones">
-        <a href="src/index.html" class="boton boton-primario">Ingresar a AuraCare</a>
-        <a href="src/index.html#solicitar" class="boton boton-secundario">Solicitar acceso</a>
+  <!-- 1 · PORTADA: la tesis y el producto trabajando -->
+  <section id="inicio" class="portada">
+    <div class="portada-texto">
+      <h1>Cada nota, sellada.</h1>
+      <p class="portada-sub">El registro de cuidado para centros de protección de persona mayor.</p>
+      <div class="acciones">
+        <a href="https://wa.me/WHATSAPP_NUMERO?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20AuraCare%20para%20mi%20centro." class="pastilla" rel="noopener" target="_blank">Agendar una demo</a>
+        <a href="src/index.html" class="enlace-flecha">Ingresar</a>
       </div>
-      <p class="hero-nota">¿Primera vez? Solicita acceso con tu correo institucional. Un administrador de tu sede aprueba la cuenta y te asigna rol y jornada.</p>
     </div>
 
-    <!-- Firma visual: la bitácora sellada, tal como se ve dentro de la app -->
-    <figure class="bitacora-demo" aria-label="Ejemplo de bitácora con tres notas selladas y encadenadas">
-      <div class="demo-cabecera">
-        <span class="demo-sede">Sede Kennedy · Jornada día</span>
-        <svg class="demo-ecg" viewBox="0 0 120 24" aria-hidden="true"><polyline points="0,12 30,12 38,3 48,21 58,7 64,12 120,12" fill="none" stroke="#0FA47A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <figure class="escenario">
+      <div class="ventana" role="img" aria-label="Panel general de AuraCare: 42 personas activas, asistencia, notas del día y una alerta crítica de tensión arterial.">
+        <div class="ventana-barra"><span></span><span></span><span></span><b>auracare · Panel general</b></div>
+        <div class="app">
+          <aside class="app-lado">
+            <div class="app-marca"><i></i>AuraCare</div>
+            <div class="app-sede"><small>Sede</small>Kennedy<em>42/50 cupos</em></div>
+            <ul>
+              <li class="on">Panel general</li><li>Personas mayores</li><li>Nueva nota</li><li>Asistencia</li><li>Dotación</li><li>Entrega de turno</li><li>Registro SDIS</li>
+            </ul>
+          </aside>
+          <div class="app-cuerpo">
+            <div class="app-cabeza"><div><b>Panel general</b><small>Sede Kennedy · 28 de septiembre de 2026</small></div><span class="jornada"><svg class="sim sim-trazo" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="2.4"/><path d="M6 .8v1.4M6 9.8v1.4M.8 6h1.4M9.8 6h1.4M2.3 2.3l1 1M8.7 8.7l1 1M2.3 9.7l1-1M8.7 3.3l1-1"/></svg>Día</span></div>
+            <div class="app-kpis">
+              <div><small>Personas activas</small><b>42</b><em>de 50 cupos</em></div>
+              <div><small>Asistencia hoy</small><b>38<i>/42</i></b><em>Sección 5</em></div>
+              <div><small>Notas hoy</small><b>17</b><em>jornada día</em></div>
+              <div class="kpi-alerta"><small>Alertas activas</small><b>1</b><em>1 crítica</em></div>
+            </div>
+            <div class="app-paneles">
+              <div class="app-panel">
+                <b>Últimas notas de la jornada</b>
+                <ol class="mini-bitacora">
+                  <li><span class="mono">11:30</span><span class="tag">Evolución</span><span class="hash">#e41a6cd0f372</span><p>Control posterior en rango. Continúa en observación.</p></li>
+                  <li class="crit"><span class="mono">10:15</span><span class="tag tag-v">Novedad de salud</span><span class="hash">#3b7d02c95e11</span><p>Refiere mareo al levantarse. Reposo y aviso a jefe de enfermería.</p></li>
+                  <li><span class="mono">07:42</span><span class="tag">Evolución</span><span class="hash">#9f2c41e8a07b</span><p>Despierta, orientada. Desayuno completo.</p></li>
+                </ol>
+              </div>
+              <div class="app-panel">
+                <b>Alertas por signos vitales</b>
+                <div class="mini-alerta"><span class="rombo" aria-hidden="true"></span><div><strong>Rosa Martínez</strong><small>TA fuera de rango · 10:15</small></div><span class="mono crit-txt">172/104</span><span class="btn-mini">Atender</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <ol class="demo-notas">
-        <li class="demo-nota">
-          <div class="demo-meta"><span class="mono">07:42</span><span class="etiqueta etiqueta-evolucion">Evolución</span><span class="sello" title="Sello SHA-256 encadenado">#9f2c41e8a07b</span></div>
-          <p>Despierta, orientada. Desayuno completo. Deambula con caminador.</p>
-          <div class="chips"><span class="chip">TA 128/78 mmHg</span><span class="chip">FC 72 lpm</span><span class="chip">SpO₂ 95%</span></div>
-        </li>
-        <li class="demo-nota demo-critica">
-          <div class="demo-meta"><span class="mono">10:15</span><span class="etiqueta etiqueta-novedad">Novedad de salud</span><span class="sello">#3b7d02c95e11</span></div>
-          <p>Refiere mareo al levantarse. Se deja en reposo y se avisa a jefe de enfermería.</p>
-          <div class="chips"><span class="chip chip-critico"><span aria-hidden="true">▲</span> TA 172/104 mmHg · crítico</span><span class="chip chip-vigilancia"><span aria-hidden="true">●</span> FC 104 lpm · vigilancia</span></div>
-          <div class="demo-alerta" role="presentation"><span class="punto" aria-hidden="true"></span>Alerta crítica enviada al equipo de la sede</div>
-        </li>
-        <li class="demo-nota">
-          <div class="demo-meta"><span class="mono">11:30</span><span class="etiqueta etiqueta-evolucion">Evolución</span><span class="sello">#e41a6cd0f372</span></div>
-          <p>Control posterior en rango. Continúa en observación.</p>
-          <div class="chips"><span class="chip">TA 134/82 mmHg</span><span class="chip">FC 80 lpm</span></div>
-        </li>
-      </ol>
-      <figcaption>Datos de ejemplo. Cada sello se calcula en el servidor a partir de la nota y del sello anterior.</figcaption>
+      <div class="telefono" role="img" aria-label="Nota sellada en el celular: tensión arterial 172 sobre 104 crítica, sellada a las 10:15:08 por la auxiliar L. Gómez, cadena íntegra.">
+        <div class="tel-isla"></div>
+        <div class="tel-pantalla">
+          <b class="tel-titulo">Nota sellada</b>
+          <div class="tel-persona"><i>RM</i><div><strong>Rosa Martínez</strong><small>CC 41.xxx.xxx · 81 años</small></div></div>
+          <div class="tel-campo"><small>Tensión arterial</small><span class="mono">172 / 104</span><em class="crit-chip"><svg class="sim" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5 11 10.5H1z"/></svg>Crítico</em></div>
+          <div class="tel-campo"><small>Frecuencia cardiaca</small><span class="mono">104</span><em class="vig-chip"><svg class="sim" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4"/></svg>Vigilancia</em></div>
+          <div class="tel-campo"><small>Saturación O₂</small><span class="mono">95 %</span><em class="ok-chip">En rango</em></div>
+          <div class="tel-sello"><small>Sellada · 10:15:08 · Aux. L. Gómez</small><b class="mono">#3b7d02c95e11</b></div>
+          <span class="tel-integra">Cadena íntegra</span>
+        </div>
+      </div>
+      <figcaption>Interfaz de AuraCare con datos de ejemplo.</figcaption>
     </figure>
   </section>
 
-  <!-- MARCO NORMATIVO -->
-  <section class="marco" aria-label="Marco normativo que respeta AuraCare">
-    <ul>
-      <li><b>Ley 1581 de 2012</b><span>Datos sensibles de salud</span></li>
-      <li><b>Resolución 1995 de 1999</b><span>Integridad de la historia clínica</span></li>
-      <li><b>Formato SDIS FOR-PSS-729</b><span>Secciones 1, 4, 5 y 6</span></li>
-      <li><b>Hora oficial de Bogotá</b><span>Día 06:00–17:59 · Noche 18:00–05:59</span></li>
-    </ul>
-  </section>
-
-  <!-- FUNCIONES -->
-  <section id="funciones" class="seccion">
-    <header class="seccion-cabecera">
-      <h2>Todo lo que pasa en el turno, en un solo registro.</h2>
-      <p>Pensado para el ritmo real de una sede: registrar rápido, ver lo urgente primero y entregar el turno sin papeles sueltos.</p>
-    </header>
-    <div class="rejilla-funciones">
-      <article class="funcion">
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 14l2 2 4-4"/></svg>
-        <h3>Notas clínicas selladas</h3>
-        <p>El servidor asigna fecha, hora y autor, y encadena cada nota con un sello SHA-256 por sede. Ninguna nota se edita ni se borra: una corrección es una nota nueva.</p>
-      </article>
-      <article class="funcion">
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>
-        <h3>Signos vitales con alertas</h3>
-        <p>Tensión, frecuencia cardiaca y respiratoria, temperatura, saturación y glucometría. Un valor fuera de rango genera una alerta para todo el equipo al instante.</p>
-      </article>
-      <article class="funcion">
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4M12 17v4M4 12h3M17 12h3"/><circle cx="12" cy="12" r="5"/></svg>
-        <h3>Rangos por persona</h3>
-        <p>Ajusta los umbrales solo por indicación médica, por ejemplo una saturación objetivo menor para una persona con EPOC. Las alertas respetan esos rangos.</p>
-      </article>
-      <article class="funcion">
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
-        <h3>Formatos SDIS listos</h3>
-        <p>Asistencia, dotación, pertenencias en custodia y novedades de salud del FOR-PSS-729, generados a partir del registro diario e imprimibles en PDF.</p>
-      </article>
-      <article class="funcion">
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l4-4 3 3 5-5"/><path d="M14 11h2v2"/><path d="M4 21h16"/><path d="M12 3v3"/></svg>
-        <h3>Entrega de turno firmada</h3>
-        <p>Resumen de alertas y novedades de la jornada, firmado por quien entrega y guardado con su historial. El turno siguiente lo ve al entrar.</p>
-      </article>
-      <article class="funcion">
-        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 5a3 3 0 010 6M21 20c0-2.5-1.5-4.2-3.5-4.8"/></svg>
-        <h3>Varias sedes, seis roles</h3>
-        <p>Auxiliares, jefatura, administración de sede y de turno, interventoría y administración general. Cada rol ve solo lo que le corresponde.</p>
-      </article>
+  <!-- 2 · EL SELLO: momento firma, guiado por el scroll -->
+  <section id="sello" class="noche sello">
+    <div class="sello-pista">
+      <div class="sello-escena">
+        <div class="sello-texto">
+          <h2>Escrita una vez.<br>Verificable siempre.</h2>
+          <ol class="pasos">
+            <li class="paso paso-1"><b>Escribes la nota.</b> Signos, observación y a quién corresponde.</li>
+            <li class="paso paso-2"><b>El servidor la sella.</b> Fecha, hora y autor los pone AuraCare, no el equipo de quien escribe.</li>
+            <li class="paso paso-3"><b>Se encadena.</b> Su sello SHA-256 incluye el de la nota anterior. Alterar una rompe la cadena, y la verificación lo muestra.</li>
+          </ol>
+        </div>
+        <div class="sello-objeto" aria-hidden="true">
+          <div class="nota-anterior"><span class="mono">#9f2c41e8a07b</span><small>Nota anterior · 07:42</small></div>
+          <div class="eslabon"></div>
+          <article class="nota-sellada">
+            <header><span class="tag tag-v">Novedad de salud</span><span class="persona">Rosa Martínez</span></header>
+            <p>Refiere mareo al levantarse. Se deja en reposo y se avisa a jefe de enfermería.</p>
+            <div class="chips"><span class="chip-c"><svg class="sim" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5 11 10.5H1z"/></svg>TA 172/104 mmHg</span><span class="chip-v"><svg class="sim" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4"/></svg>FC 104 lpm</span></div>
+            <dl class="estampa">
+              <div><dt>Fecha</dt><dd class="mono">28-09-2026</dd></div>
+              <div><dt>Hora</dt><dd class="mono">10:15:08</dd></div>
+              <div><dt>Autor</dt><dd>Aux. L. Gómez</dd></div>
+            </dl>
+            <div class="huella"><span>Sello</span><b class="mono">3b7d02c95e11a8f0d6c4…</b><small class="mono">incluye #9f2c41e8a07b</small></div>
+            <div class="integra"><svg class="sim sim-trazo" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9.5 10 3"/></svg>Cadena íntegra</div>
+          </article>
+          <p class="ejemplo">Datos de ejemplo.</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- UN TURNO -->
-  <section id="turno" class="seccion seccion-turno">
-    <header class="seccion-cabecera">
-      <h2>De las 06:00 a la entrega, sin perder el hilo.</h2>
-    </header>
-    <ol class="linea-turno">
-      <li>
-        <span class="hora mono">06:00</span>
-        <h3>Recibe el turno</h3>
-        <p>Al ingresar ves la última entrega de turno, las alertas activas y cuántas personas están en la sede.</p>
-      </li>
-      <li>
-        <span class="hora mono">07:30</span>
-        <h3>Registra mientras cuidas</h3>
-        <p>Busca a la persona por nombre o cédula, toma signos y escribe la nota. Si se corta el internet, el borrador se conserva.</p>
-      </li>
-      <li class="linea-alerta">
-        <span class="hora mono">10:15</span>
-        <h3>Actúa sobre lo urgente</h3>
-        <p>Un signo crítico dispara una alerta para toda la sede. Quien la atiende la marca, y queda en el registro.</p>
-      </li>
-      <li>
-        <span class="hora mono">17:45</span>
-        <h3>Entrega y firma</h3>
-        <p>AuraCare arma el resumen de la jornada. Firmas la entrega y la jornada noche empieza con todo a la vista.</p>
-      </li>
-    </ol>
-  </section>
-
-  <!-- SEGURIDAD -->
-  <section id="seguridad" class="seccion seguridad">
-    <div class="seguridad-texto">
-      <h2>Una historia clínica que se puede verificar.</h2>
-      <p>Cada nota lleva el sello de la anterior. Si alguien alterara un registro, la cadena dejaría de coincidir, y la verificación de integridad lo mostraría.</p>
-      <ul class="lista-check">
-        <li>Fecha, hora y autor los pone el servidor, no el equipo de quien escribe.</li>
-        <li>Las consultas a fichas, los cambios de permisos y de configuración quedan en auditoría.</li>
-        <li>Cuentas personales aprobadas por un administrador. Nada de usuarios compartidos.</li>
-        <li>La sesión se cierra sola tras 20 minutos sin uso, pensado para equipos compartidos.</li>
-        <li>Conexión cifrada y datos cifrados en reposo por el proveedor de infraestructura.</li>
-      </ul>
-    </div>
-    <div class="cadena" aria-hidden="true">
-      <div class="eslabon"><span class="mono">#9f2c41e8</span><small>Nota 07:42</small></div>
-      <div class="union"></div>
-      <div class="eslabon"><span class="mono">#3b7d02c9</span><small>Nota 10:15 · incluye #9f2c41e8</small></div>
-      <div class="union"></div>
-      <div class="eslabon"><span class="mono">#e41a6cd0</span><small>Nota 11:30 · incluye #3b7d02c9</small></div>
-      <div class="verificado"><span aria-hidden="true">✓</span> Cadena íntegra</div>
+  <!-- 3 · SIGNOS VITALES: el monitor -->
+  <section id="signos" class="dia signos">
+    <div class="contenedor">
+      <h2 class="centrado">Un valor fuera de rango<br>avisa a todo el equipo.</h2>
+      <p class="intro centrado">Tensión, frecuencia cardiaca y respiratoria, temperatura, saturación y glucometría. AuraCare compara cada registro con los rangos de la sede y genera la alerta en el momento, para todos los que están de turno.</p>
+      <div class="monitor" role="img" aria-label="Monitor de signos de ejemplo: tensión arterial 172 sobre 104 crítica, frecuencia cardiaca 104 en vigilancia, saturación 95 por ciento y temperatura 36,8 en rango.">
+        <svg class="ecg" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,40 90,40 104,40 112,14 124,70 136,26 146,40 250,40 264,40 272,14 284,70 296,26 306,40 410,40 424,40 432,14 444,70 456,26 466,40 600,40"/></svg>
+        <div class="lecturas">
+          <div class="lectura crit"><small>TA · mmHg</small><b class="mono">172<i>/104</i></b><em><svg class="sim" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.5 11 10.5H1z"/></svg>Crítico</em></div>
+          <div class="lectura vig"><small>FC · lpm</small><b class="mono">104</b><em><svg class="sim" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4"/></svg>Vigilancia</em></div>
+          <div class="lectura"><small>SpO₂ · %</small><b class="mono">95</b><em>En rango</em></div>
+          <div class="lectura"><small>T° · °C</small><b class="mono">36,8</b><em>En rango</em></div>
+        </div>
+      </div>
+      <p class="ejemplo centrado">Datos de ejemplo.</p>
+      <div class="dos">
+        <div>
+          <h3>Rangos por persona.</h3>
+          <p>Por indicación médica ajustas los umbrales de una persona, como una saturación objetivo menor en EPOC. Las alertas siguientes respetan su rango, no el general.</p>
+        </div>
+        <div>
+          <h3>Nada depende solo del color.</h3>
+          <p>Crítico y vigilancia llevan símbolo y texto, además del color. Se leen igual en una pantalla con reflejo, de noche o con daltonismo.</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- PARA QUIÉN -->
-  <section id="equipo" class="seccion">
-    <header class="seccion-cabecera">
-      <h2>Cada persona del equipo ve lo que necesita.</h2>
-    </header>
-    <div class="rejilla-roles">
-      <article class="rol">
-        <h3>Auxiliares de enfermería</h3>
-        <p>Signos vitales, notas diarias, asistencia y dotación desde el celular o el computador de la sede.</p>
-      </article>
-      <article class="rol">
-        <h3>Médicos y jefatura de enfermería</h3>
-        <p>Valoración clínica, evoluciones, rangos por persona y la bitácora completa de cada ficha.</p>
-      </article>
-      <article class="rol">
-        <h3>Administración de sede y de turno</h3>
-        <p>Ingresos y egresos, cupos, configuración de la sede y supervisión de la jornada.</p>
-      </article>
-      <article class="rol">
-        <h3>Interventoría SDIS</h3>
-        <p>Consulta de solo lectura de dotación, formatos y auditoría, con la cadena de sellos verificable.</p>
-      </article>
+  <!-- 4 · TODO EL TURNO: bento con piezas reales -->
+  <section class="dia-2 turno-todo">
+    <div class="contenedor">
+      <h2 class="centrado">Todo el turno, en un solo lugar.</h2>
+      <div class="bento">
+        <article class="pieza pieza-sdis">
+          <h3>Formatos SDIS, sin transcribir.</h3>
+          <p>Las secciones 1, 4, 5 y 6 del FOR-PSS-729 salen del registro diario, listas para imprimir en PDF.</p>
+          <div class="hoja" aria-hidden="true">
+            <div class="hoja-cabeza"><b>FOR-PSS-729</b><span>Sección 5 · Asistencia</span></div>
+            <div class="hoja-fila h"><span>Persona mayor</span><span>Documento</span><span>Firma</span></div>
+            <div class="hoja-fila"><span>Rosa Martínez</span><span class="mono">41.xxx.xxx</span><span class="ok-chip">Firma</span></div>
+            <div class="hoja-fila"><span>Jorge Ruiz</span><span class="mono">19.xxx.xxx</span><span class="ok-chip">Firma</span></div>
+            <div class="hoja-fila"><span>Carmen Díaz</span><span class="mono">20.xxx.xxx</span><span class="vig-chip">No firma</span></div>
+          </div>
+        </article>
+        <article class="pieza pieza-entrega">
+          <h3>Entrega de turno firmada.</h3>
+          <p>El resumen de la jornada queda firmado y guardado. Quien entra lo ve primero.</p>
+          <div class="firma" aria-hidden="true"><span class="mono">17:45</span><b>Vigilar TA de Rosa M. cada 2 h.</b><small>Firmado · Aux. L. Gómez</small></div>
+        </article>
+        <article class="pieza pieza-dotacion">
+          <h3>Dotación con límites.</h3>
+          <p>Cada entrega se descuenta del límite mensual por persona.</p>
+          <div class="usos" aria-hidden="true">
+            <div class="barra-uso"><span>Pañales · Jorge R.</span><b class="mono">3 de 4</b><i><s class="uso-75"></s></i></div>
+            <div class="barra-uso"><span>Crema · Rosa M.</span><b class="mono">1 de 2</b><i><s class="uso-50"></s></i></div>
+            <div class="barra-uso lleno"><span>Pañales · Carmen D.</span><b class="mono">4 de 4</b><i><s class="uso-100"></s></i></div>
+          </div>
+        </article>
+        <article class="pieza pieza-roles">
+          <h3>Seis roles. Cada uno ve lo suyo.</h3>
+          <p>Los permisos viven en la base de datos: cada rol y cada sede acceden solo a lo que les corresponde.</p>
+          <ul class="roles" aria-label="Roles">
+            <li>Auxiliar de enfermería</li><li>Médico / jefe de enfermería</li><li>Administración de sede</li><li>Administración de turno</li><li>Interventoría SDIS</li><li>Administración general</li>
+          </ul>
+        </article>
+        <article class="pieza pieza-auditoria">
+          <h3>Auditoría de cada consulta.</h3>
+          <p>Quién abrió qué ficha, quién cambió un permiso, cuándo.</p>
+          <ol class="registro" aria-hidden="true">
+            <li><span class="mono">10:21</span>ver_ficha · Rosa M.</li>
+            <li><span class="mono">09:02</span>cambio de rol · usuario</li>
+            <li><span class="mono">08:40</span>imprimir_sdis · Sección 6</li>
+            <li><span class="mono">07:55</span>verificar_cadena · Kennedy</li>
+            <li><span class="mono">07:31</span>ver_ficha · Jorge R.</li>
+          </ol>
+        </article>
+      </div>
+      <p class="ejemplo centrado">Datos de ejemplo.</p>
     </div>
   </section>
 
-  <!-- CTA FINAL -->
-  <section class="cierre">
-    <h2>Lleva el registro de tu sede a AuraCare.</h2>
-    <p>Si ya tienes cuenta, ingresa. Si eres parte del equipo y aún no la tienes, solicita acceso y un administrador la aprobará.</p>
-    <div class="hero-acciones">
-      <a href="src/index.html" class="boton boton-claro">Ingresar a AuraCare</a>
-      <a href="src/index.html#solicitar" class="boton boton-contorno">Solicitar acceso</a>
+  <!-- 5 · DÍA Y NOCHE -->
+  <section id="turno" class="turnos">
+    <h2 class="solo-lector">Día y noche</h2>
+    <div class="mitad mitad-dia">
+      <span class="hora mono">06:00</span>
+      <h3>Recibes el turno con todo a la vista.</h3>
+      <p>La última entrega firmada, las alertas activas y quién está en la sede, antes de tu primera ronda.</p>
+    </div>
+    <div class="mitad mitad-noche">
+      <span class="hora mono">18:00</span>
+      <h3>Entregas sin papeles sueltos.</h3>
+      <p>La jornada la marca la hora oficial de Bogotá. Cada registro queda en su turno, aunque la noche cruce la medianoche.</p>
+    </div>
+  </section>
+
+  <!-- 6 · CUMPLIMIENTO -->
+  <section id="cumplimiento" class="dia cumplimiento">
+    <div class="contenedor">
+      <h2>Hecho para la visita de la SDIS.</h2>
+      <dl class="normas">
+        <div><dt>Ley 1581 de 2012</dt><dd>La información de salud es dato sensible: solo la ve el personal autorizado de cada sede.</dd></div>
+        <div><dt>Resolución 1995 de 1999</dt><dd>Registros íntegros e inalterables, con fecha, hora y autor asignados por el servidor.</dd></div>
+        <div><dt>Formato FOR-PSS-729</dt><dd>Dotación, pertenencias en custodia, asistencia y novedades de salud, desde el registro diario.</dd></div>
+        <div><dt>Cuentas personales</dt><dd>Aprobadas por un administrador. La sesión se cierra sola tras 20 minutos sin uso.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 7 · CIERRE -->
+  <section class="noche cierre">
+    <div class="contenedor centrado">
+      <h2>Veámoslo con tu equipo.</h2>
+      <p class="intro">AuraCare está en piloto desde septiembre de 2026 en una sede de Bogotá. Te lo mostramos con datos de ejemplo y resolvemos tus preguntas sobre la operación y la supervisión.</p>
+      <div class="acciones centrado">
+        <a href="https://wa.me/WHATSAPP_NUMERO?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20AuraCare%20para%20mi%20centro." class="pastilla" rel="noopener" target="_blank">Agendar una demo por WhatsApp</a>
+      </div>
+      <p class="secundario">¿Ya trabajas con AuraCare?</p>
+      <p class="enlaces-cierre"><a href="src/index.html" class="enlace-flecha">Ingresar</a><a href="src/index.html#solicitar" class="enlace-flecha">Solicitar acceso</a></p>
     </div>
   </section>
 </main>
 
 <footer class="pie">
-  <div class="pie-in">
-    <div>
-      <p class="pie-marca">Aura<em>Care</em></p>
-      <p>Registro de cuidado para centros de protección de persona mayor.</p>
-    </div>
-    <div>
-      <p>Fundación Construyendo Futuro ONG · NIT 900310195-2</p>
-      <p>Tratamiento de datos conforme a la Ley 1581 de 2012. Los términos completos están dentro de la aplicación.</p>
-      <p>© 2026 AuraCare</p>
-    </div>
+  <div class="contenedor pie-in">
+    <p><b>AuraCare</b> · Registro de cuidado para centros de protección de persona mayor · Bogotá, Colombia</p>
+    <p>Tratamiento de datos conforme a la Ley 1581 de 2012. Los términos completos están dentro de la aplicación.</p>
+    <p>© 2026 AuraCare</p>
   </div>
 </footer>
 </body>

@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-28T11:14:15.294Z",
+  "title": "Design System: AuraCare · Presentación",
+  "extensions": {
+    "colorMeta": {
+      "acento": {
+        "role": "primary",
+        "displayName": "Azul Aura",
+        "canonical": "#1F4BE8",
+        "tonalRamp": [
+          "#060F2E",
+          "#0C1E5D",
+          "#132D8B",
+          "#193CBA",
+          "#1F4BE8",
+          "#6281EF",
+          "#A5B7F6",
+          "#DDE4FC"
+        ]
+      },
+      "acento-noche": {
+        "role": "primary",
+        "displayName": "Azul Aura de noche",
+        "canonical": "#7B96FF",
+        "tonalRamp": [
+          "#191E33",
+          "#313C66",
+          "#4A5A99",
+          "#6278CC",
+          "#7B96FF",
+          "#A3B6FF",
+          "#CAD5FF",
+          "#EBEFFF"
+        ]
+      },
+      "dia-suelo-2": {
+        "role": "neutral",
+        "displayName": "Suelo de día",
+        "canonical": "#F5F5F7",
+        "tonalRamp": [
+          "#313131",
+          "#626263",
+          "#939394",
+          "#C4C4C6",
+          "#F5F5F7",
+          "#F8F8F9",
+          "#FBFBFC",
+          "#FEFEFE"
+        ]
+      },
+      "dia-tinta": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "#1D1D1F",
+        "tonalRamp": [
+          "#060606",
+          "#0C0C0C",
+          "#111113",
+          "#171719",
+          "#1D1D1F",
+          "#616162",
+          "#A5A5A5",
+          "#DDDDDD"
+        ]
+      },
+      "noche-suelo": {
+        "role": "neutral",
+        "displayName": "Noche",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#4D4D4D",
+          "#999999",
+          "#D9D9D9"
+        ]
+      },
+      "estado-critico": {
+        "role": "status",
+        "displayName": "Crítico",
+        "canonical": "#B83A1F",
+        "tonalRamp": [
+          "#250C06",
+          "#4A170C",
+          "#6E2313",
+          "#932E19",
+          "#B83A1F",
+          "#CD7562",
+          "#E3B0A5",
+          "#F4E1DD"
+        ]
+      },
+      "estado-vigilancia": {
+        "role": "status",
+        "displayName": "Vigilancia",
+        "canonical": "#9A5E08",
+        "tonalRamp": [
+          "#1F1302",
+          "#3E2603",
+          "#5C3805",
+          "#7B4B06",
+          "#9A5E08",
+          "#B88E52",
+          "#D7BF9C",
+          "#F0E7DA"
+        ]
+      },
+      "estado-ok": {
+        "role": "status",
+        "displayName": "En rango",
+        "canonical": "#0B7A5B",
+        "tonalRamp": [
+          "#021812",
+          "#043124",
+          "#074937",
+          "#096249",
+          "#0B7A5B",
+          "#54A28C",
+          "#9DCABD",
+          "#DAEBE6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Solo el titular de portada."
+      },
+      "headline": {
+        "displayName": "Titular",
+        "purpose": "Encabezado de cada capítulo."
+      },
+      "instrumento": {
+        "displayName": "Instrumento",
+        "purpose": "Lecturas de signos vitales en el monitor."
+      },
+      "dato": {
+        "displayName": "Dato",
+        "purpose": "Horas, sellos SHA-256 y documentos."
+      }
+    },
+    "shadows": [
+      {
+        "name": "objeto",
+        "value": "0 1px 2px rgba(0,0,0,.06), 0 30px 60px -20px rgba(16,24,64,.28)",
+        "purpose": "Ventana de la app y teléfono en modo claro."
+      },
+      {
+        "name": "objeto-oscuro",
+        "value": "0 1px 2px rgba(0,0,0,.4), 0 30px 60px -20px rgba(0,0,0,.7)",
+        "purpose": "Los mismos objetos en modo oscuro."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.23,1,.32,1)",
+        "purpose": "Presión de botones y flecha de enlaces."
+      },
+      {
+        "name": "sello",
+        "value": "scroll timeline --sello, rangos contain 0–90%",
+        "purpose": "Único momento coreografiado: estampa, sello, eslabón y verificación."
+      },
+      {
+        "name": "ecg",
+        "value": "view() entry 30% → cover 45%",
+        "purpose": "El trazo del monitor se dibuja al entrar."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "movil",
+        "value": "480px"
+      },
+      {
+        "name": "tableta",
+        "value": "820px"
+      },
+      {
+        "name": "escritorio-estrecho",
+        "value": "1100px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal (Agendar una demo).",
+      "html": "<a class=\"ds-pastilla\" href=\"#\">Agendar una demo</a>",
+      "css": ".ds-pastilla{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:999px;background:#1F4BE8;color:#fff;font:500 17px Geist,system-ui,sans-serif;text-decoration:none;transition:background-color .2s cubic-bezier(.23,1,.32,1),transform .16s cubic-bezier(.23,1,.32,1)}.ds-pastilla:hover{background:#1A3FC4}.ds-pastilla:active{transform:scale(.97)}.ds-pastilla:focus-visible{outline:3px solid #1F4BE8;outline-offset:3px}"
+    },
+    {
+      "name": "Enlace con flecha",
+      "kind": "custom",
+      "refersTo": "link-flecha",
+      "description": "Acción secundaria (Ingresar).",
+      "html": "<a class=\"ds-flecha\" href=\"#\">Ingresar</a>",
+      "css": ".ds-flecha{display:inline-flex;align-items:center;min-height:44px;color:#1F4BE8;font:500 17px Geist,system-ui,sans-serif;text-decoration:none}.ds-flecha:after{content:'›';margin-left:.3em;font-size:1.2em;transition:transform .2s cubic-bezier(.23,1,.32,1)}.ds-flecha:hover{text-decoration:underline}.ds-flecha:hover:after{transform:translateX(3px)}"
+    },
+    {
+      "name": "Pieza del bento",
+      "kind": "card",
+      "refersTo": "pieza",
+      "description": "Capacidad con un fragmento real del producto.",
+      "html": "<article class=\"ds-pieza\"><h3>Entrega de turno firmada.</h3><p>Quien entra lo ve primero.</p></article>",
+      "css": ".ds-pieza{background:#fff;border-radius:22px;padding:28px;font-family:Geist,system-ui,sans-serif}.ds-pieza h3{font-size:21px;letter-spacing:-.015em;margin:0 0 8px;color:#1D1D1F}.ds-pieza p{margin:0;color:#6E6E73}"
+    },
+    {
+      "name": "Chip de estado",
+      "kind": "chip",
+      "refersTo": "estado-critico",
+      "description": "Estado clínico con símbolo y texto.",
+      "html": "<span class=\"ds-chip\">▲ Crítico</span>",
+      "css": ".ds-chip{font:700 12px Geist,system-ui,sans-serif;border-radius:6px;padding:2px 8px;background:#FCEAE5;color:#B83A1F}"
+    },
+    {
+      "name": "Nota sellada",
+      "kind": "custom",
+      "refersTo": "nota-sellada",
+      "description": "Objeto firma: nota con estampa del servidor y sello encadenado.",
+      "html": "<article class=\"ds-nota\"><p>Refiere mareo al levantarse.</p><div class=\"ds-huella\"><span>Sello</span><b>3b7d02c95e11a8f0…</b></div><em>✓ Cadena íntegra</em></article>",
+      "css": ".ds-nota{background:#1C1C1E;color:#F5F5F7;border-radius:24px;padding:22px;display:grid;gap:14px;font-family:Geist,system-ui,sans-serif;max-width:420px}.ds-nota p{margin:0}.ds-huella{background:#0E1430;border-radius:14px;padding:12px 14px;display:grid}.ds-huella span{font-size:11px;color:#7B96FF;font-weight:600}.ds-huella b{font:500 15px 'Geist Mono',monospace}.ds-nota em{font-style:normal;justify-self:start;font-weight:600;font-size:14px;color:#4FD1A5;background:#12302A;border-radius:99px;padding:5px 12px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El turno",
+    "overview": "Página de producto con capítulos de día y de noche. Un solo acento azul. La nota sellada es el objeto héroe y el sello es el único momento coreografiado.",
+    "keyCharacteristics": [
+      "Capítulos de día (blanco) y de noche (negro)",
+      "Un acento: azul Aura",
+      "Geist + Geist Mono para datos",
+      "El producto trabajando con datos de ejemplo rotulados"
+    ],
+    "rules": [
+      {
+        "name": "Un acento, una función",
+        "body": "El azul solo marca dónde actuar.",
+        "section": "colors"
+      },
+      {
+        "name": "El color clínico vive dentro del producto",
+        "body": "Rojo, ámbar y verde solo en la interfaz, siempre con símbolo y texto.",
+        "section": "colors"
+      },
+      {
+        "name": "El tracking depende del tamaño",
+        "body": "Negativo en titulares, casi cero en el cuerpo.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Mostrar el producto trabajando con datos de ejemplo rotulados",
+      "Alternar día y noche para contar el turno",
+      "Contraste AA en ambos modos y áreas de 44px"
+    ],
+    "donts": [
+      "Inventar clientes, cifras, testimonios o precios",
+      "Usar el azul como decoración",
+      "Antetítulos, grillas de tarjetas iguales con ícono, texto con degradado o resplandores",
+      "Más de un momento animado"
+    ]
+  }
+}
