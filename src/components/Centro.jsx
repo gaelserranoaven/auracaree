@@ -75,7 +75,7 @@ export const CieloCambio = ({ hacia }) => (
     <div className="orbita"><div className="sol"></div><div className="luna"></div></div>
     <div className="rotulo">
       <b>{hacia === 'noche' ? 'Centro Noche' : 'Centro Día'}</b>
-      <span>{hacia === 'noche' ? '18:00 – 06:00' : '06:00 – 18:00'}</span>
+      <span>{hacia === 'noche' ? '18:00 - 06:00' : '06:00 - 18:00'}</span>
     </div>
   </div>
 );

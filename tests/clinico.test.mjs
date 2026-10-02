@@ -40,14 +40,14 @@ test('rangos personalizados por residente sobreescriben los generales', () => {
 
 test('etiquetasRango deriva los textos de los números', () => {
   const t = etiquetasRango(R.fc);
-  assert.equal(t.normal, '60–100');
+  assert.equal(t.normal, '60-100');
   assert.equal(t.crit, '<50 o ≥120');
 });
 
 test('errorSigno rechaza valores implausibles', () => {
-  assert.equal(errorSigno('temp', 400), 'Valor no plausible (30–43)');
+  assert.equal(errorSigno('temp', 400), 'Valor no plausible (30-43)');
   assert.equal(errorSigno('temp', 37), null);
-  assert.equal(errorSigno('spo2', 101), 'Valor no plausible (40–100)');
+  assert.equal(errorSigno('spo2', 101), 'Valor no plausible (40-100)');
   assert.equal(errorSigno('dolor', 11) !== null, true);
   assert.equal(errorSigno('fc', ''), null);
   assert.equal(errorSigno('fc', 'x'), 'Debe ser numérico');

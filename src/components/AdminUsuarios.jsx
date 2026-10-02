@@ -22,7 +22,7 @@ const CamposAcceso = ({ v, set, sedes, bloquearRol }) => {
       <div className="field">
         <label htmlFor={id + 's'}>Sede</label>
         <select id={id + 's'} value={v.sedeId || ''} onChange={(e) => set({ ...v, sedeId: e.target.value })}>
-          <option value="">— Sin sede —</option>
+          <option value="">Sin sede</option>
           {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
         </select>
       </div>

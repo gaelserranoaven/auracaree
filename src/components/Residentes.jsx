@@ -39,7 +39,7 @@ export const Importador = ({ sede, onImportar, cerrar }) => {
               <div className="prev-tabla">
                 <table className="op">
                   <thead><tr><th>Nombres</th><th>Apellidos</th><th>Doc</th><th>Edad</th></tr></thead>
-                  <tbody>{resultado.validas.map((v, i) => <tr key={i}><td>{v.nombres}</td><td>{v.apellidos}</td><td>{v.doc}</td><td>{v.edad || '—'}</td></tr>)}</tbody>
+                  <tbody>{resultado.validas.map((v, i) => <tr key={i}><td>{v.nombres}</td><td>{v.apellidos}</td><td>{v.doc}</td><td>{v.edad || '-'}</td></tr>)}</tbody>
                 </table>
               </div>
             )}

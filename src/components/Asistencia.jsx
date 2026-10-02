@@ -71,7 +71,7 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
             {actsHoy.length === 0 ? <div className="vacio">Aún no hay actividades hoy.</div> : actsHoy.map((a) => (
               <div key={a.id} className="tarjeta-turno">
                 <b>{a.nombre}</b> <span style={{ fontSize: '12px', color: 'var(--texto-2)' }}>· {a.linea} · {a.profesional}</span>
-                <div style={{ margin: '8px 0 4px', fontSize: '12px', color: 'var(--texto-2)' }}>Participantes ({Object.values(a.participacion).filter(Boolean).length}/{activos.length}) — toca para marcar:</div>
+                <div style={{ margin: '8px 0 4px', fontSize: '12px', color: 'var(--texto-2)' }}>Participantes ({Object.values(a.participacion).filter(Boolean).length}/{activos.length}). Toca para marcar:</div>
                 <div>
                   {activos.map((r) => (
                     <button key={r.id} type="button" disabled={!puedeEditar} className={'chip-particip' + (a.participacion[r.id] ? ' on' : '')}
@@ -110,7 +110,7 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
                 <tbody>
                   {actsHoy.map((a) => (
                     <tr key={a.id}><td>{a.nombre}</td><td>{a.linea}</td><td>{a.profesional}</td>
-                      <td>{activos.filter((r) => a.participacion[r.id]).map((r) => r.nombres + ' ' + r.apellidos).join(', ') || '—'}</td></tr>
+                      <td>{activos.filter((r) => a.participacion[r.id]).map((r) => r.nombres + ' ' + r.apellidos).join(', ') || 'Sin participantes'}</td></tr>
                   ))}
                 </tbody>
               </table>

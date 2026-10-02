@@ -32,7 +32,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
 
   const campos = psicosocial ? [] : [['ta_s', 'TA sistólica (mmHg)'], ['ta_d', 'TA diastólica (mmHg)'], ['fc', 'Frec. cardiaca (lpm)'], ['fr', 'Frec. respiratoria (rpm)'], ['temp', 'Temperatura (°C)'], ['spo2', 'Saturación O₂ (%)']];
   if (!psicosocial && config.glu) campos.push(['glu', 'Glucometría (mg/dL)']);
-  if (!psicosocial && config.dolor) campos.push(['dolor', 'Dolor (0–10)']);
+  if (!psicosocial && config.dolor) campos.push(['dolor', 'Dolor (0-10)']);
 
   const errores = Object.fromEntries(campos.map(([k]) => [k, errorSigno(k, sv[k])]));
   const hayError = Object.values(errores).some(Boolean);
@@ -89,7 +89,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
             return (
               <div key={k} className="field campo-signo">
                 <label htmlFor={'sv-' + k}>{lbl}</label>
-                <input id={'sv-' + k} type="number" step="any" inputMode="decimal" value={sv[k]} onChange={(ev) => set(k, ev.target.value)} placeholder="—" />
+                <input id={'sv-' + k} type="number" step="any" inputMode="decimal" value={sv[k]} onChange={(ev) => set(k, ev.target.value)} placeholder="-" />
                 {e && !errores[k] && <span className={'estado ' + e}>{e === 'ok' ? 'EN RANGO' : e === 'v' ? 'VIGILANCIA' : 'CRÍTICO'}</span>}
                 {errores[k] && <div style={{ color: 'var(--alerta-t)', fontSize: '12.5px', marginTop: '3px' }}>{errores[k]}</div>}
               </div>
@@ -105,7 +105,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
         {sinPersonaConSignos && <div className="nota-aviso rojo"><span>⚠</span><span>Ingresaste signos vitales sin seleccionar una persona mayor: no generarán alertas ni se asociarán a ninguna ficha.</span></div>}
 
         {!psicosocial && <div className="banner-rangos-v31">
-          <b>Rangos de seguridad clínica (referencia de la Fundación — pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
+          <b>Rangos de seguridad clínica (referencia de la Fundación, pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
           <div className="grid-rangos-items">
             {ORDEN_SIGNOS.filter((k) => rangos[k] && (k !== 'glu' || config.glu)).map((k) => {
               const r = rangoEfectivo(rangos, k, overrides); const t = etiquetasRango(r);

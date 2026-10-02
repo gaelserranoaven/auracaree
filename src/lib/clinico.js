@@ -90,8 +90,8 @@ export function estadoSigno(rangos, key, valor, overrides) {
 
 const f = (n) => String(n);
 export const etiquetasRango = (r) => ({
-  normal: `${f(r.vMin)}–${f(r.vMax)}`,
-  vig: `${f(r.cMin)}–<${f(r.vMin)} o >${f(r.vMax)}–<${f(r.cMax)}`,
+  normal: `${f(r.vMin)}-${f(r.vMax)}`,
+  vig: `${f(r.cMin)} a <${f(r.vMin)} o >${f(r.vMax)} a <${f(r.cMax)}`,
   crit: `<${f(r.cMin)} o ≥${f(r.cMax)}`,
 });
 
@@ -101,7 +101,7 @@ export function errorSigno(key, valor) {
   const n = Number(valor);
   const lim = LIMITES_SIGNOS[key];
   if (Number.isNaN(n)) return 'Debe ser numérico';
-  if (lim && (n < lim[0] || n > lim[1])) return `Valor no plausible (${lim[0]}–${lim[1]})`;
+  if (lim && (n < lim[0] || n > lim[1])) return `Valor no plausible (${lim[0]}-${lim[1]})`;
   return null;
 }
 

@@ -12,7 +12,7 @@ export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, 
 
   const activos = residentes.filter((r) => r.estado === 'activo');
   const entregasMes = entregas.filter((e) => e.sedeId === sede.id && e.fecha.slice(0, 7) === hoy.slice(0, 7));
-  const nombreDe = (id) => { const r = residentes.find((x) => x.id === id); return r ? r.nombres + ' ' + r.apellidos : '—'; };
+  const nombreDe = (id) => { const r = residentes.find((x) => x.id === id); return r ? r.nombres + ' ' + r.apellidos : 'Sin persona'; };
   const elLbl = Object.fromEntries(elementos.map((e) => [e.key, e.nombre]));
   const elegido = elementos.find((e) => e.key === fE.elemento);
   const errRegla = fE.personaId ? errorDotacion({ elemento: elegido, cantidad: fE.cantidad, personaId: fE.personaId, sedeId: sede.id, entregas, hoy }) : null;
@@ -97,10 +97,10 @@ export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, 
               {pertsSede.length === 0 ? <div className="vacio">Sin pertenencias registradas.</div> :
                 pertsSede.map((p) => (
                   <div key={p.id} style={{ padding: '10px 0', borderBottom: '1px dashed var(--linea)' }}>
-                    <b>{nombreDe(p.personaId)}</b> — <span className={'estado-pill ' + (p.estado === 'devuelta' ? 'inactivo' : 'ok')}>{p.estado === 'devuelta' ? 'Devuelta' : 'En custodia'}</span>
+                    <b>{nombreDe(p.personaId)}</b> <span className={'estado-pill ' + (p.estado === 'devuelta' ? 'inactivo' : 'ok')}>{p.estado === 'devuelta' ? 'Devuelta' : 'En custodia'}</span>
                     <div style={{ fontSize: '12px', color: 'var(--texto-2)', marginTop: '4px' }}>
                       Recibido {fmtFecha(p.fechaRecibo)}{p.fechaDev ? ' · Devuelto ' + fmtFecha(p.fechaDev) : ''}<br />
-                      Prendas: {p.prendas || '—'} · Ayudas: {p.ayudas || '—'} · Lencería: {p.lenceria || '—'} · Otros: {p.otros || '—'}{p.obs ? ' · Obs: ' + p.obs : ''}
+                      Prendas: {p.prendas || '-'} · Ayudas: {p.ayudas || '-'} · Lencería: {p.lenceria || '-'} · Otros: {p.otros || '-'}{p.obs ? ' · Obs: ' + p.obs : ''}
                     </div>
                     {puedeEditar && p.estado !== 'devuelta' && (
                       <button className="mini-btn" style={{ marginTop: '6px' }} disabled={ocupado}

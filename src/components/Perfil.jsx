@@ -39,7 +39,7 @@ export const PerfilUsuario = ({ usuario, rol, sede, onLogout, onActualizarNombre
               <label htmlFor="perfil-nombre">Nombre mostrado</label>
               <input id="perfil-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength="80" />
             </div>
-            <div className="field"><label>Unidad Operativa Asignada</label><input value={sede ? sede.nombre : '—'} disabled style={{ background: 'var(--superficie-3)' }} /></div>
+            <div className="field"><label>Unidad Operativa Asignada</label><input value={sede ? sede.nombre : 'Sin sede'} disabled style={{ background: 'var(--superficie-3)' }} /></div>
             <div className="field"><label>Horario Autorizado</label><input value={jornadaTxt} disabled style={{ background: 'var(--superficie-3)' }} /></div>
           </div>
           <div className="form-foot">

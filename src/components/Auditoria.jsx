@@ -8,7 +8,7 @@ export const Auditoria = ({ nombresPorId, sedes, onCargar }) => {
   const [filas, setFilas] = useState(null);
   const [error, setError] = useState('');
   useEffect(() => { onCargar().then(setFilas, (e) => setError(e.message)); }, []);
-  const sedeNombre = (id) => (sedes.find((s) => s.id === id) || {}).nombre || id || '—';
+  const sedeNombre = (id) => (sedes.find((s) => s.id === id) || {}).nombre || id || '-';
 
   return (
     <div className="panel">

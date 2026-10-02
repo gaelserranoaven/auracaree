@@ -112,7 +112,7 @@ export const ChipsSignos = ({ signos, overrides }) => {
   if (signos.ta_s) {
     const e = [est('ta_s', signos.ta_s), est('ta_d', signos.ta_d)];
     const peor = e.includes('c') ? 'c' : e.includes('v') ? 'v' : 'ok';
-    chips.push(chip('ta', peor, `TA ${signos.ta_s}/${signos.ta_d || '—'} mmHg`));
+    chips.push(chip('ta', peor, `TA ${signos.ta_s}/${signos.ta_d || '-'} mmHg`));
   }
   const txt = { fc: (v) => `FC ${v} lpm`, fr: (v) => `FR ${v} rpm`, temp: (v) => `T° ${v}°C`, spo2: (v) => `SpO₂ ${v}%`, glu: (v) => `Glu ${v} mg/dL` };
   ['fc', 'fr', 'temp', 'spo2', 'glu'].forEach((k) => {

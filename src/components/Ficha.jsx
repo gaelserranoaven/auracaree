@@ -60,12 +60,12 @@ export const Ficha = ({ res, notas, config, puedeNota, puedeEditar, puedeRangos,
   const est = (k) => estadoSigno(rangos, k, s[k], o);
 
   const cards = [
-    { lbl: 'Tensión arterial', val: s.ta_s ? s.ta_s + '/' + (s.ta_d ?? '—') : '—', uni: 'mmHg', hist: h.ta_s, e: peor(est('ta_s'), est('ta_d')) },
-    { lbl: 'Frec. cardiaca', val: s.fc ?? '—', uni: 'lpm', hist: h.fc, e: est('fc') },
-    { lbl: 'Saturación O₂', val: s.spo2 ?? '—', uni: '%', hist: h.spo2, e: est('spo2') },
-    { lbl: 'Frec. respiratoria', val: s.fr ?? '—', uni: 'rpm', hist: h.fr, e: est('fr') },
-    { lbl: 'Temperatura', val: s.temp ?? '—', uni: '°C', hist: h.temp, e: est('temp') },
-    config.glu ? { lbl: 'Glucometría', val: s.glu ?? '—', uni: 'mg/dL', hist: h.glu, e: est('glu') } : { lbl: 'Glucometría', val: 'No aplica', uni: '', na: true },
+    { lbl: 'Tensión arterial', val: s.ta_s ? s.ta_s + '/' + (s.ta_d ?? '-') : '-', uni: 'mmHg', hist: h.ta_s, e: peor(est('ta_s'), est('ta_d')) },
+    { lbl: 'Frec. cardiaca', val: s.fc ?? '-', uni: 'lpm', hist: h.fc, e: est('fc') },
+    { lbl: 'Saturación O₂', val: s.spo2 ?? '-', uni: '%', hist: h.spo2, e: est('spo2') },
+    { lbl: 'Frec. respiratoria', val: s.fr ?? '-', uni: 'rpm', hist: h.fr, e: est('fr') },
+    { lbl: 'Temperatura', val: s.temp ?? '-', uni: '°C', hist: h.temp, e: est('temp') },
+    config.glu ? { lbl: 'Glucometría', val: s.glu ?? '-', uni: 'mg/dL', hist: h.glu, e: est('glu') } : { lbl: 'Glucometría', val: 'No aplica', uni: '', na: true },
   ];
   const notasRes = notas.filter((n) => n.personaId === res.id);
   const personalizados = Object.keys(o || {}).length;
@@ -77,7 +77,7 @@ export const Ficha = ({ res, notas, config, puedeNota, puedeEditar, puedeRangos,
         <div>
           <h2>{res.nombres} {res.apellidos} {res.estado === 'egresado' && <span className="estado-pill inactivo" style={{ verticalAlign: 'middle' }}>Egresado</span>}</h2>
           <div className="meta">{res.doc} · {res.edad ? res.edad + ' años' : 's/r'} · {res.dx}</div>
-          {res.estado === 'egresado' && <div className="meta">Egreso: {res.fechaEgreso ? fmtFecha(res.fechaEgreso) : '—'} · {res.motivoEgreso}</div>}
+          {res.estado === 'egresado' && <div className="meta">Egreso: {res.fechaEgreso ? fmtFecha(res.fechaEgreso) : '-'} · {res.motivoEgreso}</div>}
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {puedeEditar && <button className="btn btn-ghost" onClick={onEditar}>Editar datos</button>}
@@ -89,11 +89,11 @@ export const Ficha = ({ res, notas, config, puedeNota, puedeEditar, puedeRangos,
 
       <div className="grid-signos">
         {cards.map((c) => (
-          <div key={c.lbl} className={'signo-card' + (c.na || c.val === '—' ? ' na' : c.e === 'c' ? ' c' : c.e === 'v' ? ' v' : '')}>
+          <div key={c.lbl} className={'signo-card' + (c.na || c.val === '-' ? ' na' : c.e === 'c' ? ' c' : c.e === 'v' ? ' v' : '')}>
             <span className="borde" aria-hidden="true"></span>
             <div className="lbl">{c.lbl}</div>
             <div className="num">{c.val} <small>{c.uni}</small></div>
-            {!c.na && c.val !== '—' && (c.e === 'c' || c.e === 'v') && <span className={'sev ' + c.e}>{c.e === 'c' ? '▲ Crítico' : '● Vigilancia'}</span>}
+            {!c.na && c.val !== '-' && (c.e === 'c' || c.e === 'v') && <span className={'sev ' + c.e}>{c.e === 'c' ? '▲ Crítico' : '● Vigilancia'}</span>}
             {c.hist && <Sparkline data={c.hist} estado={c.e} />}
           </div>
         ))}

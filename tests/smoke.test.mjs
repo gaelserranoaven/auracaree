@@ -44,7 +44,7 @@ test('el panel muestra alertas, sello real y no el residente egresado en KPIs', 
 
 test('la ficha usa rangos personalizados y muestra dolor', () => {
   assert.match(html.ficha, /personalizado/);
-  assert.match(html.nuevaNota, /Dolor \(0–10\)/);
+  assert.match(html.nuevaNota, /Dolor \(0-10\)/);
   assert.match(html.fichaEgresado, /Egresado/);
   assert.match(html.fichaEgresado, /Reingresar/);
 });
