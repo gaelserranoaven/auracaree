@@ -18,6 +18,7 @@ import { RegistroSdis } from './components/RegistroSdis.jsx';
 import { Config } from './components/Config.jsx';
 import { Auditoria } from './components/Auditoria.jsx';
 import { useCentro, CentroSwitch, CieloCambio } from './components/Centro.jsx';
+import { CambioClave } from './components/CambioClave.jsx';
 
 const INACTIVIDAD_MS = 20 * 60 * 1000;
 const TITULOS = {
@@ -32,7 +33,7 @@ const porFecha = (a, b) => (a.createdAt || '').localeCompare(b.createdAt || '');
 class ErrorCuenta extends Error {}
 
 export const App = () => {
-  const [pantalla, setPantalla] = useState('cargando'); // cargando | login | app | error
+  const [pantalla, setPantalla] = useState('cargando'); // cargando | login | cambiar_clave | app | error
   const [errorCarga, setErrorCarga] = useState('');
   const [view, setView] = useState('panel');
   const [navStack, setNavStack] = useState(['panel']);
@@ -95,7 +96,9 @@ export const App = () => {
     setSedes(d.sedes); setPerfiles(d.perfiles); setResidentes(d.residentes); setNotas(d.notas); setAlertas(d.alertas);
     setAsistencias(d.asistencias); setActividades(d.actividades); setEntregas(d.entregas); setPertenencias(d.pertenencias);
     setConfig(d.config); setRangosBD(d.rangos); setElementos(d.elementos); setTurnos(d.turnos); setRecepciones(d.recepciones);
-    setSedeId((actual) => (d.sedes.some((s) => s.id === actual) ? actual : (d.sedes.find((s) => s.id === p.sedeId) || d.sedes[0] || {}).id || ''));
+    // Solo se opera en sedes activas; las suspendidas se ven (SuperAdmin) en Configuración
+    const activas = d.sedes.filter((s) => s.activa);
+    setSedeId((actual) => (activas.some((s) => s.id === actual) ? actual : (activas.find((s) => s.id === p.sedeId) || activas[0] || {}).id || ''));
   }, []);
 
   const iniciarApp = useCallback(async (userId) => {
@@ -105,7 +108,7 @@ export const App = () => {
     if (p.estado === 'suspendido') { await api.cerrarSesion(); throw new ErrorCuenta('Tu cuenta está suspendida. Contacta a un Administrador.'); }
     const d = await api.cargarTodo(p, hoyBogota());
     setPerfil(p); aplicarDatos(d, p);
-    setNavStack(['panel']); setView('panel'); setPantalla('app');
+    setNavStack(['panel']); setView('panel'); setPantalla(p.debeCambiarClave ? 'cambiar_clave' : 'app');
   }, [aplicarDatos]);
 
   useEffect(() => {
@@ -248,6 +251,9 @@ export const App = () => {
     actualizarSede: async (id, f) => { const s = await api.actualizarSede(id, f); setSedes((p) => p.map((x) => (x.id === id ? s : x))); },
     guardarRango: async (parametro, r) => { await api.actualizarRango(parametro, r); setRangosBD((prev) => ({ ...(prev || RANGOS_DEFAULT), [parametro]: { ...(prev || RANGOS_DEFAULT)[parametro], ...r } })); },
     actualizarPerfil: async (id, parche) => { const p = await api.actualizarPerfil(id, parche); setPerfiles((l) => l.map((x) => (x.id === id ? p : x))); },
+    crearUsuario: async (datos) => { const r = await api.crearUsuario(datos); setPerfiles((l) => [...l.filter((x) => x.id !== r.perfil.id), r.perfil]); return r; },
+    suspenderSede: async (id, motivo) => { const x = await api.suspenderSede(id, motivo); setSedes((p) => p.map((s) => (s.id === id ? x : s))); },
+    reactivarSede: async (id) => { const x = await api.reactivarSede(id); setSedes((p) => p.map((s) => (s.id === id ? x : s))); },
     actualizarNombre: async (nombre) => { const p = await api.actualizarPerfil(perfil.id, { nombre }); setPerfil(p); setPerfiles((l) => l.map((x) => (x.id === p.id ? p : x))); },
   };
 
@@ -268,6 +274,13 @@ export const App = () => {
         </div>
       );
     }
+    if (pantalla === 'cambiar_clave' && perfil) {
+      return <CambioClave nombre={perfil.nombre} onSalir={() => logout()} onCambiar={async (clave) => {
+        await api.cambiarPassword(clave);
+        const p = await api.actualizarPerfil(perfil.id, { debeCambiarClave: false });
+        setPerfil(p); setPantalla('app'); avisar('Contraseña creada. Bienvenido a AuraCare');
+      }} />;
+    }
     if (pantalla === 'login') {
       return (
         <>
@@ -279,11 +292,13 @@ export const App = () => {
       );
     }
 
-    const sede = sedes.find((s) => s.id === sedeId) || sedes[0];
+    const sedesActivas = sedes.filter((s) => s.activa);
+    // El SuperAdmin entra aunque todas las sedes estén suspendidas, para poder reactivarlas
+    const sede = sedesActivas.find((s) => s.id === sedeId) || sedesActivas[0] || (perfil.rolId === 'superadmin' ? sedes[0] : undefined);
     if (!sede) {
       return (
         <div className="pantalla-error"><Logo /><h2>Sin sede asignada</h2>
-          <p>Tu cuenta no tiene una unidad operativa asignada. Pide a un Administrador que la configure.</p>
+          <p>Tu cuenta no tiene una unidad operativa activa (puede estar suspendida). Pide a un Administrador que lo revise.</p>
           <button className="btn btn-primary" onClick={() => logout()}>Cerrar sesión</button></div>
       );
     }
@@ -318,8 +333,8 @@ export const App = () => {
               <span className="sede-cupos-v34">{resSede.filter((r) => r.estado === 'activo').length}/{sede.cupos} cupos</span>
             </div>
             <div className="sede-select-wrapper">
-              <select className="sede-select-v34" aria-label="Sede" value={sede.id} disabled={sedes.length < 2} onChange={(e) => { setSedeId(e.target.value); navegarA('panel'); }}>
-                {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+              <select className="sede-select-v34" aria-label="Sede" value={sede.id} disabled={sedesActivas.length < 2} onChange={(e) => { setSedeId(e.target.value); navegarA('panel'); }}>
+                {sedesActivas.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
               </select>
               <span className="sede-select-arrow">▼</span>
             </div>
@@ -338,6 +353,7 @@ export const App = () => {
 
         <main className="main">
           {!online && <div className="aviso-global offline no-print" role="alert">Sin conexión a internet: los cambios NO se guardarán hasta que vuelva la conexión.</div>}
+          {!sede.activa && <div className="aviso-global offline no-print" role="alert">La sede {sede.nombre} está suspendida. Reactívala en Configuración para volver a operar.</div>}
           {fueraJornada && <div className="aviso-global jornada no-print">Estás fuera de tu jornada autorizada ({perfil.jornadaPermitida === 'dia' ? 'Día' : 'Noche'}). Tus registros quedan en {jornada === 'dia' ? 'Centro Día' : 'Centro Noche'}.</div>}
 
           <div className="topbar no-print">
@@ -382,9 +398,10 @@ export const App = () => {
             onImprimir={(sid, fecha) => api.auditarLectura('imprimir_sdis', 'notas', fecha, sid)} />}
 
           {vista === 'config' && <Config sedes={sedes} sede={sede} config={cfg} residentes={residentes} puedeConfig={puede(rolId, 'config')} esSuper={puede(rolId, 'rangosGlobales')}
-            onToggle={acciones.toggleConfig} onCrearSede={acciones.crearSede} onActualizarSede={acciones.actualizarSede} onGuardarRango={acciones.guardarRango} />}
+            onToggle={acciones.toggleConfig} onCrearSede={acciones.crearSede} onActualizarSede={acciones.actualizarSede} onGuardarRango={acciones.guardarRango}
+            onSuspenderSede={acciones.suspenderSede} onReactivarSede={acciones.reactivarSede} />}
 
-          {vista === 'admin_usuarios' && rolId === 'superadmin' && <AdminUsuarios perfiles={perfiles} sedes={sedes} jornadaActual={jornada} miId={perfil.id} onActualizar={acciones.actualizarPerfil} />}
+          {vista === 'admin_usuarios' && rolId === 'superadmin' && <AdminUsuarios perfiles={perfiles} sedes={sedes} jornadaActual={jornada} miId={perfil.id} onActualizar={acciones.actualizarPerfil} onCrear={acciones.crearUsuario} />}
 
           {vista === 'auditoria' && <Auditoria nombresPorId={nombresPorId} sedes={sedes} onCargar={api.cargarAuditoria} />}
 

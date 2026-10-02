@@ -23,7 +23,7 @@ const CamposAcceso = ({ v, set, sedes, bloquearRol }) => {
         <label htmlFor={id + 's'}>Sede</label>
         <select id={id + 's'} value={v.sedeId || ''} onChange={(e) => set({ ...v, sedeId: e.target.value })}>
           <option value="">Sin sede</option>
-          {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+          {sedes.filter((s) => s.activa || s.id === v.sedeId).map((s) => <option key={s.id} value={s.id}>{s.nombre}{s.activa ? '' : ' (suspendida)'}</option>)}
         </select>
       </div>
       <div className="field">
@@ -36,10 +36,58 @@ const CamposAcceso = ({ v, set, sedes, bloquearRol }) => {
   );
 };
 
+// Alta directa: la cuenta queda activa con una clave temporal que se muestra UNA vez
+const NuevoUsuario = ({ sedes, onCrear }) => {
+  const id = useId();
+  const activas = sedes.filter((s) => s.activa);
+  const vacio = { nombre: '', email: '', rolId: 'auxiliar', sedeId: activas[0]?.id || '', jornadaPermitida: 'ambos' };
+  const [v, setV] = useState(vacio);
+  const [creado, setCreado] = useState(null); // { perfil, clave }
+  const [copiado, setCopiado] = useState(false);
+  const [ocupado, ejecutar] = useAccion();
+  const { avisar } = useApp();
+  const emailOk = /^[^s@]+@[^s@]+.[^s@]+$/.test(v.email.trim());
+  const listo = v.nombre.trim().length >= 3 && emailOk && (v.sedeId || v.rolId === 'superadmin');
+
+  const crear = () => ejecutar(async () => {
+    const r = await onCrear(v);
+    setCreado(r); setCopiado(false); setV(vacio);
+    avisar(`Cuenta de ${r.perfil.nombre} creada`);
+  });
+  const copiar = async () => {
+    try { await navigator.clipboard.writeText(creado.clave); setCopiado(true); } catch { avisar('No se pudo copiar: selecciona la clave y cópiala a mano.', 'alerta'); }
+  };
+
+  if (creado) {
+    return (
+      <div className="u-clave" role="status">
+        <p><b>{creado.perfil.nombre}</b> ({creado.perfil.email}) ya puede ingresar con esta clave temporal:</p>
+        <div className="u-clave-caja">
+          <code className="mono">{creado.clave}</code>
+          <button type="button" className="btn btn-tinta" onClick={copiar}>{copiado ? 'Copiada' : 'Copiar'}</button>
+        </div>
+        <div className="nota-aviso"><IconoAviso t="alerta" /><span>Se muestra <b>una sola vez</b>. Entrégasela en persona o por un medio privado; al primer ingreso AuraCare le pedirá crear su propia contraseña.</span></div>
+        <div className="u-acciones"><button className="btn btn-primary" onClick={() => setCreado(null)}>Listo</button></div>
+      </div>
+    );
+  }
+  return (
+    <div className="u-nuevo">
+      <div className="u-nuevo-datos">
+        <div className="field"><label htmlFor={id + 'n'}>Nombre completo</label><input id={id + 'n'} maxLength={80} value={v.nombre} onChange={(e) => setV({ ...v, nombre: e.target.value })} autoComplete="off" /></div>
+        <div className="field"><label htmlFor={id + 'e'}>Correo</label><input id={id + 'e'} type="email" maxLength={254} value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} autoComplete="off" />
+          {v.email && !emailOk && <div className="u-err">Revisa el correo.</div>}</div>
+      </div>
+      <CamposAcceso v={v} set={setV} sedes={sedes} />
+      <div className="u-acciones"><button className="btn btn-primary" disabled={!listo || ocupado} onClick={crear}>{ocupado ? 'Creando…' : 'Crear cuenta'}</button></div>
+    </div>
+  );
+};
+
 const Avatar = ({ u }) => <span className={'u-avatar rol-' + u.rolId} aria-hidden="true">{iniciales(u.nombre)}</span>;
 
 const Solicitud = ({ u, sedes, onActualizar }) => {
-  const [v, setV] = useState({ rolId: 'auxiliar', sedeId: sedes[0]?.id || '', jornadaPermitida: 'ambos' });
+  const [v, setV] = useState({ rolId: 'auxiliar', sedeId: (sedes.find((s) => s.activa) || {}).id || '', jornadaPermitida: 'ambos' });
   const [ocupado, ejecutar] = useAccion();
   const { avisar } = useApp();
   const aprobar = () => ejecutar(async () => {
@@ -126,7 +174,7 @@ const TarjetaUsuario = ({ u, yo, sedes, jornadaActual, onActualizar }) => {
   );
 };
 
-export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualizar }) => {
+export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualizar, onCrear }) => {
   const [q, setQ] = useState('');
   const [filtroRol, setFiltroRol] = useState('todos');
 
@@ -148,6 +196,16 @@ export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualiz
         <div className="kpi"><div className="lbl">Solicitudes pendientes</div><div className={'val' + (pendientes.length ? ' alerta-c' : '')}>{pendientes.length}</div></div>
         <div className="kpi"><div className="lbl">Suspendidas</div><div className="val">{suspendidos}</div></div>
       </div>
+
+      {onCrear && (
+        <section className="panel" aria-labelledby="u-nuevo">
+          <div className="panel-head">
+            <h3 id="u-nuevo">Agregar usuario</h3>
+            <span className="panel-sub">Crea la cuenta ya activa, sin esperar la solicitud.</span>
+          </div>
+          <div className="panel-body"><NuevoUsuario sedes={sedes} onCrear={onCrear} /></div>
+        </section>
+      )}
 
       <section className="panel" aria-labelledby="u-pend">
         <div className="panel-head">

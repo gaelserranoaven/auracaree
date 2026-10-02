@@ -69,3 +69,19 @@ test('el profesional psicosocial no ve signos vitales y tiene la nota de convive
   assert.match(html.nuevaNotaPsicosocial, /Convivencia/);
   assert.match(html.nuevaNota, /TA sistólica/);
 });
+
+test('alta directa: formulario sin clave visible; primer ingreso obliga a crear contraseña', () => {
+  assert.match(html.admin, /Agregar usuario/);
+  assert.match(html.admin, /Crear cuenta/);
+  assert.doesNotMatch(html.admin, /type="password"/);
+  assert.match(html.cambioClave, /Crea tu contraseña/);
+  assert.match(html.cambioClave, /clave temporal/);
+});
+
+test('sedes: no se eliminan, se suspenden y se pueden reactivar', () => {
+  assert.match(html.configSuspendida, /Suspendida/);
+  assert.match(html.configSuspendida, /Fin del contrato/);
+  assert.match(html.configSuspendida, /Reactivar/);
+  assert.match(html.configSuspendida, /Suspender/);
+  assert.doesNotMatch(html.configSuspendida, /Eliminar/);
+});

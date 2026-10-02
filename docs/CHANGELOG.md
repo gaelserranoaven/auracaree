@@ -11,10 +11,14 @@
 - **Rol Profesional Psicosocial**: entrega turno sobre sucesos con los usuarios, convivencia y novedades del servicio; registra notas (sin signos vitales), asistencia y actividades.
 - Nuevo tipo de nota **Convivencia** (discusiones, conflictos entre usuarios).
 
+- **Agregar usuario** (SuperAdmin): crea la cuenta ya activa con rol, sede y jornada, sin esperar la solicitud. Se muestra una clave temporal una sola vez y el primer ingreso obliga a crear una contraseña personal (Edge Function `crear-usuario`).
+- **Suspender / reactivar sede** (SuperAdmin), con motivo. Las sedes nunca se eliminan: la base de datos lo bloquea y toda su información queda para auditoría.
+
 ### Cambiado
 - **Gestión de usuarios** rediseñada: tarjetas con avatar, color por rol, estado, búsqueda y filtro por rol; los cambios de rol/sede/jornada se hacen en "Editar acceso" con etiquetas visibles y se guardan juntos (antes cada lista guardaba al instante). Las solicitudes pueden aprobarse o rechazarse.
 - **Sin emojis**: avisos, recuadros y botones usan íconos de Phosphor (una sola familia, que también reemplaza los íconos dibujados a mano del menú). Los avisos tienen tipo (éxito, error, alerta, información, sello) y su ícono.
 - Sin guiones largos en el texto visible, incluido el formato SDIS (casillas de jornada como [X] / [ ]).
+- Migración `07_sedes_suspender_y_clave_temporal.sql`.
 - Migración `06_centro_turnos_profesional.sql` (rol, tipo de nota, jornada elegida, tabla `recepciones_turno`, RLS).
 
 ## [v4.0.0] - 2026-09-26

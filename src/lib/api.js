@@ -10,8 +10,8 @@ const ok = ({ data, error }) => {
 };
 
 /* ============ Mapeadores fila BD -> objeto de la app ============ */
-export const mSede = (s) => ({ id: s.id, nombre: s.nombre, cupos: s.cupos });
-export const mPerfil = (u) => ({ id: u.id, nombre: u.nombre, email: u.email, rolId: u.rol_id, sedeId: u.sede_id, jornadaPermitida: u.jornada_permitida, estado: u.estado, createdAt: u.created_at });
+export const mSede = (s) => ({ id: s.id, nombre: s.nombre, cupos: s.cupos, activa: s.activa !== false, motivoSuspension: s.motivo_suspension || '', suspendidaEn: s.suspendida_en || null });
+export const mPerfil = (u) => ({ id: u.id, nombre: u.nombre, email: u.email, rolId: u.rol_id, sedeId: u.sede_id, jornadaPermitida: u.jornada_permitida, estado: u.estado, debeCambiarClave: !!u.debe_cambiar_clave, createdAt: u.created_at });
 export const mResidente = (r) => ({
   id: r.id, sedeId: r.sede_id, nombres: r.nombres, apellidos: r.apellidos, doc: r.doc, edad: r.edad, dx: r.dx,
   signos: r.signos || {}, hist: r.hist || {}, estado: r.estado || 'activo', fechaEgreso: r.fecha_egreso, motivoEgreso: r.motivo_egreso, rangos: r.rangos || {},
@@ -240,6 +240,14 @@ export async function actualizarSede(id, { nombre, cupos }) {
   return mSede(ok(await db.from('sedes').update({ nombre: limpiar(nombre, 120), cupos: Number(cupos) }).eq('id', id).select().single()));
 }
 
+// Las sedes nunca se eliminan (trigger en la BD): solo se suspenden con motivo, o se reactivan
+export async function suspenderSede(id, motivo) {
+  return mSede(ok(await db.from('sedes').update({ activa: false, motivo_suspension: String(motivo || '').trim().slice(0, 500) }).eq('id', id).select().single()));
+}
+export async function reactivarSede(id) {
+  return mSede(ok(await db.from('sedes').update({ activa: true }).eq('id', id).select().single()));
+}
+
 export async function actualizarRango(parametro, r) {
   const fila = { v_min: r.vMin, v_max: r.vMax, c_min: r.cMin, c_max: r.cMax };
   ok(await db.from('rangos_clinicos').update(fila).eq('parametro', parametro).select().single());
@@ -253,7 +261,21 @@ export async function actualizarPerfil(id, parche) {
   if ('sedeId' in parche) fila.sede_id = parche.sedeId || null;
   if ('jornadaPermitida' in parche) fila.jornada_permitida = parche.jornadaPermitida;
   if ('estado' in parche) fila.estado = parche.estado;
+  if ('debeCambiarClave' in parche) fila.debe_cambiar_clave = !!parche.debeCambiarClave;
   return mPerfil(ok(await db.from('perfiles').update(fila).eq('id', id).select().single()));
+}
+
+/* ---- Alta directa por el SuperAdmin (Edge Function crear-usuario: crea la cuenta con clave temporal) ---- */
+export async function crearUsuario({ nombre, email, rolId, sedeId, jornadaPermitida }) {
+  const { data, error } = await db.functions.invoke('crear-usuario', {
+    body: { nombre: limpiar(nombre, 80), email: limpiar(email, 254).toLowerCase(), rolId, sedeId: sedeId || null, jornadaPermitida },
+  });
+  if (error) {
+    let msg = 'No se pudo crear la cuenta.';
+    try { const cuerpo = await error.context.json(); if (cuerpo?.error) msg = cuerpo.error; } catch { if (/fetch|network/i.test(error.message || '')) msg = mensajeError(error); }
+    throw new Error(msg);
+  }
+  return { perfil: mPerfil(data.perfil), clave: data.clave };
 }
 
 /* ---- Auditoría de lectura (best-effort: nunca bloquea la UI) ---- */

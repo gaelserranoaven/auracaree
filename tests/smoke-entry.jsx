@@ -16,6 +16,7 @@ import { Auditoria } from '../src/components/Auditoria.jsx';
 import { AdminUsuarios } from '../src/components/AdminUsuarios.jsx';
 import { PerfilUsuario } from '../src/components/Perfil.jsx';
 import { CookieBanner, ModalLegal } from '../src/components/Legal.jsx';
+import { CambioClave } from '../src/components/CambioClave.jsx';
 
 const hoy = '2026-09-26';
 const ctx = { hoy, jornada: 'dia', rangos: RANGOS_DEFAULT, avisar: () => {} };
@@ -63,7 +64,9 @@ const pantallas = {
   sdis: <RegistroSdis sede={sede} residentes={res} onCargarDia={() => new Promise(() => {})} onVerificar={noop} onImprimir={noop} />,
   config: <Config sedes={[sede]} sede={sede} config={cfg} residentes={res} puedeConfig esSuper onToggle={noop} onCrearSede={noop} onActualizarSede={noop} onGuardarRango={noop} />,
   auditoria: <Auditoria nombresPorId={{}} sedes={[sede]} onCargar={() => new Promise(() => {})} />,
-  admin: <AdminUsuarios perfiles={perfiles} sedes={[sede]} jornadaActual="dia" miId="u1" onActualizar={noop} />,
+  admin: <AdminUsuarios perfiles={perfiles} sedes={[{ ...sede, activa: true }]} jornadaActual="dia" miId="u1" onActualizar={noop} onCrear={noop} />,
+  cambioClave: <CambioClave nombre="Diana" onCambiar={noop} onSalir={noop} />,
+  configSuspendida: <Config sedes={[{ ...sede, activa: true }, { id: 's2', nombre: 'Sede Samper', cupos: 20, activa: false, motivoSuspension: 'Fin del contrato' }]} sede={sede} config={cfg} residentes={res} puedeConfig esSuper onToggle={noop} onCrearSede={noop} onActualizarSede={noop} onGuardarRango={noop} onSuspenderSede={noop} onReactivarSede={noop} />,
   perfil: <PerfilUsuario usuario={usuario} rol={{ nombre: 'SuperAdmin' }} sede={sede} onLogout={noop} onActualizarNombre={noop} onCambiarPassword={noop} />,
 };
 

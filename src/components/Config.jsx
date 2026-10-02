@@ -37,17 +37,26 @@ const RangosGlobales = ({ onGuardar }) => {
   );
 };
 
-export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, onToggle, onCrearSede, onActualizarSede, onGuardarRango }) => {
+export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, onToggle, onCrearSede, onActualizarSede, onGuardarRango, onSuspenderSede, onReactivarSede }) => {
   const { avisar } = useApp();
   const [nueva, setNueva] = useState({ nombre: '', cupos: 40 });
   const [ocupado, ejecutar] = useAccion();
   const [edit, setEdit] = useState(null);
+  const [suspender, setSuspender] = useState(null); // { id, motivo }
 
   const agregar = () => ejecutar(async () => {
     await onCrearSede(nueva);
     setNueva({ nombre: '', cupos: 40 });
     avisar(`Nueva unidad operativa "${nueva.nombre.trim()}" agregada`);
   });
+  const confirmarSuspension = () => ejecutar(async () => {
+    const s = sedes.find((x) => x.id === suspender.id);
+    if (!window.confirm(`¿Suspender "${s.nombre}"? Su personal pierde el acceso y no se podrá registrar nada en ella. Toda su información se conserva y puedes reactivarla después.`)) return;
+    await onSuspenderSede(suspender.id, suspender.motivo);
+    setSuspender(null);
+    avisar(`Sede "${s.nombre}" suspendida`, 'info');
+  });
+  const reactivar = (s) => ejecutar(async () => { await onReactivarSede(s.id); avisar(`Sede "${s.nombre}" reactivada`); });
   const guardarSede = () => ejecutar(async () => { await onActualizarSede(edit.id, edit); setEdit(null); avisar('Unidad actualizada'); });
 
   return (
@@ -71,13 +80,14 @@ export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, 
       <div className="panel">
         <div className="panel-head"><h3>Unidades Operativas</h3></div>
         <div className="panel-body">
+          <div className="nota-aviso" style={{ marginTop: 0, marginBottom: '14px' }}><IconoAviso t="registro" /><span>Las sedes no se eliminan: por la Resolución 1995 de 1999 sus notas e historial se conservan. Una sede suspendida queda fuera de la operación, su personal pierde el acceso y la suspensión queda en la auditoría.</span></div>
           <div className="grid-sedes-v34">
-            {sedes.map((s) => {
+            {[...sedes].sort((a, b) => Number(b.activa) - Number(a.activa)).map((s) => {
               const n = residentes.filter((r) => r.sedeId === s.id && r.estado === 'activo').length;
               const pct = Math.min(100, Math.round((n / (s.cupos || 1)) * 100));
               const editando = edit && edit.id === s.id;
               return (
-                <div key={s.id} className="card-sede-v34">
+                <div key={s.id} className={'card-sede-v34' + (s.activa ? '' : ' suspendida')}>
                   {editando ? (
                     <div style={{ display: 'grid', gap: '6px' }}>
                       <input aria-label="Nombre de la sede" maxLength={120} value={edit.nombre} onChange={(e) => setEdit((p) => ({ ...p, nombre: e.target.value }))} />
@@ -90,9 +100,26 @@ export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, 
                   ) : (
                     <>
                       <h4>{s.nombre}</h4>
+                      {!s.activa && <div className="sede-suspendida"><span className="estado-pill c">Suspendida</span>{s.motivoSuspension && <p>{s.motivoSuspension}</p>}</div>}
                       <div style={{ fontSize: '12px', color: 'var(--texto-2)' }}>Cupos utilizados: <b>{n} de {s.cupos}</b> ({pct}%)</div>
                       <div className="cupo-bar-bg"><div className="cupo-bar-fill" style={{ width: `${pct}%` }}></div></div>
-                      {esSuper && <button className="mini-btn" onClick={() => setEdit({ id: s.id, nombre: s.nombre, cupos: s.cupos })}>Editar</button>}
+                      {esSuper && suspender?.id === s.id ? (
+                        <div className="field" style={{ margin: '6px 0 0' }}>
+                          <label htmlFor={'mot-' + s.id}>Motivo de la suspensión</label>
+                          <textarea id={'mot-' + s.id} rows="2" maxLength={500} value={suspender.motivo} onChange={(e) => setSuspender((p) => ({ ...p, motivo: e.target.value }))} placeholder="Ej.: cierre del contrato con la SDIS"></textarea>
+                          <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                            <button className="mini-btn peligro" disabled={ocupado || suspender.motivo.trim().length < 5} onClick={confirmarSuspension}>Suspender sede</button>
+                            <button className="mini-btn" onClick={() => setSuspender(null)}>Cancelar</button>
+                          </div>
+                        </div>
+                      ) : esSuper && (
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          {s.activa && <button className="mini-btn" onClick={() => setEdit({ id: s.id, nombre: s.nombre, cupos: s.cupos })}>Editar</button>}
+                          {s.activa
+                            ? <button className="mini-btn peligro" onClick={() => setSuspender({ id: s.id, motivo: '' })}>Suspender</button>
+                            : <button className="mini-btn" disabled={ocupado} onClick={() => reactivar(s)}>Reactivar</button>}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

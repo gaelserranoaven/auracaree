@@ -649,3 +649,22 @@ button,.btn,.tabbar a{touch-action:manipulation}
 .toast.ok .ico-aviso,.toast.sello .ico-aviso{color:#6FE3BC}
 .toast.error .ico-aviso,.toast.alerta .ico-aviso{color:#FFB4A2}
 .toast.error,.toast.alerta{background:#7A2614}
+
+/* ===== Sedes suspendidas ===== */
+.card-sede-v34.suspendida{background:var(--superficie-2);border-style:dashed}
+.card-sede-v34.suspendida h4{color:var(--texto-2)}
+.sede-suspendida{margin:0 0 8px}
+.sede-suspendida p{font-size:12px;color:var(--texto-2);margin-top:6px;white-space:pre-wrap}
+.mini-btn.peligro{color:var(--alerta-t);border-color:var(--alerta-borde);background:var(--alerta-suave)}
+@media (hover:hover) and (pointer:fine){.mini-btn.peligro:hover{background:var(--alerta);color:#fff;border-color:var(--alerta)}}
+
+/* ===== Alta directa de usuarios ===== */
+.u-nuevo{display:grid;gap:4px;max-width:760px}
+.u-nuevo-datos{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.u-nuevo .u-campos{grid-template-columns:repeat(3,1fr);gap:0 14px}
+.u-err{font-size:12px;color:var(--alerta-t);margin-top:4px}
+.u-clave{max-width:620px;display:grid;gap:12px}
+.u-clave-caja{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--superficie-2);border:1.5px dashed var(--borde-control);border-radius:12px;padding:12px 14px}
+.u-clave-caja code{font-size:22px;font-weight:600;letter-spacing:.06em;flex:1;min-width:200px;user-select:all;color:var(--tinta)}
+.u-clave .u-acciones{justify-content:flex-start}
+@media(max-width:880px){.u-nuevo-datos,.u-nuevo .u-campos{grid-template-columns:1fr}}
