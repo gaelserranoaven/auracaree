@@ -1,3 +1,4 @@
+import { SignOut } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { useApp, useAccion } from './ui.jsx';
 import { errorPassword } from './Login.jsx';
@@ -10,17 +11,17 @@ export const PerfilUsuario = ({ usuario, rol, sede, onLogout, onActualizarNombre
   const [ocupado, ejecutar] = useAccion();
   useEffect(() => setNombre(usuario.nombre), [usuario.id, usuario.nombre]);
 
-  const guardarNombre = () => ejecutar(async () => { await onActualizarNombre(nombre.trim()); avisar('Nombre actualizado ✓'); });
+  const guardarNombre = () => ejecutar(async () => { await onActualizarNombre(nombre.trim()); avisar('Nombre actualizado'); });
   const errP = p1 ? errorPassword(p1) : null;
   const cambiarPass = () => ejecutar(async () => {
     if (errorPassword(p1)) return;
-    if (p1 !== p2) { avisar('Las contraseñas no coinciden.'); return; }
+    if (p1 !== p2) { avisar('Las contraseñas no coinciden.', 'error'); return; }
     await onCambiarPassword(p1);
     setP1(''); setP2('');
-    avisar('Contraseña actualizada ✓');
+    avisar('Contraseña actualizada');
   });
 
-  const jornadaTxt = usuario.jornadaPermitida === 'ambos' ? '☀ Día y ☾ Noche' : usuario.jornadaPermitida === 'dia' ? '☀ Exclusivo Turno Día' : '☾ Exclusivo Turno Noche';
+  const jornadaTxt = usuario.jornadaPermitida === 'ambos' ? 'Día y Noche' : usuario.jornadaPermitida === 'dia' ? 'Solo turno Día' : 'Solo turno Noche';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '740px' }}>
@@ -64,7 +65,7 @@ export const PerfilUsuario = ({ usuario, rol, sede, onLogout, onActualizarNombre
           </div>
           <div className="form-foot">
             <button className="btn btn-tinta" disabled={ocupado || !p1 || !!errP || p1 !== p2} onClick={cambiarPass}>Actualizar contraseña</button>
-            <button className="btn btn-peligro" onClick={onLogout}>🚪 Cerrar Sesión Segura</button>
+            <button className="btn btn-peligro" onClick={onLogout}><SignOut className="ico-txt" aria-hidden="true" />Cerrar sesión</button>
           </div>
         </div>
       </div>

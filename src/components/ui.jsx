@@ -1,4 +1,8 @@
 import { Component, createContext, useContext, useEffect, useId, useRef, useState } from 'react';
+import {
+  ArrowClockwise, ArrowLeft, CheckCircle, ClipboardText, DotsThree, FileText, GearSix, Handshake, Heart, Info, LockSimple,
+  MagnifyingGlass, Moon, NotePencil, Package, Prohibit, Receipt, ShieldCheck, SignOut, SquaresFour, Sun, UserCircle, UsersThree, Warning,
+} from '@phosphor-icons/react';
 import { estadoSigno } from '../lib/clinico.js';
 import { fmtFecha } from '../lib/util.js';
 
@@ -18,25 +22,21 @@ export const Logo = ({ dark }) => (
   </div>
 );
 
-/* Íconos de trazo (mismo lenguaje que la página de presentación). Decorativos: el texto del botón da el nombre. */
-const TRAZOS = {
-  panel: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
-  residentes: 'M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z',
-  nueva: 'M7 3h7l5 5v13H7zM14 3v5h5M13 11v6M10 14h6',
-  asistencia: 'M5 4h14v16H5zM9 12l2 2 4-4',
-  dotacion: 'M4 8l8-4 8 4v8l-8 4-8-4zM4 8l8 4 8-4M12 12v8',
-  entrega: 'M4 17l4-4 3 3 5-5M14 11h2v2M4 21h16',
-  sdis: 'M5 3h14v18H5zM9 8h6M9 12h6M9 16h3',
-  config: 'M12 15a3 3 0 100-6 3 3 0 000 6zM12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1',
-  admin_usuarios: 'M9 11a3 3 0 100-6 3 3 0 000 6zM3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 010 6M21 20c0-2.5-1.5-4.2-3.5-4.8',
-  auditoria: 'M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-5-5',
-  atras: 'M15 5l-7 7 7 7',
-  refrescar: 'M20 11a8 8 0 10-2.3 5.7M20 4v7h-7',
-  perfil: 'M12 12a4 4 0 100-8 4 4 0 000 8zM4 21c0-4 4-6 8-6s8 2 8 6',
-  salir: 'M15 4h4v16h-4M10 16l-4-4 4-4M6 12h10',
-  mas: 'M4 12a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M10.5 12a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0M17 12a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0',
+/* Íconos: una sola familia (Phosphor, peso regular). Decorativos: el texto del botón da el nombre. */
+const ICONOS = {
+  panel: SquaresFour, residentes: Heart, nueva: NotePencil, asistencia: ClipboardText, dotacion: Package,
+  entrega: Handshake, sdis: FileText, config: GearSix, admin_usuarios: UsersThree, auditoria: MagnifyingGlass,
+  atras: ArrowLeft, refrescar: ArrowClockwise, perfil: UserCircle, salir: SignOut, mas: DotsThree,
 };
-export const Icono = ({ n }) => <svg className="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d={TRAZOS[n]} /></svg>;
+export const Icono = ({ n }) => { const C = ICONOS[n]; return C ? <C className="ico" aria-hidden="true" focusable="false" /> : null; };
+
+// Día / noche con íconos de sol y luna
+export const IconoJornada = ({ j }) => (j === 'dia' ? <Sun className="ico-txt" aria-hidden="true" /> : <Moon className="ico-txt" aria-hidden="true" />);
+export const TxtJornada = ({ j, centro }) => <span className="txt-jornada"><IconoJornada j={j} />{centro ? (j === 'dia' ? 'Centro Día' : 'Centro Noche') : (j === 'dia' ? 'Día' : 'Noche')}</span>;
+
+// Ícono de los avisos (recuadros .nota-aviso y toast)
+const AVISOS = { info: Info, alerta: Warning, error: Prohibit, ok: CheckCircle, sello: LockSimple, cuentas: ShieldCheck, registro: Receipt };
+export const IconoAviso = ({ t = 'info' }) => { const C = AVISOS[t] || Info; return <C className="ico-aviso" weight={t === 'ok' || t === 'sello' ? 'fill' : 'regular'} aria-hidden="true" />; };
 
 /* Diálogo modal accesible: foco dentro al abrir, Tab no se escapa, Esc cierra y el foco vuelve al botón que lo abrió */
 const ENFOCABLES = 'button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -78,7 +78,7 @@ export function useAccion() {
     if (ocupado) return undefined;
     setOcupado(true);
     try { return await fn(); }
-    catch (e) { avisar('⛔ ' + e.message); return undefined; }
+    catch (e) { avisar(e.message, 'error'); return undefined; }
     finally { setOcupado(false); }
   };
   return [ocupado, ejecutar];
@@ -142,9 +142,9 @@ export const SdisHead = ({ titulo, sede, jornada, fecha, extra }) => (
     </div>
     <div className="sdis-sub">Clasificación: Información Pública Reservada</div>
     <div className="sdis-campos">
-      <span><b>SERVICIO:</b> Centro de Protección Social — Persona Mayor</span>
+      <span><b>SERVICIO:</b> Centro de Protección Social - Persona Mayor</span>
       <span><b>UNIDAD OPERATIVA:</b> {sede.nombre}</span>
-      {jornada && <span><b>JORNADA:</b> {jornada === 'dia' ? 'DÍA ☒ · NOCHE ☐' : 'DÍA ☐ · NOCHE ☒'}</span>}
+      {jornada && <span><b>JORNADA:</b> {jornada === 'dia' ? 'DÍA [X]   NOCHE [ ]' : 'DÍA [ ]   NOCHE [X]'}</span>}
       <span><b>FECHA:</b> {fmtFecha(fecha)}</span>
       {extra}
     </div>
@@ -153,7 +153,7 @@ export const SdisHead = ({ titulo, sede, jornada, fecha, extra }) => (
 );
 
 export const LeySdis = () => (
-  <div className="sdis-ley"><b>Nota:</b> Autorización para el tratamiento de datos personales: En cumplimiento de la Ley 1581 de 2012, la Secretaría Distrital de Integración Social – SDIS es la responsable del tratamiento de los datos personales recolectados, conforme a su Política de tratamiento de datos personales. Documento generado electrónicamente por AuraCare; las notas clínicas se sellan en el servidor con hash SHA-256 encadenado y no pueden modificarse ni eliminarse desde la aplicación.</div>
+  <div className="sdis-ley"><b>Nota:</b> Autorización para el tratamiento de datos personales: En cumplimiento de la Ley 1581 de 2012, la Secretaría Distrital de Integración Social (SDIS) es la responsable del tratamiento de los datos personales recolectados, conforme a su Política de tratamiento de datos personales. Documento generado electrónicamente por AuraCare; las notas clínicas se sellan en el servidor con hash SHA-256 encadenado y no pueden modificarse ni eliminarse desde la aplicación.</div>
 );
 
 export class ErrorBoundary extends Component {

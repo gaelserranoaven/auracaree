@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { errorDotacion } from '../lib/clinico.js';
 import { fmtFecha } from '../lib/util.js';
-import { useApp, useAccion } from './ui.jsx';
+import { useApp, useAccion, IconoAviso } from './ui.jsx';
 
 export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, puedeEditar, onEntrega, onPertenencia, onDevolucion }) => {
   const { hoy, avisar } = useApp();
@@ -21,12 +21,12 @@ export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, 
   const registrarEntrega = () => ejecutar(async () => {
     await onEntrega(fE);
     setFE((p) => ({ ...p, personaId: '', cantidad: 1, obs: '' }));
-    avisar('Entrega registrada ✓');
+    avisar('Entrega registrada');
   });
   const registrarPert = () => ejecutar(async () => {
     await onPertenencia(fP);
     setFP({ personaId: '', ayudas: '', prendas: '', lenceria: '', otros: '', obs: '' });
-    avisar('Pertenencias registradas en custodia ✓');
+    avisar('Pertenencias registradas en custodia');
   });
   const opcionesPersona = activos.map((r) => <option key={r.id} value={r.id}>{r.nombres} {r.apellidos} ({r.doc})</option>);
 
@@ -52,7 +52,7 @@ export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, 
                     {elegido && <div style={{ fontSize: '12px', color: 'var(--texto-2)', marginTop: '4px' }}>Regla: {elegido.regla}</div>}</div>
                   <div className="field" style={{ marginBottom: 0 }}><label>Cantidad</label>
                     <input type="number" min="1" max="100" value={fE.cantidad} onChange={(e) => setFE((p) => ({ ...p, cantidad: e.target.value }))} /></div>
-                  {errRegla && <div className="nota-aviso rojo" style={{ marginTop: 0 }}><span>⛔</span><span>{errRegla}</span></div>}
+                  {errRegla && <div className="nota-aviso rojo" style={{ marginTop: 0 }}><IconoAviso t="error" /><span>{errRegla}</span></div>}
                   <button className="btn btn-primary" disabled={ocupado || !fE.personaId || !!errRegla} onClick={registrarEntrega}>Registrar Entrega</button>
                 </div>
               </div>

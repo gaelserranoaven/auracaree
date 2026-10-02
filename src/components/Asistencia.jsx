@@ -1,3 +1,4 @@
+import { Check } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { MOTIVOS_NF } from '../lib/clinico.js';
 import { useApp, useAccion, SdisHead, LeySdis } from './ui.jsx';
@@ -13,7 +14,7 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
   const crearAct = () => ejecutar(async () => {
     await onCrearActividad(fAct);
     setFAct({ nombre: '', linea: '', profesional: '' });
-    avisar('Actividad agregada ✓');
+    avisar('Actividad agregada');
   });
   const marcar = (rid, estado, motivo) => ejecutar(() => onMarcar(rid, estado, motivo));
 
@@ -36,7 +37,7 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
                   const a = asistencias[llave(r.id)];
                   return (
                     <tr key={r.id}>
-                      <td><b>{r.nombres} {r.apellidos}</b><br /><span style={{ fontSize: '12px', color: 'var(--texto-2)' }}>🪪 {r.doc}</span></td>
+                      <td><b>{r.nombres} {r.apellidos}</b><br /><span style={{ fontSize: '12px', color: 'var(--texto-2)' }} className="mono">{r.doc}</span></td>
                       <td>
                         <span className="seg">
                           <button disabled={!puedeEditar || ocupado} className={a?.estado === 'firma' ? 'si' : ''} onClick={() => marcar(r.id, 'firma')}>Firma</button>
@@ -75,7 +76,7 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
                 <div>
                   {activos.map((r) => (
                     <button key={r.id} type="button" disabled={!puedeEditar} className={'chip-particip' + (a.participacion[r.id] ? ' on' : '')}
-                      onClick={() => ejecutar(() => onParticipacion(a, r.id))}>{a.participacion[r.id] ? '✓ ' : ''}{r.nombres.split(' ')[0]} {r.apellidos.split(' ')[0]}</button>
+                      onClick={() => ejecutar(() => onParticipacion(a, r.id))}>{a.participacion[r.id] && <Check className="ico-txt" weight="bold" aria-hidden="true" />}{r.nombres.split(' ')[0]} {r.apellidos.split(' ')[0]}</button>
                   ))}
                 </div>
               </div>

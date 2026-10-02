@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ORDEN_SIGNOS } from '../lib/clinico.js';
-import { useApp, useAccion } from './ui.jsx';
+import { useApp, useAccion, IconoAviso } from './ui.jsx';
 
 const RangosGlobales = ({ onGuardar }) => {
   const { rangos, avisar } = useApp();
@@ -14,14 +14,14 @@ const RangosGlobales = ({ onGuardar }) => {
   const guardar = () => ejecutar(async () => {
     if (!window.confirm('Estos rangos definen cuándo se generan alertas para TODAS las sedes. ¿Confirmas que fueron validados por dirección médica?')) return;
     for (const k of cambiados) await onGuardar(k, { vMin: Number(d[k].vMin), vMax: Number(d[k].vMax), cMin: Number(d[k].cMin), cMax: Number(d[k].cMax) });
-    avisar('Rangos clínicos actualizados ✓ (quedan en auditoría)');
+    avisar('Rangos clínicos actualizados (quedan en auditoría)');
   });
 
   return (
     <div className="panel">
-      <div className="panel-head"><h3>🩺 Rangos clínicos generales (todas las sedes)</h3></div>
+      <div className="panel-head"><h3>Rangos clínicos generales (todas las sedes)</h3></div>
       <div className="panel-body">
-        <div className="nota-aviso rojo" style={{ marginTop: 0, marginBottom: '12px' }}><span>⚠</span><span>Referencia de la Fundación, <b>pendiente de validación por el equipo médico</b>. Cada cambio queda en el registro de auditoría. Para casos individuales usa los rangos personalizados de la ficha.</span></div>
+        <div className="nota-aviso rojo" style={{ marginTop: 0, marginBottom: '12px' }}><IconoAviso t="alerta" /><span>Referencia de la Fundación, <b>pendiente de validación por el equipo médico</b>. Cada cambio queda en el registro de auditoría. Para casos individuales usa los rangos personalizados de la ficha.</span></div>
         <div className="grid-rangos-edit">
           <span className="h">Parámetro</span><span className="h">Vig. mín</span><span className="h">Vig. máx</span><span className="h">Crít. &lt;</span><span className="h">Crít. ≥</span>
           {claves.map((k) => (
@@ -46,9 +46,9 @@ export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, 
   const agregar = () => ejecutar(async () => {
     await onCrearSede(nueva);
     setNueva({ nombre: '', cupos: 40 });
-    avisar(`Nueva unidad operativa "${nueva.nombre.trim()}" agregada ✓`);
+    avisar(`Nueva unidad operativa "${nueva.nombre.trim()}" agregada`);
   });
-  const guardarSede = () => ejecutar(async () => { await onActualizarSede(edit.id, edit); setEdit(null); avisar('Unidad actualizada ✓'); });
+  const guardarSede = () => ejecutar(async () => { await onActualizarSede(edit.id, edit); setEdit(null); avisar('Unidad actualizada'); });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '900px' }}>
@@ -69,7 +69,7 @@ export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, 
       {esSuper && <RangosGlobales onGuardar={onGuardarRango} />}
 
       <div className="panel">
-        <div className="panel-head"><h3>🏢 Unidades Operativas</h3></div>
+        <div className="panel-head"><h3>Unidades Operativas</h3></div>
         <div className="panel-body">
           <div className="grid-sedes-v34">
             {sedes.map((s) => {
@@ -89,7 +89,7 @@ export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, 
                     </div>
                   ) : (
                     <>
-                      <h4>🏢 {s.nombre}</h4>
+                      <h4>{s.nombre}</h4>
                       <div style={{ fontSize: '12px', color: 'var(--texto-2)' }}>Cupos utilizados: <b>{n} de {s.cupos}</b> ({pct}%)</div>
                       <div className="cupo-bar-bg"><div className="cupo-bar-fill" style={{ width: `${pct}%` }}></div></div>
                       {esSuper && <button className="mini-btn" onClick={() => setEdit({ id: s.id, nombre: s.nombre, cupos: s.cupos })}>Editar</button>}

@@ -1,3 +1,4 @@
+import { CheckCircle, MagnifyingGlass, Warning } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { useApp, useAccion, SdisHead, LeySdis } from './ui.jsx';
 
@@ -28,15 +29,15 @@ export const RegistroSdis = ({ sede, residentes, onCargarDia, onVerificar, onImp
         <div className="field" style={{ marginBottom: 0 }}>
           <input type="date" aria-label="Fecha del registro" max={hoy} value={fecha} onChange={(e) => e.target.value && setFecha(e.target.value)} />
         </div>
-        <button className="btn btn-ghost" disabled={ocupado} onClick={verificar}>🔍 Verificar integridad</button>
+        <button className="btn btn-ghost" disabled={ocupado} onClick={verificar}><MagnifyingGlass className="ico-txt" aria-hidden="true" />Verificar integridad</button>
         <button className="btn btn-tinta" onClick={imprimir}>⬇ Exportar PDF para Interventoría</button>
       </div>
 
       {cadena && (
         <div className={'resultado-cadena no-print ' + (cadena.total === cadena.validas ? 'ok' : 'mal')}>
           {cadena.total === cadena.validas
-            ? <>✓ Cadena íntegra: {cadena.validas} de {cadena.total} notas de {sede.nombre} verificadas (sellos SHA-256 encadenados recalculados por el servidor).</>
-            : <>⚠ Se detectaron alteraciones: {cadena.validas} de {cadena.total} notas válidas. Primera nota afectada: <span className="mono">{cadena.primera_rota}</span>. Reportar al administrador.</>}
+            ? <><CheckCircle className="ico-txt" weight="fill" aria-hidden="true" /> Cadena íntegra: {cadena.validas} de {cadena.total} notas de {sede.nombre} verificadas (sellos SHA-256 encadenados recalculados por el servidor).</>
+            : <><Warning className="ico-txt" weight="fill" aria-hidden="true" /> Se detectaron alteraciones: {cadena.validas} de {cadena.total} notas válidas. Primera nota afectada: <span className="mono">{cadena.primera_rota}</span>. Reportar al administrador.</>}
         </div>
       )}
 

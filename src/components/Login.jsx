@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Logo, useAccion } from './ui.jsx';
+import { Logo, useAccion, IconoAviso } from './ui.jsx';
 
 // Mínimo 10 caracteres con letras y números
 export const errorPassword = (p) => {
@@ -70,7 +70,7 @@ export const Login = ({ onLogin, onSolicitarCuenta, abrirTerminos }) => {
               {errPass && <div id="reg-pass-error" style={{ color: 'var(--alerta-t)', fontSize: '12.5px', marginTop: '4px' }}>{errPass}</div>}
             </div>
             <div className="nota-aviso" style={{ marginBottom: '14px' }}>
-              <span aria-hidden="true">ℹ️</span>
+              <IconoAviso t="info" />
               <span>Tu cuenta queda <b>pendiente de aprobación</b> y sin acceso a datos hasta que un administrador te asigne sede, jornada y rol.</span>
             </div>
             <button type="submit" disabled={ocupado || !!errPass} className="btn btn-primary" style={{ width: '100%' }}>{ocupado ? 'Enviando…' : 'Enviar solicitud'}</button>

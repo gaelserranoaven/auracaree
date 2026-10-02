@@ -1,9 +1,10 @@
+import { Check } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { fmtFecha, fmtFechaHora } from '../lib/util.js';
-import { useApp, useAccion } from './ui.jsx';
+import { useApp, useAccion, TxtJornada, IconoAviso } from './ui.jsx';
 
 const CENTRO = { dia: 'Centro Día', noche: 'Centro Noche' };
-const chipJornada = (j) => <span className={'chip-turno ' + j}>{j === 'dia' ? '☀ Día' : '☾ Noche'}</span>;
+const chipJornada = (j) => <span className={'chip-turno ' + j}><TxtJornada j={j} /></span>;
 const PENDIENTE_HORAS = 30; // un acta se ofrece para recibir durante este tiempo
 
 const Recibos = ({ lista }) => (lista.length === 0
@@ -12,7 +13,7 @@ const Recibos = ({ lista }) => (lista.length === 0
     <ul className="recibos" aria-label="Recibido por">
       {lista.map((r) => (
         <li key={r.id}>
-          <span className="ok-recibo" aria-hidden="true">✓</span>
+          <span className="ok-recibo" aria-hidden="true"><Check weight="bold" /></span>
           <span><b>{r.recibidoPor}</b> · {r.cargo} · {fmtFechaHora(r.createdAt)}{r.observaciones && <><br /><span className="obs-recibo">{r.observaciones}</span></>}</span>
         </li>
       ))}
@@ -25,7 +26,7 @@ const ActaPorRecibir = ({ acta, recibos, onRecibir }) => {
   const [leido, setLeido] = useState(false);
   const [obs, setObs] = useState('');
   const [ocupado, ejecutar] = useAccion();
-  const recibir = () => ejecutar(async () => { await onRecibir(acta.id, obs); avisar('Turno recibido y firmado ✓'); });
+  const recibir = () => ejecutar(async () => { await onRecibir(acta.id, obs); avisar('Turno recibido y firmado'); });
   return (
     <article className="acta-recibir">
       <div className="acta-meta">
@@ -74,7 +75,7 @@ export const EntregaTurno = ({ sede, residentes, notas, alertas, turnos, recepci
     if (!window.confirm(`Vas a firmar la entrega de turno de ${CENTRO[jornadaActa]}. El acta no se puede editar después. ¿Continuar?`)) return;
     await onFirmar(obs, jornadaActa);
     setObs('');
-    avisar('Turno entregado y firmado ✓');
+    avisar('Turno entregado y firmado');
   });
 
   return (
@@ -108,7 +109,7 @@ export const EntregaTurno = ({ sede, residentes, notas, alertas, turnos, recepci
                 <div className="seg seg-jornada" role="radiogroup" aria-labelledby="lbl-jornada-acta">
                   {['dia', 'noche'].map((j) => (
                     <button key={j} type="button" role="radio" aria-checked={jornadaActa === j} className={jornadaActa === j ? 'on' : ''} onClick={() => setJornadaActa(j)}>
-                      {j === 'dia' ? '☀ Centro Día' : '☾ Centro Noche'}
+                      <TxtJornada j={j} centro />
                     </button>
                   ))}
                 </div>
@@ -121,7 +122,7 @@ export const EntregaTurno = ({ sede, residentes, notas, alertas, turnos, recepci
             </div>
             {puedeFirmar
               ? <div className="form-foot"><button className="btn btn-primary" onClick={firmar} disabled={ocupado || obs.trim().length < 5}>{ocupado ? 'Firmando…' : 'Firmar entrega de turno'}</button></div>
-              : <div className="nota-aviso"><span>ℹ️</span><span>Tu rol no puede firmar entregas de turno.</span></div>}
+              : <div className="nota-aviso"><IconoAviso t="info" /><span>Tu rol no puede firmar entregas de turno.</span></div>}
           </div>
         </section>
 

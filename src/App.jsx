@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from './lib/api.js';
 import { ROLES, RANGOS_DEFAULT, puede, esPsicosocial } from './lib/clinico.js';
 import { fmtFecha, hoyBogota, jornadaDe } from './lib/util.js';
-import { Ctx, Logo, VERSION, ErrorBoundary, Icono } from './components/ui.jsx';
+import { Ctx, Logo, VERSION, ErrorBoundary, Icono, IconoAviso } from './components/ui.jsx';
 import { CookieBanner, ModalLegal } from './components/Legal.jsx';
 import { Login } from './components/Login.jsx';
 import { AdminUsuarios } from './components/AdminUsuarios.jsx';
@@ -73,8 +73,9 @@ export const App = () => {
   const jornada = centro;
   const rol = perfil ? ROLES.find((r) => r.id === perfil.rolId) || ROLES[0] : null;
 
-  const avisar = useCallback((msg) => {
-    setToast(msg);
+  // tipo: 'ok' (por defecto) | 'error' | 'alerta' | 'info' | 'sello': define el ícono del aviso
+  const avisar = useCallback((msg, tipo = 'ok') => {
+    setToast({ msg, tipo });
     clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 4200);
   }, []);
@@ -113,7 +114,7 @@ export const App = () => {
         const s = await api.sesionActual();
         if (s) await iniciarApp(s.user.id); else setPantalla('login');
       } catch (e) {
-        if (e instanceof ErrorCuenta) { setPantalla('login'); avisar('ℹ️ ' + e.message); }
+        if (e instanceof ErrorCuenta) { setPantalla('login'); avisar(e.message, 'info'); }
         else { setErrorCarga(e.message); setPantalla('error'); }
       }
     })();
@@ -121,7 +122,7 @@ export const App = () => {
 
   const refrescar = useCallback(async () => {
     if (!perfil) return;
-    try { aplicarDatos(await api.cargarTodo(perfil, hoyBogota()), perfil); } catch (e) { avisar('⛔ ' + e.message); }
+    try { aplicarDatos(await api.cargarTodo(perfil, hoyBogota()), perfil); } catch (e) { avisar(e.message, 'error'); }
   }, [perfil, aplicarDatos, avisar]);
 
   // Cambio de día (Bogotá) con la pestaña abierta: recargar datos "de hoy"
@@ -138,7 +139,7 @@ export const App = () => {
   };
   const solicitarCuenta = async (datos) => {
     const { requiereConfirmarCorreo } = await api.registrarse(datos);
-    avisar(requiereConfirmarCorreo ? 'Solicitud enviada ✓ Confirma tu correo y espera la aprobación.' : 'Solicitud enviada ✓ Pendiente de aprobación.');
+    avisar(requiereConfirmarCorreo ? 'Solicitud enviada. Confirma tu correo y espera la aprobación.' : 'Solicitud enviada. Pendiente de aprobación.');
     return true;
   };
   const logout = useCallback(async (mensaje) => {
@@ -147,7 +148,7 @@ export const App = () => {
     setPerfil(null); setPerfiles([]); setResidentes([]); setNotas([]); setAlertas([]); setAsistencias({}); setActividades([]);
     setEntregas([]); setPertenencias([]); setTurnos([]); setRecepciones([]); setFichaId(null); setModal(null);
     setNavStack(['panel']); setView('panel'); setPantalla('login');
-    avisar(mensaje || 'Sesión cerrada con seguridad ✓');
+    avisar(mensaje || 'Sesión cerrada con seguridad');
   }, [avisar]);
 
   // Cierre automático por inactividad (equipos compartidos con datos sensibles)
@@ -193,7 +194,7 @@ export const App = () => {
   const irFicha = (id) => {
     setFichaId(id); navegarA('ficha');
     api.auditarLectura('ver_ficha', 'residentes', id, sedeId);
-    api.cargarNotasPersona(id).then((lista) => setNotas((prev) => lista.reduce((acc, n) => upsert(acc, n), prev).sort(porFecha)), (e) => avisar('⛔ ' + e.message));
+    api.cargarNotasPersona(id).then((lista) => setNotas((prev) => lista.reduce((acc, n) => upsert(acc, n), prev).sort(porFecha)), (e) => avisar(e.message, 'error'));
   };
 
   const guardarNota = async (datos) => {
@@ -201,20 +202,20 @@ export const App = () => {
     setNotas((p) => upsert(p, nota).sort(porFecha));
     if (residente) setResidentes((p) => upsert(p, residente));
     if (nuevas.length) setAlertas((p) => nuevas.reduce((acc, a) => upsert(acc, a), p));
-    avisar(nuevas.some((a) => a.sev === 'critica') ? '⚠ ALERTA CRÍTICA generada para el equipo' : '🔒 Nota guardada y sellada ✓');
+    avisar(nuevas.some((a) => a.sev === 'critica') ? 'ALERTA CRÍTICA generada para el equipo' : 'Nota guardada y sellada', nuevas.some((a) => a.sev === 'critica') ? 'alerta' : 'sello');
     if (datos.personaId) { setFichaId(datos.personaId); navegarA('ficha'); } else navegarA('panel');
     return true;
   };
 
   const acciones = {
-    atenderAlerta: async (id) => { await api.atenderAlerta(id); setAlertas((p) => p.filter((a) => a.id !== id)); avisar('Alerta marcada como atendida ✓'); },
-    crearResidente: async (f) => { const r = await api.crearResidente(sedeId, f); setResidentes((p) => upsert(p, r)); setModal(null); avisar('Residente registrado ✓'); },
+    atenderAlerta: async (id) => { await api.atenderAlerta(id); setAlertas((p) => p.filter((a) => a.id !== id)); avisar('Alerta marcada como atendida'); },
+    crearResidente: async (f) => { const r = await api.crearResidente(sedeId, f); setResidentes((p) => upsert(p, r)); setModal(null); avisar('Residente registrado'); },
     importar: async (lista) => {
       const { creados, omitidos } = await api.importarResidentes(sedeId, lista);
       setResidentes((p) => creados.reduce((acc, r) => upsert(acc, r), p)); setModal(null);
-      avisar(`${creados.length} residente(s) importados ✓` + (omitidos.length ? ` · ${omitidos.length} omitido(s): ${omitidos[0]}` : ''));
+      avisar(`${creados.length} residente(s) importados` + (omitidos.length ? `. ${omitidos.length} omitido(s): ${omitidos[0]}` : ''));
     },
-    editarResidente: async (id, parche, msg) => { const r = await api.actualizarResidente(id, parche); setResidentes((p) => upsert(p, r)); setModal(null); avisar(msg || 'Datos actualizados ✓'); },
+    editarResidente: async (id, parche, msg) => { const r = await api.actualizarResidente(id, parche); setResidentes((p) => upsert(p, r)); setModal(null); avisar(msg || 'Datos actualizados'); },
     marcarAsistencia: async (personaId, estado, motivo) => {
       const key = `${sedeId}|${hoy}|${personaId}`; const previa = asistencias[key];
       setAsistencias((m) => ({ ...m, [key]: { id: key, sedeId, personaId, fecha: hoy, estado, motivo: motivo || '' } }));
@@ -234,14 +235,14 @@ export const App = () => {
     },
     entrega: async (f) => { const e = await api.registrarEntrega(sedeId, f); setEntregas((p) => upsert(p, e)); },
     pertenencia: async (f) => { const x = await api.registrarPertenencia(sedeId, f); setPertenencias((p) => upsert(p, x)); },
-    devolucion: async (id) => { const x = await api.devolverPertenencia(id); setPertenencias((p) => upsert(p, x)); avisar('Devolución registrada ✓'); },
+    devolucion: async (id) => { const x = await api.devolverPertenencia(id); setPertenencias((p) => upsert(p, x)); avisar('Devolución registrada'); },
     firmarTurno: async (obs, j) => { const t = await api.firmarEntregaTurno(sedeId, obs, j || jornada); setTurnos((p) => [t, ...p.filter((x) => x.id !== t.id)]); },
     recibirTurno: async (entregaId, obs) => { const r = await api.recibirTurno(sedeId, entregaId, obs, jornada); setRecepciones((p) => [r, ...p.filter((x) => x.id !== r.id)]); },
     toggleConfig: async (k) => {
       const actual = config[sedeId] || { glu: true, dolor: true };
       const nuevo = { ...actual, [k]: !actual[k] };
       await api.guardarConfig(sedeId, { [k]: nuevo[k] }, !!config[sedeId]);
-      setConfig((c) => ({ ...c, [sedeId]: nuevo })); avisar('Configuración guardada ✓');
+      setConfig((c) => ({ ...c, [sedeId]: nuevo })); avisar('Configuración guardada');
     },
     crearSede: async (f) => { const s = await api.crearSede(f); setSedes((p) => [...p, s].sort((a, b) => a.nombre.localeCompare(b.nombre))); setConfig((c) => ({ ...c, [s.id]: { glu: true, dolor: true } })); },
     actualizarSede: async (id, f) => { const s = await api.actualizarSede(id, f); setSedes((p) => p.map((x) => (x.id === id ? s : x))); },
@@ -363,8 +364,8 @@ export const App = () => {
           {vista === 'ficha' && fichaRes && <Ficha key={fichaRes.id} res={fichaRes} notas={notas} config={config[fichaRes.sedeId] || { glu: true, dolor: true }}
             puedeNota={puede(rolId, 'nota')} puedeEditar={puede(rolId, 'editarResidente')} puedeRangos={puede(rolId, 'rangosResidente')}
             nuevaNotaPara={(id) => { setPreselNota(id); navegarA('nueva'); }} onEditar={() => setModal('editar')} onEgreso={() => setModal('egreso')}
-            onReingreso={() => acciones.editarResidente(fichaRes.id, { estado: 'activo', fechaEgreso: null, motivoEgreso: null }, 'Persona reingresada ✓')}
-            onGuardarRangos={(o) => acciones.editarResidente(fichaRes.id, { rangos: o }, 'Rangos actualizados ✓')} />}
+            onReingreso={() => acciones.editarResidente(fichaRes.id, { estado: 'activo', fechaEgreso: null, motivoEgreso: null }, 'Persona reingresada')}
+            onGuardarRangos={(o) => acciones.editarResidente(fichaRes.id, { rangos: o }, 'Rangos actualizados')} />}
 
           {vista === 'nueva' && <NuevaNota key={preselNota || 'nueva'} sede={sede} residentes={resSede.filter((r) => r.estado === 'activo')} presel={preselNota} config={cfg} uid={perfil.id} psicosocial={esPsicosocial(rolId)} onGuardar={guardarNota} />}
 
@@ -414,7 +415,7 @@ export const App = () => {
         {modal === 'nuevo' && <NuevoResidente sede={sede} onCrear={acciones.crearResidente} cerrar={() => setModal(null)} />}
         {modal === 'import' && <Importador sede={sede} onImportar={acciones.importar} cerrar={() => setModal(null)} />}
         {modal === 'editar' && fichaRes && <EditarResidente res={fichaRes} onGuardar={(f) => acciones.editarResidente(fichaRes.id, { nombres: f.nombres, apellidos: f.apellidos, doc: f.doc, edad: f.edad, dx: f.dx })} cerrar={() => setModal(null)} />}
-        {modal === 'egreso' && fichaRes && <EgresoResidente res={fichaRes} onEgresar={(motivo) => acciones.editarResidente(fichaRes.id, { estado: 'egresado', fechaEgreso: hoy, motivoEgreso: motivo }, 'Egreso registrado ✓')} cerrar={() => setModal(null)} />}
+        {modal === 'egreso' && fichaRes && <EgresoResidente res={fichaRes} onEgresar={(motivo) => acciones.editarResidente(fichaRes.id, { estado: 'egresado', fechaEgreso: hoy, motivoEgreso: motivo }, 'Egreso registrado')} cerrar={() => setModal(null)} />}
       </div>
     );
   })();
@@ -424,7 +425,7 @@ export const App = () => {
       <Ctx.Provider value={ctx}>
         {contenido}
         {showLegal && <ModalLegal cerrar={() => setShowLegal(false)} />}
-        {toast && <div className="toast" role="status">{toast}</div>}
+        {toast && <div className={'toast ' + toast.tipo} role="status"><IconoAviso t={toast.tipo} /><span>{toast.msg}</span></div>}
         {animCentro && <CieloCambio key={animCentro.id} hacia={animCentro.hacia} />}
       </Ctx.Provider>
     </ErrorBoundary>

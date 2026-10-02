@@ -1,6 +1,7 @@
+import { Check } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { ORDEN_SIGNOS, TIPOS_NOTA, TIPOS_PSICOSOCIAL, errorSigno, estadoSigno, etiquetasRango, rangoEfectivo } from '../lib/clinico.js';
-import { useApp, useAccion } from './ui.jsx';
+import { useApp, useAccion, IconoAviso } from './ui.jsx';
 
 const claveBorrador = (uid) => `auracare_borrador_nota_${uid}`;
 const SV0 = { ta_s: '', ta_d: '', fc: '', fr: '', temp: '', spo2: '', glu: '', dolor: '' };
@@ -64,12 +65,12 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
           <div className="picker-res-list" role="group" aria-label="Elegir persona mayor">
             <button type="button" aria-pressed={personaId === ''} className={'picker-res-item ' + (personaId === '' ? 'selected' : '')} onClick={() => setPersonaId('')}>
               <span>Novedad general de la jornada (sin persona específica)</span>
-              <span>{personaId === '' ? '✓ Seleccionada' : ''}</span>
+              <span className="sel">{personaId === '' && <><Check className="ico-txt" weight="bold" aria-hidden="true" />Seleccionada</>}</span>
             </button>
             {filtrados.map((r) => (
               <button type="button" key={r.id} aria-pressed={personaId === r.id} className={'picker-res-item ' + (personaId === r.id ? 'selected' : '')} onClick={() => setPersonaId(r.id)}>
                 <span><b>{r.nombres} {r.apellidos}</b> · <span className="mono">{r.doc}</span></span>
-                <span>{personaId === r.id ? '✓ Seleccionada' : 'Elegir'}</span>
+                <span className="sel">{personaId === r.id ? <><Check className="ico-txt" weight="bold" aria-hidden="true" />Seleccionada</> : 'Elegir'}</span>
               </button>
             ))}
           </div>
@@ -102,7 +103,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
           </div>
         </div>
 
-        {sinPersonaConSignos && <div className="nota-aviso rojo"><span>⚠</span><span>Ingresaste signos vitales sin seleccionar una persona mayor: no generarán alertas ni se asociarán a ninguna ficha.</span></div>}
+        {sinPersonaConSignos && <div className="nota-aviso rojo"><IconoAviso t="alerta" /><span>Ingresaste signos vitales sin seleccionar una persona mayor: no generarán alertas ni se asociarán a ninguna ficha.</span></div>}
 
         {!psicosocial && <div className="banner-rangos-v31">
           <b>Rangos de seguridad clínica (referencia de la Fundación, pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
@@ -121,7 +122,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
         </div>}
 
         <div className="nota-aviso cifrado">
-          <span aria-hidden="true">🔒</span>
+          <IconoAviso t="sello" />
           <span>Al guardar, el servidor asigna fecha, hora y autor y sella la nota. <b>No podrá editarse ni eliminarse</b>: una corrección se registra como una nota nueva.</span>
         </div>
 

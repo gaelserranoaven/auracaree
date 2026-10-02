@@ -1,9 +1,9 @@
 import { useId, useState } from 'react';
 import { ROLES } from '../lib/clinico.js';
 import { fmtFechaHora } from '../lib/util.js';
-import { useApp, useAccion } from './ui.jsx';
+import { useApp, useAccion, TxtJornada, IconoAviso } from './ui.jsx';
 
-const JORNADAS = [['ambos', '☀/☾ Día y Noche'], ['dia', '☀ Solo Día'], ['noche', '☾ Solo Noche']];
+const JORNADAS = [['ambos', 'Día y Noche'], ['dia', 'Solo Día'], ['noche', 'Solo Noche']];
 const JORNADA_LBL = Object.fromEntries(JORNADAS);
 const nombreRol = (id) => (ROLES.find((r) => r.id === id) || {}).nombre || id;
 const iniciales = (n) => (n || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
@@ -43,14 +43,14 @@ const Solicitud = ({ u, sedes, onActualizar }) => {
   const [ocupado, ejecutar] = useAccion();
   const { avisar } = useApp();
   const aprobar = () => ejecutar(async () => {
-    if (!v.sedeId && v.rolId !== 'superadmin') { avisar('Asigna una sede antes de aprobar.'); return; }
+    if (!v.sedeId && v.rolId !== 'superadmin') { avisar('Asigna una sede antes de aprobar.', 'alerta'); return; }
     await onActualizar(u.id, { ...v, sedeId: v.sedeId || null, estado: 'activo' });
-    avisar(`Cuenta de ${u.nombre} aprobada ✓`);
+    avisar(`Cuenta de ${u.nombre} aprobada`);
   });
   const rechazar = () => ejecutar(async () => {
     if (!window.confirm(`¿Rechazar la solicitud de ${u.nombre}? La cuenta quedará suspendida.`)) return;
     await onActualizar(u.id, { estado: 'suspendido' });
-    avisar('Solicitud rechazada');
+    avisar('Solicitud rechazada', 'info');
   });
   return (
     <article className="u-solicitud">
@@ -84,13 +84,13 @@ const TarjetaUsuario = ({ u, yo, sedes, jornadaActual, onActualizar }) => {
     if (!Object.keys(parche).length) { setEditando(false); return; }
     await onActualizar(u.id, parche);
     setEditando(false);
-    avisar('Cambios guardados ✓');
+    avisar('Cambios guardados');
   });
   const alternarEstado = () => ejecutar(async () => {
     const suspender = u.estado !== 'suspendido';
     if (suspender && !window.confirm(`¿Suspender el acceso de ${u.nombre}?`)) return;
     await onActualizar(u.id, { estado: suspender ? 'suspendido' : 'activo' });
-    avisar(suspender ? 'Cuenta suspendida' : 'Cuenta reactivada ✓');
+    avisar(suspender ? 'Cuenta suspendida' : 'Cuenta reactivada', suspender ? 'info' : 'ok');
   });
 
   return (
@@ -164,7 +164,7 @@ export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualiz
       <section className="panel" aria-labelledby="u-dir">
         <div className="panel-head">
           <h3 id="u-dir">Equipo</h3>
-          <span className="panel-sub">Turno actual: {jornadaActual === 'dia' ? '☀ Centro Día' : '☾ Centro Noche'}</span>
+          <span className="panel-sub">Turno actual: <TxtJornada j={jornadaActual} centro /></span>
         </div>
         <div className="panel-body">
           <div className="u-filtros">
@@ -181,7 +181,7 @@ export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualiz
           {visibles.length === 0
             ? <div className="vacio">Ninguna cuenta coincide con la búsqueda.</div>
             : <div className="u-grid">{visibles.map((u) => <TarjetaUsuario key={u.id} u={u} yo={u.id === miId} sedes={sedes} jornadaActual={jornadaActual} onActualizar={onActualizar} />)}</div>}
-          <div className="nota-aviso"><span aria-hidden="true">🔐</span><span>Nadie comparte contraseñas: cada cuenta es personal y los administradores nunca las ven. Todo cambio de esta pantalla queda en la auditoría.</span></div>
+          <div className="nota-aviso"><IconoAviso t="cuentas" /><span>Nadie comparte contraseñas: cada cuenta es personal y los administradores nunca las ven. Todo cambio de esta pantalla queda en la auditoría.</span></div>
         </div>
       </section>
     </div>

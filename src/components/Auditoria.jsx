@@ -1,3 +1,4 @@
+import { IconoAviso } from './ui.jsx';
 import { useEffect, useState } from 'react';
 import { fmtFechaHora } from '../lib/util.js';
 
@@ -14,7 +15,7 @@ export const Auditoria = ({ nombresPorId, sedes, onCargar }) => {
     <div className="panel">
       <div className="panel-head"><h3>Registro de auditoría (últimos 200 eventos)</h3></div>
       <div className="panel-body tabla-scroll">
-        <div className="nota-aviso" style={{ marginTop: 0, marginBottom: '12px' }}><span>🧾</span><span>Registro inalterable de accesos a fichas clínicas, cambios de permisos, altas de personas mayores y cambios de configuración. No incluye contenido clínico.</span></div>
+        <div className="nota-aviso" style={{ marginTop: 0, marginBottom: '12px' }}><IconoAviso t="registro" /><span>Registro inalterable de accesos a fichas clínicas, cambios de permisos, altas de personas mayores y cambios de configuración. No incluye contenido clínico.</span></div>
         {error && <div className="vacio">{error}</div>}
         {!filas && !error && <div className="vacio">Cargando…</div>}
         {filas && (
