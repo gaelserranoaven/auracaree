@@ -13,6 +13,18 @@ export const jornadaDe = (d = new Date()) => {
   return h >= 6 && h < 18 ? 'dia' : 'noche';
 };
 
+// Próximo cambio de jornada (06:00 o 18:00 en Bogotá, UTC-5 fijo: Colombia no usa horario de verano)
+export const proximoCambioJornada = (d = new Date()) => {
+  const OFFSET = 5 * 3600e3;
+  const b = new Date(d.getTime() - OFFSET);
+  const h = b.getUTCHours();
+  b.setUTCMinutes(0, 0, 0);
+  if (h < 6) b.setUTCHours(6);
+  else if (h < 18) b.setUTCHours(18);
+  else { b.setUTCDate(b.getUTCDate() + 1); b.setUTCHours(6); }
+  return new Date(b.getTime() + OFFSET);
+};
+
 export const fmtFecha = (iso) =>
   new Date(iso + 'T12:00:00').toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' });
 

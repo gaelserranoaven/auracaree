@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RANGOS_DEFAULT, estadoSigno, errorSigno, errorDotacion, etiquetasRango, rangoEfectivo, puede, ROLES } from '../src/lib/clinico.js';
-import { hoyBogota, jornadaDe, mensajeError } from '../src/lib/util.js';
+import { hoyBogota, jornadaDe, mensajeError, proximoCambioJornada } from '../src/lib/util.js';
 import { parseCSV, matrizAResidentes } from '../src/lib/importar.js';
 
 const R = RANGOS_DEFAULT;
@@ -117,4 +117,12 @@ test('matrizAResidentes valida columnas, duplicados y edades', () => {
   assert.equal(ok.validas[1].doc, 'CC s/n');
   assert.equal(ok.validas[1].edad, null);
   assert.match(matrizAResidentes([['a', 'b']]).errores[0], /nombres/);
+});
+
+test('proximoCambioJornada: el cambio manual de centro vence a las 06:00 o 18:00 de Bogotá', () => {
+  const iso = (s) => proximoCambioJornada(new Date(s)).toISOString();
+  assert.equal(iso('2026-09-26T15:00:00Z'), '2026-09-26T23:00:00.000Z'); // 10:00 → 18:00
+  assert.equal(iso('2026-09-26T23:30:00Z'), '2026-09-27T11:00:00.000Z'); // 18:30 → 06:00 del día siguiente
+  assert.equal(iso('2026-09-27T08:00:00Z'), '2026-09-27T11:00:00.000Z'); // 03:00 → 06:00 del mismo día
+  assert.equal(iso('2026-09-26T11:00:00Z'), '2026-09-26T23:00:00.000Z'); // justo 06:00 → 18:00
 });

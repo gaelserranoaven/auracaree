@@ -1,5 +1,12 @@
 # AuraCare - Complete Changelog
 
+## [Sin publicar]
+
+### Añadido
+- **Centro Día / Centro Noche**: el indicador de jornada de la barra superior ahora es un interruptor real. Por defecto sigue la hora de Bogotá; si se cambia a mano, vale en ese equipo hasta el próximo cambio de jornada (06:00 o 18:00).
+- Tema visual **Centro Noche** (paleta oscura en toda la app; el formato SDIS se mantiene en blanco como el papel) y animación de cielo al cambiar: el sol se oculta y sale la luna, o al revés. Se omite con "reducir movimiento".
+- Los registros siguen sellándose en el servidor con la jornada real: el interruptor no cambia la jornada de las notas.
+
 ## [v4.0.0] - 2026-09-26
 
 ### Seguridad

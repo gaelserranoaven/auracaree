@@ -39,8 +39,8 @@ export const PerfilUsuario = ({ usuario, rol, sede, onLogout, onActualizarNombre
               <label htmlFor="perfil-nombre">Nombre mostrado</label>
               <input id="perfil-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength="80" />
             </div>
-            <div className="field"><label>Unidad Operativa Asignada</label><input value={sede ? sede.nombre : '—'} disabled style={{ background: '#EEF2F4' }} /></div>
-            <div className="field"><label>Horario Autorizado</label><input value={jornadaTxt} disabled style={{ background: '#EEF2F4' }} /></div>
+            <div className="field"><label>Unidad Operativa Asignada</label><input value={sede ? sede.nombre : '—'} disabled style={{ background: 'var(--superficie-3)' }} /></div>
+            <div className="field"><label>Horario Autorizado</label><input value={jornadaTxt} disabled style={{ background: 'var(--superficie-3)' }} /></div>
           </div>
           <div className="form-foot">
             <button className="btn btn-primary" disabled={ocupado || !nombre.trim() || nombre.trim() === usuario.nombre} onClick={guardarNombre}>Guardar Nombre</button>
@@ -55,7 +55,7 @@ export const PerfilUsuario = ({ usuario, rol, sede, onLogout, onActualizarNombre
             <div className="field">
               <label htmlFor="pass-nueva">Nueva contraseña</label>
               <input id="pass-nueva" type="password" autoComplete="new-password" value={p1} onChange={(e) => setP1(e.target.value)} />
-              {errP && <div style={{ color: 'var(--alerta)', fontSize: '12px', marginTop: '4px' }}>{errP}</div>}
+              {errP && <div style={{ color: 'var(--alerta-t)', fontSize: '12px', marginTop: '4px' }}>{errP}</div>}
             </div>
             <div className="field">
               <label htmlFor="pass-rep">Repetir contraseña</label>

@@ -72,7 +72,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
               </button>
             ))}
           </div>
-          {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--vital)', fontWeight: 600 }}>Seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
+          {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--vital-t)', fontWeight: 600 }}>Seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
         </div>
 
         <div className="form-grid">
@@ -90,7 +90,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
                 <label htmlFor={'sv-' + k}>{lbl}</label>
                 <input id={'sv-' + k} type="number" step="any" inputMode="decimal" value={sv[k]} onChange={(ev) => set(k, ev.target.value)} placeholder="—" />
                 {e && !errores[k] && <span className={'estado ' + e}>{e === 'ok' ? 'EN RANGO' : e === 'v' ? 'VIGILANCIA' : 'CRÍTICO'}</span>}
-                {errores[k] && <div style={{ color: 'var(--alerta)', fontSize: '12.5px', marginTop: '3px' }}>{errores[k]}</div>}
+                {errores[k] && <div style={{ color: 'var(--alerta-t)', fontSize: '12.5px', marginTop: '3px' }}>{errores[k]}</div>}
               </div>
             );
           })}
@@ -111,8 +111,8 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
               return (
                 <div key={k} className="rango-item-tag">
                   <b>{r.lbl}:</b><br />
-                  <span style={{ color: 'var(--vital)' }}>Normal: {t.normal} {r.uni}</span><br />
-                  <span style={{ color: 'var(--vigilancia)' }}>Vig: {t.vig}</span> · <span style={{ color: 'var(--alerta)' }}>Crit: {t.crit}</span>
+                  <span style={{ color: 'var(--vital-t)' }}>Normal: {t.normal} {r.uni}</span><br />
+                  <span style={{ color: 'var(--vigilancia-t)' }}>Vig: {t.vig}</span> · <span style={{ color: 'var(--alerta-t)' }}>Crit: {t.crit}</span>
                 </div>
               );
             })}

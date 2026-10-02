@@ -33,7 +33,7 @@ export const Importador = ({ sede, onImportar, cerrar }) => {
           </div>
         ) : (
           <div>
-            <p><b>{resultado.archivo}</b> · <span style={{ color: 'var(--vital)' }}>{resultado.validas.length} filas válidas</span></p>
+            <p><b>{resultado.archivo}</b> · <span style={{ color: 'var(--vital-t)' }}>{resultado.validas.length} filas válidas</span></p>
             {resultado.errores.length > 0 && <div style={{ maxHeight: '100px', overflow: 'auto' }}>{resultado.errores.map((e, i) => <div key={i} className="err-fila">{e}</div>)}</div>}
             {resultado.validas.length > 0 && (
               <div className="prev-tabla">
@@ -66,7 +66,7 @@ const FormResidente = ({ inicial, onGuardar, cerrar, titulo, sub, etiquetaBoton 
           <div className="field"><label htmlFor="fr-apellidos">Apellidos *</label><input id="fr-apellidos" maxLength={80} value={f.apellidos} onChange={(e) => set('apellidos', e.target.value)} /></div>
           <div className="field"><label htmlFor="fr-doc">Cédula o documento</label><input id="fr-doc" maxLength={30} value={f.doc} onChange={(e) => set('doc', e.target.value)} placeholder="Número de cédula o ID" /></div>
           <div className="field"><label htmlFor="fr-edad">Edad</label><input id="fr-edad" type="number" min="1" max="124" value={f.edad ?? ''} onChange={(e) => set('edad', e.target.value)} />
-            {edadMala && <div style={{ color: 'var(--alerta)', fontSize: '12.5px' }}>Escribe una edad entre 1 y 124 años.</div>}</div>
+            {edadMala && <div style={{ color: 'var(--alerta-t)', fontSize: '12.5px' }}>Escribe una edad entre 1 y 124 años.</div>}</div>
           <div className="field full"><label htmlFor="fr-dx">Diagnósticos base</label><input id="fr-dx" maxLength={300} value={f.dx} onChange={(e) => set('dx', e.target.value)} /></div>
         </div>
         <div className="modal-foot">
@@ -144,7 +144,7 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
           </button>
         ))}
         {filtrados.length === 0 && (
-          <div className="vacio" style={{ gridColumn: '1/-1', background: '#fff', borderRadius: '14px', border: '1px solid var(--linea)' }}>
+          <div className="vacio" style={{ gridColumn: '1/-1', background: 'var(--panel)', borderRadius: '14px', border: '1px solid var(--linea)' }}>
             {q ? <>No se encontró ninguna persona mayor con la cédula o nombre <b>"{q}"</b>.</> : 'No hay personas mayores en esta lista.'}
           </div>
         )}

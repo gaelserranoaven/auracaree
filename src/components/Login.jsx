@@ -67,7 +67,7 @@ export const Login = ({ onLogin, onSolicitarCuenta, abrirTerminos }) => {
             <div className="field">
               <label htmlFor="reg-pass">Contraseña</label>
               <input id="reg-pass" type="password" required autoComplete="new-password" value={passReg} onChange={(e) => setPassReg(e.target.value)} placeholder="Mínimo 10 caracteres, con letras y números" aria-describedby={errPass ? 'reg-pass-error' : undefined} />
-              {errPass && <div id="reg-pass-error" style={{ color: 'var(--alerta)', fontSize: '12.5px', marginTop: '4px' }}>{errPass}</div>}
+              {errPass && <div id="reg-pass-error" style={{ color: 'var(--alerta-t)', fontSize: '12.5px', marginTop: '4px' }}>{errPass}</div>}
             </div>
             <div className="nota-aviso" style={{ marginBottom: '14px' }}>
               <span aria-hidden="true">ℹ️</span>

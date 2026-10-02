@@ -17,6 +17,7 @@ import { EntregaTurno } from './components/EntregaTurno.jsx';
 import { RegistroSdis } from './components/RegistroSdis.jsx';
 import { Config } from './components/Config.jsx';
 import { Auditoria } from './components/Auditoria.jsx';
+import { useCentro, CentroSwitch, CieloCambio } from './components/Centro.jsx';
 
 const INACTIVIDAD_MS = 20 * 60 * 1000;
 const TITULOS = {
@@ -66,6 +67,7 @@ export const App = () => {
   const hoy = hoyBogota(ahora);
   const jornada = jornadaDe(ahora);
   const rangos = rangosBD || RANGOS_DEFAULT;
+  const { centro, manual: centroManual, cambiar: cambiarCentro, animacion: animCentro } = useCentro(jornada);
   const rol = perfil ? ROLES.find((r) => r.id === perfil.rolId) || ROLES[0] : null;
 
   const avisar = useCallback((msg) => {
@@ -339,15 +341,11 @@ export const App = () => {
               <p>{sede.nombre} · {fmtFecha(hoy)}</p>
             </div>
             <div className="spacer"></div>
-            {/* Indicador, no control: la jornada la fija la hora de Bogotá */}
-            <div className="jornada-pill" role="img" aria-label={'Jornada actual: ' + (jornada === 'dia' ? 'día' : 'noche')} title="La jornada se determina automáticamente por la hora de Bogotá">
-              <span className={jornada === 'dia' ? 'on' : ''} aria-hidden="true">☀ Día</span>
-              <span className={jornada === 'noche' ? 'on' : ''} aria-hidden="true">☾ Noche</span>
-            </div>
+            <CentroSwitch centro={centro} manual={centroManual} onCambiar={cambiarCentro} />
             <div className="nav-global">
               <button className="btn-nav-top" onClick={refrescar} aria-label="Actualizar datos" title="Actualizar datos"><Icono n="refrescar" /></button>
               <button className="btn-nav-top" onClick={() => navegarA('perfil')} aria-label="Mi perfil"><Icono n="perfil" /><span className="txt">Mi perfil</span></button>
-              <button className="btn-nav-top" style={{ color: 'var(--alerta)', borderColor: '#F2C4B6' }} onClick={() => logout()} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
+              <button className="btn-nav-top" style={{ color: 'var(--alerta-t)', borderColor: 'var(--alerta-borde)' }} onClick={() => logout()} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
             </div>
           </div>
 
@@ -403,7 +401,7 @@ export const App = () => {
                 <button key={id} autoFocus={id === enMas[0][0]} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{etiqueta}</button>
               ))}
               <button autoFocus={!enMas.length} aria-current={vista === 'perfil' ? 'page' : undefined} onClick={() => { setMasAbierto(false); navegarA('perfil'); }}><Icono n="perfil" />Mi perfil</button>
-              <button onClick={() => { setMasAbierto(false); logout(); }} style={{ color: 'var(--alerta)' }}><Icono n="salir" />Cerrar sesión</button>
+              <button onClick={() => { setMasAbierto(false); logout(); }} style={{ color: 'var(--alerta-t)' }}><Icono n="salir" />Cerrar sesión</button>
             </div>
           </div>
         )}
@@ -422,6 +420,7 @@ export const App = () => {
         {contenido}
         {showLegal && <ModalLegal cerrar={() => setShowLegal(false)} />}
         {toast && <div className="toast" role="status">{toast}</div>}
+        {animCentro && <CieloCambio key={animCentro.id} hacia={animCentro.hacia} />}
       </Ctx.Provider>
     </ErrorBoundary>
   );
