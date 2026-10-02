@@ -4,7 +4,7 @@ import { proximoCambioJornada } from '../lib/util.js';
 /* Centro Día / Centro Noche: tema visual de la app.
    Por defecto sigue la jornada (hora de Bogotá). Si alguien lo cambia a mano, el cambio vale en este equipo
    hasta el próximo cambio de jornada (06:00 o 18:00) y luego vuelve a lo automático.
-   No altera los registros: el servidor sigue sellando cada nota con la jornada real. */
+   El centro elegido es la jornada con la que se registran notas, actas y recibos de turno. */
 const CLAVE = 'auracare_centro';
 const ANIM_MS = 1900;
 const CAMBIO_TEMA_MS = 800; // momento de la animación en que el cielo cubre la pantalla y se cambia el tema
@@ -53,8 +53,8 @@ export function useCentro(jornada) {
 export const CentroSwitch = ({ centro, manual, onCambiar }) => {
   const noche = centro === 'noche';
   const titulo = manual
-    ? `Cambiado a mano en este equipo hasta las ${noche ? '06:00' : '18:00'}. Los registros se sellan con la hora real de Bogotá.`
-    : 'Sigue la hora de Bogotá. Haz clic para cambiar entre Centro Día y Centro Noche.';
+    ? `Cambiado a mano en este equipo hasta el próximo cambio de jornada. Las notas y actas quedan registradas en ${noche ? 'Centro Noche' : 'Centro Día'}.`
+    : 'Sigue la hora de Bogotá. Haz clic para cambiar entre Centro Día y Centro Noche: las notas y actas quedan registradas en el centro elegido.';
   return (
     <button type="button" role="switch" aria-checked={noche} aria-label="Centro Noche" title={titulo} className="centro-switch" onClick={onCambiar}>
       <span className="estrellas" aria-hidden="true"></span>

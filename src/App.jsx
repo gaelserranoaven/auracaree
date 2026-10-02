@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from './lib/api.js';
-import { ROLES, RANGOS_DEFAULT, puede } from './lib/clinico.js';
+import { ROLES, RANGOS_DEFAULT, puede, esPsicosocial } from './lib/clinico.js';
 import { fmtFecha, hoyBogota, jornadaDe } from './lib/util.js';
 import { Ctx, Logo, VERSION, ErrorBoundary, Icono } from './components/ui.jsx';
 import { CookieBanner, ModalLegal } from './components/Legal.jsx';
@@ -54,6 +54,7 @@ export const App = () => {
   const [rangosBD, setRangosBD] = useState(null);
   const [elementos, setElementos] = useState([]);
   const [turnos, setTurnos] = useState([]);
+  const [recepciones, setRecepciones] = useState([]);
 
   const [fichaId, setFichaId] = useState(null);
   const [preselNota, setPreselNota] = useState('');
@@ -65,9 +66,11 @@ export const App = () => {
   const toastTimer = useRef(null);
 
   const hoy = hoyBogota(ahora);
-  const jornada = jornadaDe(ahora);
   const rangos = rangosBD || RANGOS_DEFAULT;
-  const { centro, manual: centroManual, cambiar: cambiarCentro, animacion: animCentro } = useCentro(jornada);
+  // La jornada de trabajo es la del centro elegido (Centro Día / Centro Noche); por defecto sigue la hora de Bogotá.
+  // Es la que se envía al servidor al guardar notas, actas y recibos de turno.
+  const { centro, manual: centroManual, cambiar: cambiarCentro, animacion: animCentro } = useCentro(jornadaDe(ahora));
+  const jornada = centro;
   const rol = perfil ? ROLES.find((r) => r.id === perfil.rolId) || ROLES[0] : null;
 
   const avisar = useCallback((msg) => {
@@ -90,7 +93,7 @@ export const App = () => {
   const aplicarDatos = useCallback((d, p) => {
     setSedes(d.sedes); setPerfiles(d.perfiles); setResidentes(d.residentes); setNotas(d.notas); setAlertas(d.alertas);
     setAsistencias(d.asistencias); setActividades(d.actividades); setEntregas(d.entregas); setPertenencias(d.pertenencias);
-    setConfig(d.config); setRangosBD(d.rangos); setElementos(d.elementos); setTurnos(d.turnos);
+    setConfig(d.config); setRangosBD(d.rangos); setElementos(d.elementos); setTurnos(d.turnos); setRecepciones(d.recepciones);
     setSedeId((actual) => (d.sedes.some((s) => s.id === actual) ? actual : (d.sedes.find((s) => s.id === p.sedeId) || d.sedes[0] || {}).id || ''));
   }, []);
 
@@ -142,7 +145,7 @@ export const App = () => {
     try { await api.cerrarSesion(); } catch { /* ya cerrada */ }
     try { Object.keys(sessionStorage).filter((k) => k.startsWith('auracare_')).forEach((k) => sessionStorage.removeItem(k)); } catch { /* sin storage */ }
     setPerfil(null); setPerfiles([]); setResidentes([]); setNotas([]); setAlertas([]); setAsistencias({}); setActividades([]);
-    setEntregas([]); setPertenencias([]); setTurnos([]); setFichaId(null); setModal(null);
+    setEntregas([]); setPertenencias([]); setTurnos([]); setRecepciones([]); setFichaId(null); setModal(null);
     setNavStack(['panel']); setView('panel'); setPantalla('login');
     avisar(mensaje || 'Sesión cerrada con seguridad ✓');
   }, [avisar]);
@@ -171,12 +174,13 @@ export const App = () => {
         case 'entregas': setEntregas((l) => upsert(l, api.mEntrega(r))); break;
         case 'pertenencias': setPertenencias((l) => upsert(l, api.mPertenencia(r))); break;
         case 'entregas_turno': setTurnos((l) => upsert(l, api.mTurno(r)).sort(porFecha).reverse()); break;
+        case 'recepciones_turno': setRecepciones((l) => upsert(l, api.mRecepcion(r)).sort(porFecha).reverse()); break;
         case 'residentes': setResidentes((l) => upsert(l, api.mResidente(r))); break;
         case 'actividades': setActividades((l) => upsert(l, api.mActividad(r))); break;
         default: break;
       }
     };
-    return api.suscribir(['notas', 'alertas', 'asistencias', 'entregas', 'pertenencias', 'entregas_turno', 'residentes', 'actividades'], alCambio);
+    return api.suscribir(['notas', 'alertas', 'asistencias', 'entregas', 'pertenencias', 'entregas_turno', 'recepciones_turno', 'residentes', 'actividades'], alCambio);
   }, [pantalla]);
 
   /* ---------- Navegación ---------- */
@@ -193,7 +197,7 @@ export const App = () => {
   };
 
   const guardarNota = async (datos) => {
-    const { nota, residente, alertas: nuevas } = await api.guardarNota(sedeId, datos);
+    const { nota, residente, alertas: nuevas } = await api.guardarNota(sedeId, { ...datos, jornada });
     setNotas((p) => upsert(p, nota).sort(porFecha));
     if (residente) setResidentes((p) => upsert(p, residente));
     if (nuevas.length) setAlertas((p) => nuevas.reduce((acc, a) => upsert(acc, a), p));
@@ -231,7 +235,8 @@ export const App = () => {
     entrega: async (f) => { const e = await api.registrarEntrega(sedeId, f); setEntregas((p) => upsert(p, e)); },
     pertenencia: async (f) => { const x = await api.registrarPertenencia(sedeId, f); setPertenencias((p) => upsert(p, x)); },
     devolucion: async (id) => { const x = await api.devolverPertenencia(id); setPertenencias((p) => upsert(p, x)); avisar('Devolución registrada ✓'); },
-    firmarTurno: async (obs) => { const t = await api.firmarEntregaTurno(sedeId, obs); setTurnos((p) => [t, ...p.filter((x) => x.id !== t.id)]); },
+    firmarTurno: async (obs, j) => { const t = await api.firmarEntregaTurno(sedeId, obs, j || jornada); setTurnos((p) => [t, ...p.filter((x) => x.id !== t.id)]); },
+    recibirTurno: async (entregaId, obs) => { const r = await api.recibirTurno(sedeId, entregaId, obs, jornada); setRecepciones((p) => [r, ...p.filter((x) => x.id !== r.id)]); },
     toggleConfig: async (k) => {
       const actual = config[sedeId] || { glu: true, dolor: true };
       const nuevo = { ...actual, [k]: !actual[k] };
@@ -332,7 +337,7 @@ export const App = () => {
 
         <main className="main">
           {!online && <div className="aviso-global offline no-print" role="alert">Sin conexión a internet: los cambios NO se guardarán hasta que vuelva la conexión.</div>}
-          {fueraJornada && <div className="aviso-global jornada no-print">Estás fuera de tu jornada autorizada ({perfil.jornadaPermitida === 'dia' ? 'Día' : 'Noche'}). Tus registros quedan marcados con la jornada real ({jornada === 'dia' ? 'Día' : 'Noche'}).</div>}
+          {fueraJornada && <div className="aviso-global jornada no-print">Estás fuera de tu jornada autorizada ({perfil.jornadaPermitida === 'dia' ? 'Día' : 'Noche'}). Tus registros quedan en {jornada === 'dia' ? 'Centro Día' : 'Centro Noche'}.</div>}
 
           <div className="topbar no-print">
             <div className="nav-global">{vista !== 'panel' && <button className="btn-nav-top" onClick={goBack} aria-label="Atrás"><Icono n="atras" /><span className="txt">Atrás</span></button>}</div>
@@ -361,7 +366,7 @@ export const App = () => {
             onReingreso={() => acciones.editarResidente(fichaRes.id, { estado: 'activo', fechaEgreso: null, motivoEgreso: null }, 'Persona reingresada ✓')}
             onGuardarRangos={(o) => acciones.editarResidente(fichaRes.id, { rangos: o }, 'Rangos actualizados ✓')} />}
 
-          {vista === 'nueva' && <NuevaNota key={preselNota || 'nueva'} sede={sede} residentes={resSede.filter((r) => r.estado === 'activo')} presel={preselNota} config={cfg} uid={perfil.id} onGuardar={guardarNota} />}
+          {vista === 'nueva' && <NuevaNota key={preselNota || 'nueva'} sede={sede} residentes={resSede.filter((r) => r.estado === 'activo')} presel={preselNota} config={cfg} uid={perfil.id} psicosocial={esPsicosocial(rolId)} onGuardar={guardarNota} />}
 
           {vista === 'asistencia' && <Asistencia sede={sede} residentes={resSede} asistencias={asistencias} actividades={actividades} puedeEditar={puede(rolId, 'asistencia')}
             onMarcar={acciones.marcarAsistencia} onCrearActividad={acciones.crearActividad} onParticipacion={acciones.participacion} />}
@@ -369,8 +374,8 @@ export const App = () => {
           {vista === 'dotacion' && <Dotacion sede={sede} residentes={resSede} entregas={entregas} pertenencias={pertenencias} elementos={elementos} puedeEditar={puede(rolId, 'dotacion')}
             onEntrega={acciones.entrega} onPertenencia={acciones.pertenencia} onDevolucion={acciones.devolucion} />}
 
-          {vista === 'entrega' && <EntregaTurno sede={sede} residentes={resSede} notas={notas} alertas={alertas} turnos={turnos} usuario={perfil}
-            puedeFirmar={puede(rolId, 'turno')} onFirmar={acciones.firmarTurno} />}
+          {vista === 'entrega' && <EntregaTurno sede={sede} residentes={resSede} notas={notas} alertas={alertas} turnos={turnos} recepciones={recepciones} usuario={perfil}
+            puedeFirmar={puede(rolId, 'turno')} onFirmar={acciones.firmarTurno} onRecibir={acciones.recibirTurno} />}
 
           {vista === 'sdis' && <RegistroSdis sede={sede} residentes={resSede} onCargarDia={api.cargarNotasDia} onVerificar={api.verificarCadena}
             onImprimir={(sid, fecha) => api.auditarLectura('imprimir_sdis', 'notas', fecha, sid)} />}

@@ -567,3 +567,70 @@ button,.btn,.tabbar a{touch-action:manipulation}
 }
 @keyframes hoja{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media print{.tabbar,.hoja-mas{display:none!important}}
+
+/* ===== Turnos: recibir / entregar ===== */
+.turnos{display:grid;gap:18px}
+.panel-sub{font-size:12.5px;color:var(--texto-2)}
+.acta-recibir{border:1px solid var(--linea);border-left:4px solid var(--vital);border-radius:12px;padding:14px 16px;background:var(--campo)}
+.acta-recibir+.acta-recibir{margin-top:12px}
+.acta-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:12.5px;color:var(--texto-2)}
+.acta-meta b{color:var(--texto)}
+.acta-texto{font-size:14px;white-space:pre-wrap;line-height:1.55}
+.recibos{list-style:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--linea);display:grid;gap:6px;font-size:12.5px;color:var(--texto-2)}
+.recibos li{display:flex;gap:8px;align-items:flex-start}
+.recibos b{color:var(--texto)}
+.vacio-recibos{font-style:italic}
+.ok-recibo{flex:none;width:18px;height:18px;border-radius:50%;background:var(--vital-suave);color:var(--vital-t);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.obs-recibo{color:var(--texto);white-space:pre-wrap}
+.check-leido{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:14px;font-weight:600;cursor:pointer;min-height:40px}
+.check-leido input{width:20px;height:20px;accent-color:var(--vital)}
+.lbl-campo{display:block;font-size:13.5px;font-weight:600;color:var(--texto);margin-bottom:6px}
+.seg-jornada{display:flex}
+.seg-jornada button{flex:1;min-height:42px}
+.seg-jornada button.on{background:var(--tinta-solido);color:#fff}
+.chip-turno.dia{background:#F5B83D;color:#3B2A05}
+.chip-turno.noche{background:#1C2E57;color:#E6EEFF}
+.tag.convivencia{background:#FBE7EF;color:#9C2F5E}
+:root[data-centro="noche"] .tag.convivencia{background:rgba(240,130,175,.14);color:#F4A3C4}
+
+/* ===== Gestión de usuarios (tarjetas) ===== */
+.usuarios{display:grid;gap:18px}
+.usuarios .grid-kpi{margin-bottom:0}
+.u-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.u-card,.u-solicitud{display:flex;flex-direction:column;gap:12px;background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(14,58,93,.04)}
+.u-solicitud{border-color:var(--vigilancia-borde);background:linear-gradient(180deg,var(--vigilancia-suave),var(--panel) 70%)}
+.u-card.suspendido{opacity:.72}
+.u-id{display:flex;align-items:center;gap:12px;min-width:0}
+.u-avatar{flex:none;width:44px;height:44px;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:15px;color:#fff;background:var(--tinta-solido)}
+.u-nombre{display:flex;flex-direction:column;min-width:0;flex:1}
+.u-nombre b{font-size:14.5px;display:flex;align-items:center;gap:6px}
+.u-nombre span{font-size:12.5px;color:var(--texto-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u-cuando{font-size:11.5px!important}
+.u-yo{font-size:10.5px!important;font-weight:700;color:var(--vital-t)!important;background:var(--vital-suave);border-radius:99px;padding:1px 7px}
+.u-rol{align-self:flex-start;font-size:12px;font-weight:700;border-radius:8px;padding:4px 10px;background:var(--superficie-3);color:var(--texto)}
+.u-datos{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0}
+.u-datos div{background:var(--superficie-2);border-radius:10px;padding:8px 10px;min-width:0}
+.u-datos dt{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--texto-2)}
+.u-datos dd{font-size:13px;font-weight:600;margin:2px 0 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u-campos{display:grid;gap:2px}
+.u-campos .field{margin-bottom:8px}
+.u-campos select{padding:9px 11px;font-size:13.5px}
+.u-acciones{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:auto}
+.u-acciones .btn{padding:8px 14px;font-size:13px}
+.u-nota{font-size:12px;color:var(--texto-2)}
+.u-filtros{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.u-buscar{width:100%;max-width:420px;padding:10px 13px;border:1.5px solid var(--borde-control);border-radius:11px;background:var(--campo)}
+.u-chips{display:flex;gap:6px;flex-wrap:wrap}
+.u-chips button{min-height:34px;padding:6px 12px;border-radius:99px;font-size:12.5px;font-weight:600;background:var(--panel);color:var(--texto-2);border:1.5px solid var(--linea)}
+.u-chips button[aria-pressed="true"]{background:var(--tinta-solido);border-color:var(--tinta-solido);color:#fff}
+/* Color por rol: mismo tono en avatar y etiqueta */
+.u-avatar.rol-superadmin{background:#0E3A5D}.u-rol.rol-superadmin{background:#E3ECF4;color:#0E3A5D}
+.u-avatar.rol-admin_sede,.u-avatar.rol-admin_turno{background:#5B4A9E}.u-rol.rol-admin_sede,.u-rol.rol-admin_turno{background:#EEEAF8;color:#4A3B85}
+.u-avatar.rol-auxiliar{background:#0B7A5B}.u-rol.rol-auxiliar{background:#E2F5EE;color:#086247}
+.u-avatar.rol-medico{background:#11697F}.u-rol.rol-medico{background:#E1F2F7;color:#0D5568}
+.u-avatar.rol-profesional{background:#A8336A}.u-rol.rol-profesional{background:#FBE7EF;color:#8A2856}
+.u-avatar.rol-auditor{background:#6B5A2E}.u-rol.rol-auditor{background:#F4EEDF;color:#5A4B24}
+.u-avatar.rol-pendiente{background:#9A5E08}
+:root[data-centro="noche"] .u-card,:root[data-centro="noche"] .u-solicitud{box-shadow:none}
+:root[data-centro="noche"] .u-rol{background:var(--superficie-3)!important;color:var(--texto)!important}
+@media(max-width:880px){.u-grid{grid-template-columns:1fr}.u-acciones .btn{flex:1;min-height:44px}}

@@ -53,9 +53,13 @@ const pantallas = {
   ficha: <Ficha res={res[0]} notas={notas} config={cfg} puedeNota puedeEditar puedeRangos nuevaNotaPara={noop} onEditar={noop} onEgreso={noop} onReingreso={noop} onGuardarRangos={noop} />,
   fichaEgresado: <Ficha res={res[1]} notas={[]} config={{ glu: false, dolor: false }} puedeNota puedeEditar puedeRangos={false} nuevaNotaPara={noop} onEditar={noop} onEgreso={noop} onReingreso={noop} onGuardarRangos={noop} />,
   nuevaNota: <NuevaNota sede={sede} residentes={res} presel="r1" config={cfg} uid="u1" onGuardar={noop} />,
+  nuevaNotaPsicosocial: <NuevaNota sede={sede} residentes={res} presel="r1" config={cfg} uid="u3" psicosocial onGuardar={noop} />,
   asistencia: <Asistencia sede={sede} residentes={res} asistencias={asistencias} actividades={actividades} puedeEditar onMarcar={noop} onCrearActividad={noop} onParticipacion={noop} />,
   dotacion: <Dotacion sede={sede} residentes={res} entregas={entregas} pertenencias={pertenencias} elementos={elementos} puedeEditar onEntrega={noop} onPertenencia={noop} onDevolucion={noop} />,
-  entrega: <EntregaTurno sede={sede} residentes={res} notas={notas} alertas={alertas} turnos={turnos} usuario={usuario} puedeFirmar onFirmar={noop} />,
+  entrega: <EntregaTurno sede={sede} residentes={res} notas={notas} alertas={alertas} turnos={turnos} usuario={usuario} puedeFirmar onFirmar={noop} onRecibir={noop} />,
+  entregaPorRecibir: <EntregaTurno sede={sede} residentes={res} notas={notas} alertas={alertas} usuario={usuario} puedeFirmar onFirmar={noop} onRecibir={noop}
+    turnos={[{ ...turnos[0], id: 't2', firmadoPorId: 'u9', cargo: 'Auxiliar de Enfermería', observaciones: 'Discusión en el comedor entre dos usuarios', createdAt: new Date().toISOString() }]}
+    recepciones={[{ id: 'rc1', entregaId: 't2', recibidoPor: 'Marta', recibidoPorId: 'u7', cargo: 'Profesional Psicosocial', observaciones: '', createdAt: new Date().toISOString() }]} />,
   sdis: <RegistroSdis sede={sede} residentes={res} onCargarDia={() => new Promise(() => {})} onVerificar={noop} onImprimir={noop} />,
   config: <Config sedes={[sede]} sede={sede} config={cfg} residentes={res} puedeConfig esSuper onToggle={noop} onCrearSede={noop} onActualizarSede={noop} onGuardarRango={noop} />,
   auditoria: <Auditoria nombresPorId={{}} sedes={[sede]} onCargar={() => new Promise(() => {})} />,

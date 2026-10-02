@@ -51,6 +51,21 @@ test('la ficha usa rangos personalizados y muestra dolor', () => {
 
 test('la administración de usuarios no expone contraseñas ni formulario de clave', () => {
   assert.doesNotMatch(html.admin, /Contraseña temporal/i);
-  assert.match(html.admin, /Solicitudes Pendientes/);
-  assert.match(html.admin, /Aprobar y Activar/);
+  assert.match(html.admin, /Solicitudes de acceso/);
+  assert.match(html.admin, /Aprobar acceso/);
+  assert.match(html.admin, /<label[^>]*>Rol<\/label>/);       // los selects tienen etiqueta visible
+});
+
+test('recibir turno: acta pendiente con quién la recibió; el turno propio no se ofrece', () => {
+  assert.match(html.entregaPorRecibir, /Leí el acta y recibo el turno/);
+  assert.match(html.entregaPorRecibir, /Discusión en el comedor/);
+  assert.match(html.entregaPorRecibir, /Marta/);
+  assert.match(html.entrega, /No tienes actas pendientes/);    // acta antigua: no queda pendiente
+  assert.match(html.entrega, /Centro Noche/);                  // selector de jornada del acta
+});
+
+test('el profesional psicosocial no ve signos vitales y tiene la nota de convivencia', () => {
+  assert.doesNotMatch(html.nuevaNotaPsicosocial, /TA sistólica/);
+  assert.match(html.nuevaNotaPsicosocial, /Convivencia/);
+  assert.match(html.nuevaNota, /TA sistólica/);
 });

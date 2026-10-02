@@ -8,6 +8,7 @@ export const ROLES = [
   { id: 'admin_turno', nombre: 'Administrador de Turno', modulos: ['panel', 'residentes', 'asistencia', 'dotacion', 'entrega', 'sdis'], desc: 'Supervisión operativa durante su turno' },
   { id: 'auditor', nombre: 'Auditor de Inventario / Interventoría SDIS', modulos: ['panel', 'dotacion', 'sdis', 'auditoria'], desc: 'Supervisión de dotación, entregas y cumplimiento legal (solo lectura)' },
   { id: 'medico', nombre: 'Médico / Jefe de Enfermería', modulos: ['panel', 'residentes', 'nueva', 'entrega', 'sdis'], desc: 'Valoración clínica, evoluciones y entrega médica' },
+  { id: 'profesional', nombre: 'Profesional Psicosocial', modulos: ['panel', 'residentes', 'nueva', 'asistencia', 'entrega', 'sdis'], desc: 'Sucesos con los usuarios, convivencia, actividades y entrega de turno psicosocial' },
 ];
 
 // Espejo de las políticas RLS (quién puede ESCRIBIR qué)
@@ -15,11 +16,11 @@ export const PERMISOS = {
   crearResidente: ['superadmin', 'admin_sede', 'admin_turno'],
   editarResidente: ['superadmin', 'admin_sede', 'admin_turno', 'medico'],
   rangosResidente: ['superadmin', 'admin_sede', 'medico'],
-  nota: ['auxiliar', 'medico', 'superadmin'],
+  nota: ['auxiliar', 'medico', 'profesional', 'superadmin'],
   atenderAlerta: ['auxiliar', 'medico', 'admin_sede', 'admin_turno', 'superadmin'],
-  asistencia: ['auxiliar', 'admin_sede', 'admin_turno', 'superadmin'],
+  asistencia: ['auxiliar', 'profesional', 'admin_sede', 'admin_turno', 'superadmin'],
   dotacion: ['auxiliar', 'admin_sede', 'admin_turno', 'superadmin'],
-  turno: ['auxiliar', 'admin_sede', 'admin_turno', 'medico', 'superadmin'],
+  turno: ['auxiliar', 'profesional', 'admin_sede', 'admin_turno', 'medico', 'superadmin'],
   config: ['superadmin', 'admin_sede'],
   rangosGlobales: ['superadmin'],
   crearSede: ['superadmin'],
@@ -31,7 +32,11 @@ export const TIPOS_NOTA = [
   ['ingreso', 'Observación al ingreso'], ['administracion_medicamento', 'Administración de medicamento'],
   ['activacion_emergencia', 'Activación de emergencia (Línea 123 / EPS)'],
   ['actividad_salud', 'Actividad de salud / articulación'], ['general_jornada', 'Novedad general de la jornada'],
+  ['convivencia', 'Convivencia (discusiones, conflictos entre usuarios)'],
 ];
+// El rol Profesional (psicosocial) no registra signos vitales: solo estos tipos
+export const TIPOS_PSICOSOCIAL = ['convivencia', 'general_jornada', 'actividad_salud', 'novedad_salud'];
+export const esPsicosocial = (rolId) => rolId === 'profesional';
 export const TIPO_LBL = Object.fromEntries(TIPOS_NOTA);
 
 export const MOTIVOS_NF = ['No sabe firmar', 'Se niega a firmar', 'Condición de salud', 'Otro'];

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ORDEN_SIGNOS, TIPOS_NOTA, errorSigno, estadoSigno, etiquetasRango, rangoEfectivo } from '../lib/clinico.js';
+import { ORDEN_SIGNOS, TIPOS_NOTA, TIPOS_PSICOSOCIAL, errorSigno, estadoSigno, etiquetasRango, rangoEfectivo } from '../lib/clinico.js';
 import { useApp, useAccion } from './ui.jsx';
 
 const claveBorrador = (uid) => `auracare_borrador_nota_${uid}`;
@@ -10,12 +10,13 @@ const SV0 = { ta_s: '', ta_d: '', fc: '', fr: '', temp: '', spo2: '', glu: '', d
 const leerBorrador = (uid) => { try { return JSON.parse(sessionStorage.getItem(claveBorrador(uid)) || 'null'); } catch { return null; } };
 export const borrarBorrador = (uid) => { try { sessionStorage.removeItem(claveBorrador(uid)); } catch { /* sin storage */ } };
 
-export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) => {
+export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial = false, onGuardar }) => {
   const { rangos, jornada } = useApp();
   const b = leerBorrador(uid);
   const [personaId, setPersonaId] = useState(presel || b?.personaId || '');
   const [filtro, setFiltro] = useState('');
-  const [tipo, setTipo] = useState(b?.tipo || 'evolucion');
+  const tipos = psicosocial ? TIPOS_NOTA.filter(([v]) => TIPOS_PSICOSOCIAL.includes(v)) : TIPOS_NOTA;
+  const [tipo, setTipo] = useState(tipos.some(([v]) => v === b?.tipo) ? b.tipo : tipos[0][0]);
   const [desc, setDesc] = useState(b?.desc || '');
   const [sv, setSv] = useState(b?.sv || SV0);
   const [ocupado, ejecutar] = useAccion();
@@ -29,9 +30,9 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
   const persona = residentes.find((r) => r.id === personaId);
   const overrides = persona?.rangos;
 
-  const campos = [['ta_s', 'TA sistólica (mmHg)'], ['ta_d', 'TA diastólica (mmHg)'], ['fc', 'Frec. cardiaca (lpm)'], ['fr', 'Frec. respiratoria (rpm)'], ['temp', 'Temperatura (°C)'], ['spo2', 'Saturación O₂ (%)']];
-  if (config.glu) campos.push(['glu', 'Glucometría (mg/dL)']);
-  if (config.dolor) campos.push(['dolor', 'Dolor (0–10)']);
+  const campos = psicosocial ? [] : [['ta_s', 'TA sistólica (mmHg)'], ['ta_d', 'TA diastólica (mmHg)'], ['fc', 'Frec. cardiaca (lpm)'], ['fr', 'Frec. respiratoria (rpm)'], ['temp', 'Temperatura (°C)'], ['spo2', 'Saturación O₂ (%)']];
+  if (!psicosocial && config.glu) campos.push(['glu', 'Glucometría (mg/dL)']);
+  if (!psicosocial && config.dolor) campos.push(['dolor', 'Dolor (0–10)']);
 
   const errores = Object.fromEntries(campos.map(([k]) => [k, errorSigno(k, sv[k])]));
   const hayError = Object.values(errores).some(Boolean);
@@ -79,7 +80,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
           <div className="field full">
             <label htmlFor="tipo-nota">Tipo de nota</label>
             <select id="tipo-nota" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              {TIPOS_NOTA.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              {tipos.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </select>
           </div>
 
@@ -97,13 +98,13 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
 
           <div className="field full">
             <label htmlFor="desc-nota">Descripción de la novedad (mínimo 10 caracteres)</label>
-            <textarea id="desc-nota" rows="4" maxLength={4000} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Escriba la valoración clínica o conducta observada…"></textarea>
+            <textarea id="desc-nota" rows="4" maxLength={4000} value={desc} onChange={(e) => setDesc(e.target.value)} placeholder={psicosocial ? 'Qué pasó, con quién, cómo se manejó y qué queda pendiente para el siguiente turno…' : 'Escriba la valoración clínica o conducta observada…'}></textarea>
           </div>
         </div>
 
         {sinPersonaConSignos && <div className="nota-aviso rojo"><span>⚠</span><span>Ingresaste signos vitales sin seleccionar una persona mayor: no generarán alertas ni se asociarán a ninguna ficha.</span></div>}
 
-        <div className="banner-rangos-v31">
+        {!psicosocial && <div className="banner-rangos-v31">
           <b>Rangos de seguridad clínica (referencia de la Fundación — pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
           <div className="grid-rangos-items">
             {ORDEN_SIGNOS.filter((k) => rangos[k] && (k !== 'glu' || config.glu)).map((k) => {
@@ -117,7 +118,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, onGuardar }) 
               );
             })}
           </div>
-        </div>
+        </div>}
 
         <div className="nota-aviso cifrado">
           <span aria-hidden="true">🔒</span>

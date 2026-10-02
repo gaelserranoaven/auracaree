@@ -5,7 +5,15 @@
 ### Añadido
 - **Centro Día / Centro Noche**: el indicador de jornada de la barra superior ahora es un interruptor real. Por defecto sigue la hora de Bogotá; si se cambia a mano, vale en ese equipo hasta el próximo cambio de jornada (06:00 o 18:00).
 - Tema visual **Centro Noche** (paleta oscura en toda la app; el formato SDIS se mantiene en blanco como el papel) y animación de cielo al cambiar: el sol se oculta y sale la luna, o al revés. Se omite con "reducir movimiento".
-- Los registros siguen sellándose en el servidor con la jornada real: el interruptor no cambia la jornada de las notas.
+- **El centro elegido es la jornada registrada**: notas, actas y recibos quedan en Centro Día o Centro Noche según el interruptor (el servidor valida el valor; si no llega, usa la hora de Bogotá).
+- **Recibir turno**: quien llega lee el acta pendiente y firma "Recibí turno", con observaciones opcionales; varias personas pueden firmar la misma acta y cada acta muestra quién la recibió. No se puede recibir un turno propio.
+- **Entregar turno**: selector de jornada en el acta (para el turno noche que entrega pasadas las 06:00), cargo de quien firma y conteo de novedades de convivencia.
+- **Rol Profesional Psicosocial**: entrega turno sobre sucesos con los usuarios, convivencia y novedades del servicio; registra notas (sin signos vitales), asistencia y actividades.
+- Nuevo tipo de nota **Convivencia** (discusiones, conflictos entre usuarios).
+
+### Cambiado
+- **Gestión de usuarios** rediseñada: tarjetas con avatar, color por rol, estado, búsqueda y filtro por rol; los cambios de rol/sede/jornada se hacen en "Editar acceso" con etiquetas visibles y se guardan juntos (antes cada lista guardaba al instante). Las solicitudes pueden aprobarse o rechazarse.
+- Migración `06_centro_turnos_profesional.sql` (rol, tipo de nota, jornada elegida, tabla `recepciones_turno`, RLS).
 
 ## [v4.0.0] - 2026-09-26
 

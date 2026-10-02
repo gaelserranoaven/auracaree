@@ -126,3 +126,9 @@ test('proximoCambioJornada: el cambio manual de centro vence a las 06:00 o 18:00
   assert.equal(iso('2026-09-27T08:00:00Z'), '2026-09-27T11:00:00.000Z'); // 03:00 → 06:00 del mismo día
   assert.equal(iso('2026-09-26T11:00:00Z'), '2026-09-26T23:00:00.000Z'); // justo 06:00 → 18:00
 });
+
+test('rol Profesional: escribe notas, asistencia y turno; no dotación, alertas ni configuración', () => {
+  assert.ok(ROLES.some((r) => r.id === 'profesional'));
+  for (const a of ['nota', 'asistencia', 'turno']) assert.equal(puede('profesional', a), true, a);
+  for (const a of ['dotacion', 'atenderAlerta', 'config', 'crearResidente', 'rangosResidente']) assert.equal(puede('profesional', a), false, a);
+});

@@ -1,120 +1,189 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { ROLES } from '../lib/clinico.js';
 import { fmtFechaHora } from '../lib/util.js';
 import { useApp, useAccion } from './ui.jsx';
 
-const SelectRol = ({ value, onChange, disabled }) => (
-  <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} style={{ fontSize: '12.5px', padding: '4px 8px' }}>
-    {ROLES.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-  </select>
-);
-const SelectSede = ({ value, onChange, sedes, disabled }) => (
-  <select value={value || ''} disabled={disabled} onChange={(e) => onChange(e.target.value)} style={{ fontSize: '12.5px', padding: '4px 8px' }}>
-    <option value="">— Sin sede —</option>
-    {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-  </select>
-);
-const SelectJornada = ({ value, onChange, disabled }) => (
-  <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} style={{ fontSize: '12.5px', padding: '4px 8px' }}>
-    <option value="ambos">☀/☾ Día y Noche</option>
-    <option value="dia">☀ Solo Día</option>
-    <option value="noche">☾ Solo Noche</option>
-  </select>
-);
+const JORNADAS = [['ambos', '☀/☾ Día y Noche'], ['dia', '☀ Solo Día'], ['noche', '☾ Solo Noche']];
+const JORNADA_LBL = Object.fromEntries(JORNADAS);
+const nombreRol = (id) => (ROLES.find((r) => r.id === id) || {}).nombre || id;
+const iniciales = (n) => (n || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 
-const Pendiente = ({ u, sedes, onActualizar }) => {
-  const [rolId, setRolId] = useState('auxiliar');
-  const [sedeId, setSedeId] = useState(sedes[0]?.id || '');
-  const [jornada, setJornada] = useState('ambos');
-  const [ocupado, ejecutar] = useAccion();
-  const { avisar } = useApp();
-  const aprobar = () => ejecutar(async () => {
-    if (!sedeId && rolId !== 'superadmin') { avisar('Asigna una sede antes de aprobar.'); return; }
-    await onActualizar(u.id, { rolId, sedeId: sedeId || null, jornadaPermitida: jornada, estado: 'activo' });
-    avisar('Cuenta aprobada ✓');
-  });
+// Campos de rol / sede / jornada con etiqueta visible (antes eran selects sueltos sin etiqueta)
+const CamposAcceso = ({ v, set, sedes, bloquearRol }) => {
+  const id = useId();
   return (
-    <div style={{ padding: '12px 0', borderBottom: '1px dashed var(--linea)' }}>
-      <b>{u.nombre}</b><br /><span style={{ fontSize: '12px', color: 'var(--texto-2)' }}>{u.email} · solicitó {fmtFechaHora(u.createdAt)}</span>
-      <div style={{ display: 'grid', gap: '6px', marginTop: '8px' }}>
-        <SelectRol value={rolId} onChange={setRolId} />
-        <SelectSede value={sedeId} onChange={setSedeId} sedes={sedes} />
-        <SelectJornada value={jornada} onChange={setJornada} />
-        <button className="mini-btn" disabled={ocupado} style={{ background: 'var(--vital)', color: '#fff' }} onClick={aprobar}>Aprobar y Activar Cuenta ✓</button>
+    <div className="u-campos">
+      <div className="field">
+        <label htmlFor={id + 'r'}>Rol</label>
+        <select id={id + 'r'} value={v.rolId} disabled={bloquearRol} onChange={(e) => set({ ...v, rolId: e.target.value })}>
+          {ROLES.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+        </select>
+      </div>
+      <div className="field">
+        <label htmlFor={id + 's'}>Sede</label>
+        <select id={id + 's'} value={v.sedeId || ''} onChange={(e) => set({ ...v, sedeId: e.target.value })}>
+          <option value="">— Sin sede —</option>
+          {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+        </select>
+      </div>
+      <div className="field">
+        <label htmlFor={id + 'j'}>Jornada autorizada</label>
+        <select id={id + 'j'} value={v.jornadaPermitida} onChange={(e) => set({ ...v, jornadaPermitida: e.target.value })}>
+          {JORNADAS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+        </select>
       </div>
     </div>
   );
 };
 
-export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualizar }) => {
+const Avatar = ({ u }) => <span className={'u-avatar rol-' + u.rolId} aria-hidden="true">{iniciales(u.nombre)}</span>;
+
+const Solicitud = ({ u, sedes, onActualizar }) => {
+  const [v, setV] = useState({ rolId: 'auxiliar', sedeId: sedes[0]?.id || '', jornadaPermitida: 'ambos' });
+  const [ocupado, ejecutar] = useAccion();
   const { avisar } = useApp();
-  const [, ejecutar] = useAccion();
+  const aprobar = () => ejecutar(async () => {
+    if (!v.sedeId && v.rolId !== 'superadmin') { avisar('Asigna una sede antes de aprobar.'); return; }
+    await onActualizar(u.id, { ...v, sedeId: v.sedeId || null, estado: 'activo' });
+    avisar(`Cuenta de ${u.nombre} aprobada ✓`);
+  });
+  const rechazar = () => ejecutar(async () => {
+    if (!window.confirm(`¿Rechazar la solicitud de ${u.nombre}? La cuenta quedará suspendida.`)) return;
+    await onActualizar(u.id, { estado: 'suspendido' });
+    avisar('Solicitud rechazada');
+  });
+  return (
+    <article className="u-solicitud">
+      <div className="u-id">
+        <Avatar u={{ ...u, rolId: 'pendiente' }} />
+        <div className="u-nombre"><b>{u.nombre}</b><span>{u.email}</span><span className="u-cuando">Solicitó {fmtFechaHora(u.createdAt)}</span></div>
+      </div>
+      <CamposAcceso v={v} set={setV} sedes={sedes} />
+      <div className="u-acciones">
+        <button className="btn btn-ghost" disabled={ocupado} onClick={rechazar}>Rechazar</button>
+        <button className="btn btn-primary" disabled={ocupado} onClick={aprobar}>Aprobar acceso</button>
+      </div>
+    </article>
+  );
+};
 
-  const cambiar = (id, parche, msg) => ejecutar(async () => { await onActualizar(id, parche); avisar(msg + ' ✓'); });
+const TarjetaUsuario = ({ u, yo, sedes, jornadaActual, onActualizar }) => {
+  const [editando, setEditando] = useState(false);
+  const [v, setV] = useState(u);
+  const [ocupado, ejecutar] = useAccion();
+  const { avisar } = useApp();
+  const sede = sedes.find((s) => s.id === u.sedeId);
 
-  const estadoDinamico = (u) => {
-    if (u.estado === 'suspendido') return { label: '⛔ Suspendido', cls: 'c' };
-    if (u.jornadaPermitida === 'ambos' || u.jornadaPermitida === jornadaActual) return { label: '● Activo (en turno)', cls: 'ok' };
-    return { label: '○ Fuera de su jornada', cls: 'inactivo' };
-  };
+  const estado = u.estado === 'suspendido' ? { lbl: 'Suspendido', cls: 'c' }
+    : (u.jornadaPermitida === 'ambos' || u.jornadaPermitida === jornadaActual) ? { lbl: 'En turno', cls: 'ok' }
+      : { lbl: 'Fuera de su jornada', cls: 'inactivo' };
 
-  const pendientes = perfiles.filter((u) => u.estado === 'pendiente');
-  const otros = perfiles.filter((u) => u.estado !== 'pendiente');
+  const guardar = () => ejecutar(async () => {
+    const parche = {};
+    ['rolId', 'sedeId', 'jornadaPermitida'].forEach((k) => { if ((v[k] || null) !== (u[k] || null)) parche[k] = v[k] || null; });
+    if (!Object.keys(parche).length) { setEditando(false); return; }
+    await onActualizar(u.id, parche);
+    setEditando(false);
+    avisar('Cambios guardados ✓');
+  });
+  const alternarEstado = () => ejecutar(async () => {
+    const suspender = u.estado !== 'suspendido';
+    if (suspender && !window.confirm(`¿Suspender el acceso de ${u.nombre}?`)) return;
+    await onActualizar(u.id, { estado: suspender ? 'suspendido' : 'activo' });
+    avisar(suspender ? 'Cuenta suspendida' : 'Cuenta reactivada ✓');
+  });
 
   return (
-    <div>
-      <div className="dos-col" style={{ marginBottom: '24px' }}>
-        <div className="panel">
-          <div className="panel-head"><h3>Cómo dar acceso a una persona</h3></div>
-          <div className="panel-body">
-            <ol style={{ paddingLeft: '18px', fontSize: '13.5px', lineHeight: 1.7 }}>
-              <li>La persona entra a AuraCare → <b>Solicitar Acceso</b> y crea su propia contraseña.</li>
-              <li>Aparece aquí en <b>Solicitudes Pendientes</b>.</li>
-              <li>Verifica su identidad, asigna <b>rol, sede y jornada</b> y aprueba.</li>
-            </ol>
-            <div className="nota-aviso"><span>🔐</span><span>Nadie comparte contraseñas: cada cuenta es personal y los administradores nunca las ven. Toda acción de esta pantalla queda en el registro de auditoría.</span></div>
+    <article className={'u-card' + (u.estado === 'suspendido' ? ' suspendido' : '')}>
+      <div className="u-id">
+        <Avatar u={u} />
+        <div className="u-nombre"><b>{u.nombre}{yo && <span className="u-yo">Tú</span>}</b><span>{u.email}</span></div>
+        <span className={'estado-pill ' + estado.cls}>{estado.lbl}</span>
+      </div>
+      {editando ? (
+        <>
+          <CamposAcceso v={v} set={setV} sedes={sedes} bloquearRol={yo} />
+          {yo && <p className="u-nota">No puedes cambiar tu propio rol.</p>}
+          <div className="u-acciones">
+            <button className="btn btn-ghost" disabled={ocupado} onClick={() => { setV(u); setEditando(false); }}>Cancelar</button>
+            <button className="btn btn-primary" disabled={ocupado} onClick={guardar}>{ocupado ? 'Guardando…' : 'Guardar cambios'}</button>
           </div>
-        </div>
+        </>
+      ) : (
+        <>
+          <span className={'u-rol rol-' + u.rolId}>{nombreRol(u.rolId)}</span>
+          <dl className="u-datos">
+            <div><dt>Sede</dt><dd>{sede ? sede.nombre : 'Sin sede'}</dd></div>
+            <div><dt>Jornada</dt><dd>{JORNADA_LBL[u.jornadaPermitida] || u.jornadaPermitida}</dd></div>
+          </dl>
+          <div className="u-acciones">
+            {!yo && <button className="btn btn-ghost" disabled={ocupado} onClick={alternarEstado}>{u.estado === 'suspendido' ? 'Reactivar' : 'Suspender'}</button>}
+            <button className="btn btn-tinta" disabled={ocupado} onClick={() => { setV(u); setEditando(true); }}>Editar acceso</button>
+          </div>
+        </>
+      )}
+    </article>
+  );
+};
 
-        <div className="panel">
-          <div className="panel-head"><h3>Solicitudes Pendientes de Aprobación ({pendientes.length})</h3></div>
-          <div className="panel-body">
-            {pendientes.length === 0 ? <div className="vacio">No hay solicitudes pendientes.</div>
-              : pendientes.map((u) => <Pendiente key={u.id} u={u} sedes={sedes} onActualizar={onActualizar} />)}
-          </div>
-        </div>
+export const AdminUsuarios = ({ perfiles, sedes, jornadaActual, miId, onActualizar }) => {
+  const [q, setQ] = useState('');
+  const [filtroRol, setFiltroRol] = useState('todos');
+
+  const pendientes = perfiles.filter((u) => u.estado === 'pendiente');
+  const cuentas = perfiles.filter((u) => u.estado !== 'pendiente');
+  const activos = cuentas.filter((u) => u.estado === 'activo').length;
+  const suspendidos = cuentas.length - activos;
+  const rolesUsados = ROLES.filter((r) => cuentas.some((u) => u.rolId === r.id));
+  const texto = q.trim().toLowerCase();
+  const visibles = cuentas
+    .filter((u) => filtroRol === 'todos' || u.rolId === filtroRol)
+    .filter((u) => !texto || (u.nombre + ' ' + u.email).toLowerCase().includes(texto))
+    .sort((a, b) => (a.estado === b.estado ? a.nombre.localeCompare(b.nombre) : a.estado === 'activo' ? -1 : 1));
+
+  return (
+    <div className="usuarios">
+      <div className="grid-kpi">
+        <div className="kpi"><div className="lbl">Cuentas activas</div><div className="val">{activos}</div></div>
+        <div className="kpi"><div className="lbl">Solicitudes pendientes</div><div className={'val' + (pendientes.length ? ' alerta-c' : '')}>{pendientes.length}</div></div>
+        <div className="kpi"><div className="lbl">Suspendidas</div><div className="val">{suspendidos}</div></div>
       </div>
 
-      <div className="panel">
+      <section className="panel" aria-labelledby="u-pend">
         <div className="panel-head">
-          <h3>Directorio de Usuarios · Turno actual: {jornadaActual === 'dia' ? '☀ Día' : '☾ Noche'}</h3>
+          <h3 id="u-pend">Solicitudes de acceso</h3>
+          <span className="panel-sub">La persona crea su cuenta en "Solicitar acceso"; aquí verificas su identidad y le asignas rol, sede y jornada.</span>
         </div>
-        <div className="panel-body tabla-scroll">
-          <table className="op">
-            <thead><tr><th>Usuario</th><th>Rol</th><th>Sede</th><th>Jornada autorizada</th><th>Estado</th><th></th></tr></thead>
-            <tbody>
-              {otros.map((u) => {
-                const st = estadoDinamico(u);
-                const yo = u.id === miId;
-                return (
-                  <tr key={u.id}>
-                    <td><b>{u.nombre}</b><br /><span style={{ fontSize: '12px', color: 'var(--texto-2)' }}>{u.email}</span></td>
-                    <td><SelectRol value={u.rolId} disabled={yo} onChange={(v) => cambiar(u.id, { rolId: v }, 'Rol actualizado')} /></td>
-                    <td><SelectSede value={u.sedeId} sedes={sedes} onChange={(v) => cambiar(u.id, { sedeId: v || null }, 'Sede actualizada')} /></td>
-                    <td><SelectJornada value={u.jornadaPermitida} onChange={(v) => cambiar(u.id, { jornadaPermitida: v }, 'Jornada actualizada')} /></td>
-                    <td><span className={'estado-pill ' + st.cls}>{st.label}</span></td>
-                    <td>
-                      {!yo && (u.estado === 'suspendido'
-                        ? <button className="mini-btn" onClick={() => cambiar(u.id, { estado: 'activo' }, 'Cuenta reactivada')}>Reactivar</button>
-                        : <button className="mini-btn" onClick={() => { if (window.confirm(`¿Suspender el acceso de ${u.nombre}?`)) cambiar(u.id, { estado: 'suspendido' }, 'Cuenta suspendida'); }}>Suspender</button>)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="panel-body">
+          {pendientes.length === 0
+            ? <div className="vacio">No hay solicitudes pendientes.</div>
+            : <div className="u-grid">{pendientes.map((u) => <Solicitud key={u.id} u={u} sedes={sedes} onActualizar={onActualizar} />)}</div>}
         </div>
-      </div>
+      </section>
+
+      <section className="panel" aria-labelledby="u-dir">
+        <div className="panel-head">
+          <h3 id="u-dir">Equipo</h3>
+          <span className="panel-sub">Turno actual: {jornadaActual === 'dia' ? '☀ Centro Día' : '☾ Centro Noche'}</span>
+        </div>
+        <div className="panel-body">
+          <div className="u-filtros">
+            <input type="search" className="u-buscar" aria-label="Buscar por nombre o correo" placeholder="Buscar por nombre o correo" value={q} onChange={(e) => setQ(e.target.value)} />
+            <div className="u-chips" role="group" aria-label="Filtrar por rol">
+              <button type="button" aria-pressed={filtroRol === 'todos'} onClick={() => setFiltroRol('todos')}>Todos · {cuentas.length}</button>
+              {rolesUsados.map((r) => (
+                <button key={r.id} type="button" aria-pressed={filtroRol === r.id} onClick={() => setFiltroRol(r.id)}>
+                  {r.nombre.split(' / ')[0]} · {cuentas.filter((u) => u.rolId === r.id).length}
+                </button>
+              ))}
+            </div>
+          </div>
+          {visibles.length === 0
+            ? <div className="vacio">Ninguna cuenta coincide con la búsqueda.</div>
+            : <div className="u-grid">{visibles.map((u) => <TarjetaUsuario key={u.id} u={u} yo={u.id === miId} sedes={sedes} jornadaActual={jornadaActual} onActualizar={onActualizar} />)}</div>}
+          <div className="nota-aviso"><span aria-hidden="true">🔐</span><span>Nadie comparte contraseñas: cada cuenta es personal y los administradores nunca las ven. Todo cambio de esta pantalla queda en la auditoría.</span></div>
+        </div>
+      </section>
     </div>
   );
 };

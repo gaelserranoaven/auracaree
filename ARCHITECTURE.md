@@ -27,7 +27,8 @@ Postgres: tablas públicas con RLS · esquema `private` (helpers) · triggers de
 | `alertas` | Generadas por trigger al guardar una nota | Solo se marcan "atendida" |
 | `asistencias`, `actividades` | Sección 5 SDIS (solo del día) | Auxiliar, Admin, SuperAdmin |
 | `entregas`, `pertenencias` | Dotación (con límites) y custodia | Auxiliar, Admin, SuperAdmin |
-| `entregas_turno` | Acta de cierre de turno (inmutable) | Roles operativos y médico |
+| `entregas_turno` | Acta de entrega de turno (inmutable) | Roles operativos, médico y profesional |
+| `recepciones_turno` | Firma "Recibí turno" sobre un acta (inmutable, una por persona y acta) | Roles operativos, médico y profesional |
 | `rangos_clinicos`, `elementos_dotacion` | Fuente única de verdad de umbrales y reglas | Solo SuperAdmin |
 | `auditoria` | Registro append-only | Triggers + inserción de lecturas por el cliente |
 
@@ -38,7 +39,7 @@ Esquema `private`: `rol()`, `tiene_rol()`, `puede_sede()`, `hash_nota()`, `estad
 1. **Sellado en servidor (no en el cliente).** El trigger `notas_antes_insert` asigna `id`, `autor`, `fecha`, `hora`, `jornada` (hora de Bogotá), `seq` por sede y `hash = SHA-256(prev_hash | id | sede | seq | persona | tipo | fecha | hora | descripción | signos | autor | timestamp)`. Un advisory lock por sede serializa la cadena. `verificar_cadena_notas(sede)` recalcula todo; una alteración directa en la BD se detecta (probado).
 2. **Sin cifrado E2EE.** La versión 3.x lo anunciaba pero no era real (la clave salía de la contraseña, el texto plano se guardaba igual y nunca se descifraba). Se retiró. La protección real es: TLS, cifrado en reposo del proveedor, RLS y auditoría. Un E2EE verdadero impediría búsqueda, impresión SDIS y recuperación de claves; no se justifica hoy.
 3. **Registro de usuarios por aprobación.** Cualquiera puede solicitar acceso; el trigger crea el perfil siempre como `pendiente/auxiliar`. Sin aprobación de un SuperAdmin, RLS no devuelve nada. Nadie comparte ni ve contraseñas.
-4. **Jornada informativa, no bloqueante.** La jornada se deriva de la hora de Bogotá y se registra en cada nota; si un usuario está fuera de su jornada autorizada ve un aviso. No se bloquea porque impedir documentar un evento clínico por 5 minutos de turno es más riesgoso que el aviso. Puede endurecerse en RLS si la Fundación lo exige.
+4. **Jornada = centro elegido, no bloqueante.** La app tiene un interruptor Centro Día / Centro Noche que por defecto sigue la hora de Bogotá; la jornada elegida se envía y el servidor la valida (si falta, usa la hora). Se registra en cada nota, acta y recibo (no forma parte del hash de la nota); si un usuario está fuera de su jornada autorizada ve un aviso. No se bloquea porque impedir documentar un evento clínico por 5 minutos de turno es más riesgoso que el aviso. Puede endurecerse en RLS si la Fundación lo exige.
 5. **Rangos en tabla, no en código.** Cliente y servidor leen `rangos_clinicos`; cada residente puede tener overrides. Los valores actuales son la referencia de la Fundación y **requieren validación médica**.
 6. **Confirmación real de guardado.** Todas las escrituras esperan la respuesta de la BD antes de mostrar "✓"; en error se muestra el motivo. El borrador de una nota vive en `sessionStorage` para no perderlo ante un corte.
 

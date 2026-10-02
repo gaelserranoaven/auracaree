@@ -33,7 +33,7 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
         <div className="panel" style={{ marginBottom: '18px' }}>
           <div className="panel-head">
             <h3>Última entrega de turno</h3>
-            <span className="chip-turno">{ultimoTurno.jornada === 'dia' ? '☀ Día' : '☾ Noche'}</span>
+            <span className={'chip-turno ' + ultimoTurno.jornada}>{ultimoTurno.jornada === 'dia' ? '☀ Día' : '☾ Noche'}</span>
             <span style={{ fontSize: '12px', color: 'var(--texto-2)' }}>{fmtFechaHora(ultimoTurno.createdAt)} · {ultimoTurno.firmadoPor}</span>
           </div>
           <div className="panel-body" style={{ fontSize: '14px', whiteSpace: 'pre-wrap' }}>{ultimoTurno.observaciones}</div>

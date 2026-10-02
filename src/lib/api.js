@@ -25,7 +25,8 @@ export const mAsistencia = (a) => ({ id: a.id, sedeId: a.sede_id, personaId: a.p
 export const mActividad = (a) => ({ id: a.id, sedeId: a.sede_id, fecha: a.fecha, nombre: a.nombre, linea: a.linea, profesional: a.profesional, participacion: a.participacion || {} });
 export const mEntrega = (e) => ({ id: e.id, sedeId: e.sede_id, personaId: e.persona_id, elemento: e.elemento, cantidad: e.cantidad, fecha: e.fecha, quien: e.quien, obs: e.obs });
 export const mPertenencia = (p) => ({ id: p.id, sedeId: p.sede_id, personaId: p.persona_id, ayudas: p.ayudas, prendas: p.prendas, lenceria: p.lenceria, otros: p.otros, obs: p.obs, fechaRecibo: p.fecha_recibo, estado: p.estado, fechaDev: p.fecha_dev });
-export const mTurno = (t) => ({ id: t.id, sedeId: t.sede_id, jornada: t.jornada, fecha: t.fecha, observaciones: t.observaciones, firmadoPor: t.firmado_por_nombre, createdAt: t.created_at });
+export const mTurno = (t) => ({ id: t.id, sedeId: t.sede_id, jornada: t.jornada, fecha: t.fecha, observaciones: t.observaciones, firmadoPor: t.firmado_por_nombre, firmadoPorId: t.firmado_por, cargo: t.firmado_por_cargo || '', createdAt: t.created_at });
+export const mRecepcion = (r) => ({ id: r.id, entregaId: r.entrega_id, sedeId: r.sede_id, jornada: r.jornada, fecha: r.fecha, observaciones: r.observaciones || '', recibidoPor: r.recibido_por_nombre, recibidoPorId: r.recibido_por, cargo: r.recibido_por_cargo, createdAt: r.created_at });
 export const mElemento = (e) => ({ key: e.key, nombre: e.nombre, regla: e.regla, limPersona: e.lim_persona_mes, limUnidad: e.lim_unidad_mes });
 export const mAuditoria = (a) => ({ id: a.id, userId: a.user_id, accion: a.accion, tabla: a.tabla, registroId: a.registro_id, sedeId: a.sede_id, detalle: a.detalle, createdAt: a.created_at });
 
@@ -83,9 +84,12 @@ export async function cargarTodo(perfil, hoy) {
     db.from('rangos_clinicos').select('*'),
     db.from('elementos_dotacion').select('*'),
     db.from('entregas_turno').select('*').order('created_at', { ascending: false }).limit(30),
+    db.from('recepciones_turno').select('*').order('created_at', { ascending: false }).limit(120),
     esSuper ? db.from('perfiles').select('*').order('created_at') : Promise.resolve({ data: [] }),
   ]);
-  const [sedes, resid, notas, alertas, asist, acts, entregas, pert, cfg, rangos, elems, turnos, perfiles] = res.map(ok);
+  // recepciones_turno es opcional: si la migración 06 aún no está aplicada, la app carga igual sin recibos
+  if (res[12].error) res[12] = { data: [] };
+  const [sedes, resid, notas, alertas, asist, acts, entregas, pert, cfg, rangos, elems, turnos, recepciones, perfiles] = res.map(ok);
 
   const asistencias = {};
   asist.forEach((a) => { asistencias[a.sede_id + '|' + a.fecha + '|' + a.persona_id] = mAsistencia(a); });
@@ -107,6 +111,7 @@ export async function cargarTodo(perfil, hoy) {
     rangos: Object.keys(rangosMap).length ? rangosMap : null,
     elementos: elems.map(mElemento),
     turnos: turnos.map(mTurno),
+    recepciones: recepciones.map(mRecepcion),
     perfiles: perfiles.map(mPerfil),
   };
 }
@@ -160,9 +165,10 @@ export async function actualizarResidente(id, parche) {
   return mResidente(ok(await db.from('residentes').update(fila).eq('id', id).select().single()));
 }
 
-export async function guardarNota(sedeId, { personaId, tipo, descripcion, signos }) {
+// jornada: la del centro elegido en la app (Centro Día / Centro Noche); el servidor la valida
+export async function guardarNota(sedeId, { personaId, tipo, descripcion, signos, jornada }) {
   const nota = mNota(ok(await db.from('notas').insert({
-    sede_id: sedeId, persona_id: personaId || null, tipo, descripcion: String(descripcion).trim(), signos,
+    sede_id: sedeId, persona_id: personaId || null, tipo, descripcion: String(descripcion).trim(), signos, jornada,
   }).select().single()));
   // El servidor actualizó signos/histórico del residente y generó alertas (triggers): traer el estado real
   let residente = null; let alertas = [];
@@ -210,8 +216,13 @@ export async function devolverPertenencia(id) {
   return mPertenencia(ok(await db.from('pertenencias').update({ estado: 'devuelta' }).eq('id', id).select().single()));
 }
 
-export async function firmarEntregaTurno(sedeId, observaciones) {
-  return mTurno(ok(await db.from('entregas_turno').insert({ sede_id: sedeId, observaciones: String(observaciones).trim() }).select().single()));
+export async function firmarEntregaTurno(sedeId, observaciones, jornada) {
+  return mTurno(ok(await db.from('entregas_turno').insert({ sede_id: sedeId, observaciones: String(observaciones).trim(), jornada }).select().single()));
+}
+export async function recibirTurno(sedeId, entregaId, observaciones, jornada) {
+  return mRecepcion(ok(await db.from('recepciones_turno').insert({
+    sede_id: sedeId, entrega_id: entregaId, observaciones: String(observaciones || '').trim().slice(0, 2000) || null, jornada,
+  }).select().single()));
 }
 
 export async function guardarConfig(sedeId, parche, existe) {
