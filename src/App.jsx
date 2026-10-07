@@ -91,12 +91,19 @@ export const App = () => {
   const rol = perfil ? ROLES.find((r) => r.id === perfil.rolId) || ROLES[0] : null;
 
   // tipo: 'ok' (por defecto) | 'error' | 'alerta' | 'info' | 'sello': define el ícono del aviso
+  // 'error' y 'alerta' se quedan hasta que alguien los cierre; el resto se oculta solo
   const avisar = useCallback((msg, tipo = 'ok') => {
     setToast({ msg, tipo });
     clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 4200);
+    if (tipo !== 'error' && tipo !== 'alerta') toastTimer.current = setTimeout(() => setToast(null), 4200);
   }, []);
-  const ctx = useMemo(() => ({ hoy, jornada, rangos, avisar }), [hoy, jornada, rangos, avisar]);
+
+  // Confirmación propia (reemplaza window.confirm): confirmar({ titulo, sub, si, peligro }) -> Promise<boolean>
+  const [dialogoConf, setDialogoConf] = useState(null);
+  const resolverConf = useRef(null);
+  const cerrarConf = useCallback((v) => { if (resolverConf.current) resolverConf.current(v); resolverConf.current = null; setDialogoConf(null); }, []);
+  const confirmar = useCallback((o) => new Promise((res) => { if (resolverConf.current) resolverConf.current(false); resolverConf.current = res; setDialogoConf(o); }), []);
+  const ctx = useMemo(() => ({ hoy, jornada, rangos, avisar, confirmar }), [hoy, jornada, rangos, avisar, confirmar]);
 
   /* ---------- Reloj, conexión ---------- */
   useEffect(() => { const t = setInterval(() => setAhora(new Date()), 30000); return () => clearInterval(t); }, []);
@@ -167,10 +174,10 @@ export const App = () => {
     try { Object.keys(sessionStorage).filter((k) => k.startsWith('auracare_') && !(conservarBorrador && k.startsWith('auracare_borrador_'))).forEach((k) => sessionStorage.removeItem(k)); } catch { /* sin storage */ }
     setPerfil(null); setPerfiles([]); setResidentes([]); setNotas([]); setAlertas([]); setAsistencias({}); setActividades([]);
     setEntregas([]); setPertenencias([]); setTurnos([]); setRecepciones([]); setFichaId(null); setModal(null);
-    setConfirmarSalida(false);
+    setConfirmarSalida(false); cerrarConf(false);
     setNavStack(['panel']); setView('panel'); setPantalla('login');
     avisar(mensaje || 'Sesión cerrada con seguridad');
-  }, [avisar]);
+  }, [avisar, cerrarConf]);
 
   // Cierre automático por inactividad (equipos compartidos con datos sensibles)
   useEffect(() => {
@@ -477,7 +484,20 @@ export const App = () => {
         {contenido}
         {avisoInact > 0 && pantalla === 'app' && <AvisoInactividad limite={avisoInact} onSeguir={() => reiniciarInactividad.current()} />}
         {showLegal && <ModalLegal cerrar={() => setShowLegal(false)} />}
-        {toast && <div className={'toast ' + toast.tipo} role="status"><IconoAviso t={toast.tipo} /><span>{toast.msg}</span></div>}
+        {dialogoConf && (
+          <Modal titulo={dialogoConf.titulo} sub={dialogoConf.sub} cerrar={() => cerrarConf(false)}>
+            <div className="modal-foot">
+              <button className="btn btn-ghost" onClick={() => cerrarConf(false)}>Cancelar</button>
+              <button className={'btn ' + (dialogoConf.peligro ? 'btn-peligro' : 'btn-primary')} onClick={() => cerrarConf(true)}>{dialogoConf.si}</button>
+            </div>
+          </Modal>
+        )}
+        {toast && (
+          <div className={'toast ' + toast.tipo} role={toast.tipo === 'error' || toast.tipo === 'alerta' ? 'alert' : 'status'}>
+            <IconoAviso t={toast.tipo} /><span>{toast.msg}</span>
+            {(toast.tipo === 'error' || toast.tipo === 'alerta') && <button className="toast-cerrar" aria-label="Cerrar aviso" onClick={() => setToast(null)}><Icono n="cerrar" /></button>}
+          </div>
+        )}
         {animCentro && <CieloCambio key={animCentro.id} hacia={animCentro.hacia} />}
       </Ctx.Provider>
     </ErrorBoundary>

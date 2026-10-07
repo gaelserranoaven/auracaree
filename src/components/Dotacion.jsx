@@ -4,7 +4,7 @@ import { fmtFecha } from '../lib/util.js';
 import { useApp, useAccion, IconoAviso } from './ui.jsx';
 
 export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, puedeEditar, onEntrega, onPertenencia, onDevolucion }) => {
-  const { hoy, avisar } = useApp();
+  const { hoy, avisar, confirmar } = useApp();
   const [tab, setTab] = useState('aseo');
   const [fE, setFE] = useState({ personaId: '', elemento: elementos[0]?.key || '', cantidad: 1, obs: '' });
   const [fP, setFP] = useState({ personaId: '', ayudas: '', prendas: '', lenceria: '', otros: '', obs: '' });
@@ -104,7 +104,7 @@ export const Dotacion = ({ sede, residentes, entregas, pertenencias, elementos, 
                     </div>
                     {puedeEditar && p.estado !== 'devuelta' && (
                       <button className="mini-btn" style={{ marginTop: '6px' }} disabled={ocupado}
-                        onClick={() => { if (window.confirm('¿Registrar la devolución de estas pertenencias? Esta acción no se puede deshacer.')) ejecutar(() => onDevolucion(p.id)); }}>Registrar devolución</button>
+                        onClick={() => ejecutar(async () => { if (await confirmar({ titulo: 'Registrar la devolución', sub: 'Esta acción no se puede deshacer.', si: 'Registrar devolución' })) await onDevolucion(p.id); })}>Registrar devolución</button>
                     )}
                   </div>
                 ))}

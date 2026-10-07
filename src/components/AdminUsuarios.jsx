@@ -89,14 +89,14 @@ const Avatar = ({ u }) => <span className={'u-avatar rol-' + u.rolId} aria-hidde
 const Solicitud = ({ u, sedes, onActualizar }) => {
   const [v, setV] = useState({ rolId: 'auxiliar', sedeId: (sedes.find((s) => s.activa) || {}).id || '', jornadaPermitida: 'ambos' });
   const [ocupado, ejecutar] = useAccion();
-  const { avisar } = useApp();
+  const { avisar, confirmar } = useApp();
   const aprobar = () => ejecutar(async () => {
     if (!v.sedeId && v.rolId !== 'superadmin') { avisar('Asigna una sede antes de aprobar.', 'alerta'); return; }
     await onActualizar(u.id, { ...v, sedeId: v.sedeId || null, estado: 'activo' });
     avisar(`Cuenta de ${u.nombre} aprobada`);
   });
   const rechazar = () => ejecutar(async () => {
-    if (!window.confirm(`¿Rechazar la solicitud de ${u.nombre}? La cuenta quedará suspendida.`)) return;
+    if (!(await confirmar({ titulo: `Rechazar la solicitud de ${u.nombre}`, sub: 'La cuenta quedará suspendida.', si: 'Rechazar solicitud', peligro: true }))) return;
     await onActualizar(u.id, { estado: 'suspendido' });
     avisar('Solicitud rechazada', 'info');
   });
@@ -119,7 +119,7 @@ const TarjetaUsuario = ({ u, yo, sedes, jornadaActual, onActualizar }) => {
   const [editando, setEditando] = useState(false);
   const [v, setV] = useState(u);
   const [ocupado, ejecutar] = useAccion();
-  const { avisar } = useApp();
+  const { avisar, confirmar } = useApp();
   const sede = sedes.find((s) => s.id === u.sedeId);
 
   const estado = u.estado === 'suspendido' ? { lbl: 'Suspendido', cls: 'c' }
@@ -136,7 +136,7 @@ const TarjetaUsuario = ({ u, yo, sedes, jornadaActual, onActualizar }) => {
   });
   const alternarEstado = () => ejecutar(async () => {
     const suspender = u.estado !== 'suspendido';
-    if (suspender && !window.confirm(`¿Suspender el acceso de ${u.nombre}?`)) return;
+    if (suspender && !(await confirmar({ titulo: `Suspender el acceso de ${u.nombre}`, sub: 'No podrá iniciar sesión hasta que lo reactives.', si: 'Suspender acceso', peligro: true }))) return;
     await onActualizar(u.id, { estado: suspender ? 'suspendido' : 'activo' });
     avisar(suspender ? 'Cuenta suspendida' : 'Cuenta reactivada', suspender ? 'info' : 'ok');
   });

@@ -3,7 +3,7 @@ import { ORDEN_SIGNOS } from '../lib/clinico.js';
 import { useApp, useAccion, IconoAviso } from './ui.jsx';
 
 const RangosGlobales = ({ onGuardar }) => {
-  const { rangos, avisar } = useApp();
+  const { rangos, avisar, confirmar } = useApp();
   const claves = ORDEN_SIGNOS.filter((k) => rangos[k]);
   const [d, setD] = useState(() => Object.fromEntries(claves.map((k) => [k, { vMin: rangos[k].vMin, vMax: rangos[k].vMax, cMin: rangos[k].cMin, cMax: rangos[k].cMax }])));
   const [ocupado, ejecutar] = useAccion();
@@ -12,7 +12,7 @@ const RangosGlobales = ({ onGuardar }) => {
   const cambiados = claves.filter((k) => ['vMin', 'vMax', 'cMin', 'cMax'].some((c) => Number(d[k][c]) !== rangos[k][c]));
 
   const guardar = () => ejecutar(async () => {
-    if (!window.confirm('Estos rangos definen cuándo se generan alertas para TODAS las sedes. ¿Confirmas que fueron validados por dirección médica?')) return;
+    if (!(await confirmar({ titulo: 'Cambiar los rangos de todas las sedes', sub: 'Definen cuándo se generan alertas en TODAS las sedes. Confirma que los validó dirección médica.', si: 'Guardar rangos' }))) return;
     for (const k of cambiados) await onGuardar(k, { vMin: Number(d[k].vMin), vMax: Number(d[k].vMax), cMin: Number(d[k].cMin), cMax: Number(d[k].cMax) });
     avisar('Rangos clínicos actualizados (quedan en auditoría)');
   });
@@ -38,7 +38,7 @@ const RangosGlobales = ({ onGuardar }) => {
 };
 
 export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, onToggle, onCrearSede, onActualizarSede, onGuardarRango, onSuspenderSede, onReactivarSede }) => {
-  const { avisar } = useApp();
+  const { avisar, confirmar } = useApp();
   const [nueva, setNueva] = useState({ nombre: '', cupos: 40 });
   const [ocupado, ejecutar] = useAccion();
   const [edit, setEdit] = useState(null);
@@ -51,7 +51,7 @@ export const Config = ({ sedes, sede, config, residentes, puedeConfig, esSuper, 
   });
   const confirmarSuspension = () => ejecutar(async () => {
     const s = sedes.find((x) => x.id === suspender.id);
-    if (!window.confirm(`¿Suspender "${s.nombre}"? Su personal pierde el acceso y no se podrá registrar nada en ella. Toda su información se conserva y puedes reactivarla después.`)) return;
+    if (!(await confirmar({ titulo: `Suspender "${s.nombre}"`, sub: 'Su personal pierde el acceso y no se podrá registrar nada en ella. La información se conserva y puedes reactivarla después.', si: 'Suspender sede', peligro: true }))) return;
     await onSuspenderSede(suspender.id, suspender.motivo);
     setSuspender(null);
     avisar(`Sede "${s.nombre}" suspendida`, 'info');

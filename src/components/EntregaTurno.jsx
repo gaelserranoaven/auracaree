@@ -53,7 +53,7 @@ const ActaPorRecibir = ({ acta, recibos, onRecibir }) => {
 };
 
 export const EntregaTurno = ({ sede, residentes, notas, alertas, turnos, recepciones = [], usuario, puedeFirmar, onFirmar, onRecibir }) => {
-  const { hoy, jornada, avisar } = useApp();
+  const { hoy, jornada, avisar, confirmar } = useApp();
   const [obs, setObs] = useState('');
   // Por defecto la jornada del centro actual; se puede corregir (p. ej. el turno noche que entrega pasadas las 06:00)
   const [jornadaActa, setJornadaActa] = useState(jornada);
@@ -72,7 +72,7 @@ export const EntregaTurno = ({ sede, residentes, notas, alertas, turnos, recepci
   const historial = actasSede.slice(0, 10);
 
   const firmar = () => ejecutar(async () => {
-    if (!window.confirm(`Vas a firmar la entrega de turno de ${CENTRO[jornadaActa]}. El acta no se puede editar después. ¿Continuar?`)) return;
+    if (!(await confirmar({ titulo: `Firmar la entrega de ${CENTRO[jornadaActa]}`, sub: 'El acta no se puede editar después.', si: 'Firmar entrega' }))) return;
     await onFirmar(obs, jornadaActa);
     setObs('');
     avisar('Turno entregado y firmado');

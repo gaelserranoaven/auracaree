@@ -14,7 +14,7 @@ export const hayBorrador = (uid) => { const b = leerBorrador(uid); return !!b &&
 export const borrarBorrador = (uid) => { try { sessionStorage.removeItem(claveBorrador(uid)); } catch { /* sin storage */ } };
 
 export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial = false, onGuardar }) => {
-  const { rangos, jornada } = useApp();
+  const { rangos, jornada, confirmar } = useApp();
   const b = leerBorrador(uid);
   const [personaId, setPersonaId] = useState(presel || b?.personaId || '');
   const [filtro, setFiltro] = useState('');
@@ -46,7 +46,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
     const signos = {};
     campos.forEach(([k]) => { if (sv[k] !== '') signos[k] = Number(sv[k]); });
     const critico = Object.keys(signos).some((k) => k !== 'dolor' && estadoSigno(rangos, k, signos[k], overrides) === 'c');
-    if (critico && !window.confirm('Hay signos en rango CRÍTICO: se generará una alerta para el equipo. Recuerda activar el protocolo de emergencia si aplica.\n\n¿Guardar la nota?')) return;
+    if (critico && !(await confirmar({ titulo: 'Hay signos en rango crítico', sub: 'Se generará una alerta para el equipo. Recuerda activar el protocolo de emergencia si aplica.', si: 'Guardar y alertar' }))) return;
     const ok = await onGuardar({ personaId: personaId || null, tipo, descripcion: desc.trim(), signos });
     if (ok) { borrarBorrador(uid); setDesc(''); setSv(SV0); }
   });

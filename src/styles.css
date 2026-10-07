@@ -648,6 +648,9 @@ button,.btn,.tabbar a{touch-action:manipulation}
 .ok-recibo svg{width:11px;height:11px}
 .resultado-cadena .ico-txt{margin-right:4px}
 .toast .ico-aviso{width:19px;height:19px;margin:0}
+.toast-cerrar{display:grid;place-items:center;min-width:44px;min-height:44px;margin:-12px -16px -12px 0;background:none;color:inherit;border-radius:10px;opacity:.9}
+.toast-cerrar:hover{background:rgba(255,255,255,.12);opacity:1}
+.toast-cerrar:focus-visible{outline-color:#fff}
 .toast.ok .ico-aviso,.toast.sello .ico-aviso{color:#6FE3BC}
 .toast.error .ico-aviso,.toast.alerta .ico-aviso{color:#FFB4A2}
 .toast.error,.toast.alerta{background:#7A2614}
