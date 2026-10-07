@@ -359,7 +359,7 @@ export const App = () => {
 
     return (
       <div className="shell">
-        <aside className="sidebar no-print">
+        <aside className={"sidebar no-print" + (sede.nombre.length > 20 ? " sede-larga" : "")}>
           <Logo dark />
           <div className="sede-box-v34">
             <div className="sede-header-v34">
@@ -367,10 +367,11 @@ export const App = () => {
               <span className="sede-cupos-v34">{resSede.filter((r) => r.estado === 'activo').length}/{sede.cupos} cupos</span>
             </div>
             <div className="sede-select-wrapper">
+              <span className="sede-select-vis" aria-hidden="true"><span className="sede-clamp">{sede.nombre}</span></span>
               <select className="sede-select-v34" aria-label="Sede" value={sede.id} disabled={sedesActivas.length < 2} onChange={(e) => { setSedeId(e.target.value); navegarA('panel'); }}>
                 {sedesActivas.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
               </select>
-              <span className="sede-select-arrow">▼</span>
+              <span className="sede-select-arrow" aria-hidden="true"><Icono n="caret" /></span>
             </div>
           </div>
 
@@ -394,7 +395,7 @@ export const App = () => {
             <div className="nav-global">{vista !== 'panel' && <button className="btn-nav-top" onClick={goBack} aria-label="Atrás"><Icono n="atras" /><span className="txt">Atrás</span></button>}</div>
             <div className="titulo">
               <h2>{TITULOS[vista] || 'Mi Perfil'}</h2>
-              <p>{sede.nombre} · {fmtFecha(hoy)}</p>
+              <p><span className="solo-escritorio">{sede.nombre} · </span>{fmtFecha(hoy)}</p>
             </div>
             <div className="spacer"></div>
             <CentroSwitch centro={centro} manual={centroManual} onCambiar={cambiarCentro} />
@@ -404,7 +405,7 @@ export const App = () => {
                 <span className="yo-avatar" aria-hidden="true">{iniciales(perfil.nombre)}</span>
                 <span className="txt yo-txt"><b>{perfil.nombre}</b><small>{rol.nombre.split(' / ')[0]}</small></span>
               </button>
-              <button className="btn-nav-top solo-escritorio" onClick={pedirSalida} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
+              <button className="btn-nav-top solo-escritorio" style={{ color: 'var(--alerta-t)', borderColor: 'var(--alerta-borde)' }} onClick={pedirSalida} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
             </div>
           </div>
 
@@ -465,7 +466,7 @@ export const App = () => {
                 <button key={id} autoFocus={id === enMas[0][0]} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{etiqueta}</button>
               ))}
               <button autoFocus={!enMas.length} aria-current={vista === 'perfil' ? 'page' : undefined} onClick={() => { setMasAbierto(false); navegarA('perfil'); }}><Icono n="perfil" />Mi perfil</button>
-              <button onClick={() => { setMasAbierto(false); pedirSalida(); }}><Icono n="salir" />Cerrar sesión</button>
+              <button onClick={() => { setMasAbierto(false); pedirSalida(); }} style={{ color: 'var(--alerta-t)' }}><Icono n="salir" />Cerrar sesión</button>
             </div>
           </div>
         )}

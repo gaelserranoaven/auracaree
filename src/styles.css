@@ -714,3 +714,21 @@ button,.btn,.tabbar a{touch-action:manipulation}
   .grid-kpi{grid-template-columns:1fr 1fr;gap:10px}
   .grid-kpi .kpi{padding:12px 14px}
 }
+
+/* ===== Selector de sede: el nombre largo baja a 2 líneas en vez de cortarse ===== */
+.sede-select-vis{display:flex;align-items:center;min-height:40px;background:#072138;border:1.5px solid rgba(157,178,255,.3);border-radius:11px;padding:6px 34px 6px 12px;font-family:'Sora',sans-serif;font-weight:600;font-size:13px;line-height:1.25;color:#fff;transition:border-color .2s,box-shadow .2s}
+.sede-clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.sede-select-v34{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.sede-select-v34:disabled{cursor:default}
+.sede-select-wrapper:focus-within .sede-select-vis{border-color:#9DB2FF;box-shadow:0 0 0 3px rgba(157,178,255,.3)}
+.sede-select-arrow .ico{width:16px;height:16px}
+@media(max-width:880px){
+  .sede-select-vis{min-height:44px}
+  /* Con una cantidad impar de indicadores, el último ocupa todo el ancho */
+  .grid-kpi>.kpi:last-child:nth-child(odd){grid-column:1/-1}
+}
+@media(max-width:880px){
+  /* Nombre de sede largo: el selector pasa a su propia fila, a todo el ancho */
+  .sidebar.sede-larga{flex-wrap:wrap}
+  .sidebar.sede-larga .sede-box-v34{flex:1 1 100%}
+}

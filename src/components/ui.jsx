@@ -1,7 +1,7 @@
 import { Component, createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import {
   ArrowClockwise, ArrowLeft, CheckCircle, ClipboardText, DotsThree, FileText, GearSix, Handshake, Heart, Info, LockSimple,
-  MagnifyingGlass, Moon, NotePencil, Package, Prohibit, Receipt, ShieldCheck, SignOut, SquaresFour, Sun, UserCircle, UsersThree, Warning, X,
+  MagnifyingGlass, Moon, NotePencil, Package, Prohibit, Receipt, ShieldCheck, SignOut, SquaresFour, Sun, UserCircle, UsersThree, Warning, X, CaretDown,
 } from '@phosphor-icons/react';
 import { estadoSigno } from '../lib/clinico.js';
 import { fmtFecha } from '../lib/util.js';
@@ -26,7 +26,7 @@ export const Logo = ({ dark }) => (
 const ICONOS = {
   panel: SquaresFour, residentes: Heart, nueva: NotePencil, asistencia: ClipboardText, dotacion: Package,
   entrega: Handshake, sdis: FileText, config: GearSix, admin_usuarios: UsersThree, auditoria: MagnifyingGlass,
-  cerrar: X, atras: ArrowLeft, refrescar: ArrowClockwise, perfil: UserCircle, salir: SignOut, mas: DotsThree,
+  cerrar: X, caret: CaretDown, atras: ArrowLeft, refrescar: ArrowClockwise, perfil: UserCircle, salir: SignOut, mas: DotsThree,
 };
 export const Icono = ({ n, activo }) => { const C = ICONOS[n]; return C ? <C className="ico" weight={activo ? "fill" : "regular"} aria-hidden="true" focusable="false" /> : null; };
 

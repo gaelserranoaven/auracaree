@@ -7,7 +7,8 @@
 - **Un color, un significado**: el azul `#1F4BE8` de la presentación es el acento de marca (botones primarios, selección, pestaña y menú activos, foco). El verde queda solo para estado: signos en rango, sello e integridad de la cadena.
 - Los avisos de error y alerta quedan en pantalla hasta cerrarlos. Las confirmaciones usan diálogos propios con verbos específicos en lugar del `confirm` del navegador.
 - **Celular, revisión con capturas reales**: la cabecera pasa de unos 270 px a unos 150 (logo y sede en una fila; perfil y salir quedan en Más), los indicadores del panel van en 2×2 y las alertas activas suben sobre la entrega de turno y las notas.
-- **Estado clínico a la vista**: las tarjetas de Personas mayores muestran "Alerta crítica" o "En vigilancia" (con símbolo, texto y borde). El nombre y el cargo de quien tiene la sesión se ven en la barra superior (escritorio) y en la hoja Más (celular). "Cerrar sesión" deja de ser rojo; el rojo queda para lo crítico y lo destructivo.
+- **Estado clínico a la vista**: las tarjetas de Personas mayores muestran "Alerta crítica" o "En vigilancia" (con símbolo, texto y borde). El nombre y el cargo de quien tiene la sesión se ven en la barra superior (escritorio) y en la hoja Más (celular). "Cerrar sesión" se mantiene en rojo a propósito, para que se use con cuidado.
+- **Selector de sede**: el nombre largo baja a 2 líneas en vez de cortarse; si tiene más de 20 caracteres, en el celular el selector pasa a su propia fila a todo el ancho. La barra superior del celular ya no repite el nombre de la sede. Con una cantidad impar de indicadores, el último ocupa todo el ancho.
 - Sesión: aviso de 60 s antes del cierre por inactividad, que conserva el borrador de la nota; salir con una nota sin guardar pide confirmación.
 
 ### Añadido
