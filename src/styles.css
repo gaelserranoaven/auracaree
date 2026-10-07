@@ -64,7 +64,10 @@
   .login-card{background:var(--panel);border:1px solid var(--linea);border-radius:22px;box-shadow:var(--sombra);width:100%;max-width:480px;padding:40px 36px}
   .brand{display:flex;align-items:center;gap:10px}
   .brand-name{font-family:'Sora';font-weight:700;font-size:22px;color:var(--tinta)}
-  .brand-name em{font-style:normal;color:var(--acento-t)}
+  /* "Care" lleva el verde de marca de día; de noche pasa al acento azul. Sobre la barra lateral (azul oscuro) usa el verde brillante para que se lea. */
+  .brand-name em{font-style:normal;color:var(--vital-t)}
+  .sidebar .brand-name em{color:var(--vital-brillo)}
+  :root[data-centro="noche"] .brand-name em{color:var(--acento-t)}
   .login-card h1{font-size:23px;margin:20px 0 6px;color:var(--tinta)}
   .login-card p.sub{color:var(--texto-2);font-size:13.5px;margin-bottom:20px}
   
