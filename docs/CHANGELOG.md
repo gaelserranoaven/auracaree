@@ -9,6 +9,8 @@
 - **Celular, revisión con capturas reales**: la cabecera pasa de unos 270 px a unos 150 (logo y sede en una fila; perfil y salir quedan en Más), los indicadores del panel van en 2×2 y las alertas activas suben sobre la entrega de turno y las notas.
 - **Estado clínico a la vista**: las tarjetas de Personas mayores muestran "Alerta crítica" o "En vigilancia" (con símbolo, texto y borde). El nombre y el cargo de quien tiene la sesión se ven en la barra superior (escritorio) y en la hoja Más (celular). "Cerrar sesión" se mantiene en rojo a propósito, para que se use con cuidado.
 - **Selector de sede**: el nombre largo baja a 2 líneas en vez de cortarse; si tiene más de 20 caracteres, en el celular el selector pasa a su propia fila a todo el ancho. La barra superior del celular ya no repite el nombre de la sede. Con una cantidad impar de indicadores, el último ocupa todo el ancho.
+- **Celular, página más ancha que la pantalla (Usuarios y Dotación)**: un correo largo en una tarjeta de usuario, o un selector con nombres largos, ensanchaba toda la página (~500 px en una pantalla de 390) y Safari reducía el zoom, dejando el encabezado más corto que el contenido. Las columnas de grid ahora pueden encogerse (`minmax(0, 1fr)`). Se revisaron las 12 pantallas a 360 y 390 px sin desborde.
+- La hora de compilación aparece abajo en el menú Más del celular, y las URL de `dist/` llevan una versión para saltar la caché de GitHub Pages.
 - Sesión: aviso de 60 s antes del cierre por inactividad, que conserva el borrador de la nota; salir con una nota sin guardar pide confirmación.
 
 ### Añadido
