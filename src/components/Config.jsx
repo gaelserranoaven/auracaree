@@ -31,7 +31,10 @@ const RangosGlobales = ({ onGuardar }) => {
             </div>
           ))}
         </div>
-        <div className="form-foot"><button className="btn btn-primary" disabled={ocupado || !cambiados.length || claves.some(malo)} onClick={guardar}>Guardar rangos ({cambiados.length} cambio(s))</button></div>
+        <div className="form-foot">
+          {claves.some(malo) && <p className="form-ayuda" role="status">Revisa los rangos: deben ir de menor a mayor (crítico, vigilancia mínima, vigilancia máxima, crítico).</p>}
+          <button className="btn btn-primary" disabled={ocupado || !cambiados.length || claves.some(malo)} onClick={guardar}>{cambiados.length ? `Guardar rangos (${cambiados.length} ${cambiados.length === 1 ? 'cambio' : 'cambios'})` : 'Guardar rangos'}</button>
+        </div>
       </div>
     </div>
   );

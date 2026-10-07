@@ -23,6 +23,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
   const [desc, setDesc] = useState(b?.desc || '');
   const [sv, setSv] = useState(b?.sv || SV0);
   const [ocupado, ejecutar] = useAccion();
+  const [rangosAbiertos, setRangosAbiertos] = useState(() => !(typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(max-width: 880px)').matches));
   const set = (k, v) => setSv((p) => ({ ...p, [k]: v }));
 
   useEffect(() => {
@@ -39,6 +40,8 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
 
   const errores = Object.fromEntries(campos.map(([k]) => [k, errorSigno(k, sv[k])]));
   const hayError = Object.values(errores).some(Boolean);
+  const faltan = Math.max(0, 10 - desc.trim().length);
+  const motivoPendiente = hayError ? 'Corrige los valores en rojo para guardar.' : faltan > 0 ? `Falta la descripción: ${faltan} ${faltan === 1 ? 'carácter' : 'caracteres'} más.` : '';
   const sinPersonaConSignos = !personaId && campos.some(([k]) => sv[k] !== '');
 
   const guardar = () => ejecutar(async () => {
@@ -79,7 +82,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
           {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--acento-t)', fontWeight: 600 }}>Seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
         </div>
 
-        <div className="form-grid">
+        <div className="form-grid nota-grid">
           <div className="field full">
             <label htmlFor="tipo-nota">Tipo de nota</label>
             <select id="tipo-nota" value={tipo} onChange={(e) => setTipo(e.target.value)}>
@@ -107,8 +110,9 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
 
         {sinPersonaConSignos && <div className="nota-aviso rojo"><IconoAviso t="alerta" /><span>Ingresaste signos vitales sin seleccionar una persona mayor: no generarán alertas ni se asociarán a ninguna ficha.</span></div>}
 
-        {!psicosocial && <div className="banner-rangos-v31">
-          <b>Rangos de seguridad clínica (referencia de la Fundación, pendiente de validación por el equipo médico){persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}:</b>
+        {!psicosocial && <details className="banner-rangos-v31" open={rangosAbiertos} onToggle={(e) => setRangosAbiertos(e.currentTarget.open)}>
+          <summary><b>Rangos de seguridad clínica{persona && Object.keys(overrides || {}).length ? ' · con ajustes personalizados' : ''}</b></summary>
+          <p className="rangos-nota">Referencia de la Fundación, pendiente de validación por el equipo médico.</p>
           <div className="grid-rangos-items">
             {ORDEN_SIGNOS.filter((k) => rangos[k] && (k !== 'glu' || config.glu)).map((k) => {
               const r = rangoEfectivo(rangos, k, overrides); const t = etiquetasRango(r);
@@ -121,15 +125,16 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
               );
             })}
           </div>
-        </div>}
+        </details>}
 
         <div className="nota-aviso cifrado">
           <IconoAviso t="sello" />
           <span>Al guardar, el servidor asigna fecha, hora y autor y sella la nota. <b>No podrá editarse ni eliminarse</b>: una corrección se registra como una nota nueva.</span>
         </div>
 
-        <div className="form-foot">
-          <button className="btn btn-primary" disabled={ocupado || desc.trim().length < 10 || hayError} onClick={guardar}>{ocupado ? 'Guardando…' : 'Guardar y sellar nota'}</button>
+        <div className="form-foot nota-foot">
+          {motivoPendiente && <p className="form-ayuda" id="nota-ayuda" role="status">{motivoPendiente}</p>}
+          <button className="btn btn-primary" disabled={ocupado || !!motivoPendiente} aria-describedby={motivoPendiente ? 'nota-ayuda' : undefined} onClick={guardar}>{ocupado ? 'Guardando…' : 'Guardar y sellar nota'}</button>
         </div>
       </div>
     </div>

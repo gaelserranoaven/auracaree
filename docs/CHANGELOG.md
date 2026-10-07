@@ -11,6 +11,7 @@
 - **Selector de sede**: el nombre largo baja a 2 líneas en vez de cortarse; si tiene más de 20 caracteres, en el celular el selector pasa a su propia fila a todo el ancho. La barra superior del celular ya no repite el nombre de la sede. Con una cantidad impar de indicadores, el último ocupa todo el ancho.
 - **Celular, página más ancha que la pantalla (Usuarios y Dotación)**: un correo largo en una tarjeta de usuario, o un selector con nombres largos, ensanchaba toda la página (~500 px en una pantalla de 390) y Safari reducía el zoom, dejando el encabezado más corto que el contenido. Las columnas de grid ahora pueden encogerse (`minmax(0, 1fr)`). Se revisaron las 12 pantallas a 360 y 390 px sin desborde.
 - La hora de compilación aparece abajo en el menú Más del celular, y las URL de `dist/` llevan una versión para saltar la caché de GitHub Pages.
+- **Nueva nota en el celular**: los signos vitales van en 2 columnas con el estado (en rango, vigilancia, crítico) debajo de cada campo, los rangos de referencia quedan plegados (abiertos en escritorio) y el botón "Guardar y sellar nota" queda fijo sobre la barra inferior. Si falta algo para guardar, el formulario lo dice (por ejemplo "Falta la descripción: 10 caracteres más"). Los botones primarios deshabilitados se ven grises y legibles en toda la app, y "Guardar rangos" ya no dice "0 cambio(s)".
 - Sesión: aviso de 60 s antes del cierre por inactividad, que conserva el borrador de la nota; salir con una nota sin guardar pide confirmación.
 
 ### Añadido

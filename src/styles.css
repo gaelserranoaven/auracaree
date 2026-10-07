@@ -743,3 +743,27 @@ button,.btn,.tabbar a{touch-action:manipulation}
 .dos-col>*,.turnos>*,.usuarios>*{min-width:0}
 @media(max-width:1080px){.dos-col{grid-template-columns:minmax(0,1fr)}}
 .field select,.field input,.field textarea{max-width:100%}
+
+/* ===== Formulario de nota: celular ===== */
+/* Botón primario deshabilitado: gris legible en vez de azul apagado */
+.btn-primary:disabled{background:var(--superficie-3);color:var(--texto-2);border:1px solid var(--linea);box-shadow:none;opacity:1}
+.form-ayuda{font-size:13px;color:var(--texto-2);margin:0 0 8px}
+.banner-rangos-v31 summary{cursor:pointer;list-style-position:inside}
+.rangos-nota{font-size:12.5px;margin:6px 0 10px}
+@media(max-width:880px){
+  .nota-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .nota-grid .full{grid-column:1/-1}
+  /* El estado (en rango, vigilancia, crítico) va debajo del campo, no encima del número */
+  .nota-grid .campo-signo .estado{position:static;display:inline-block;margin-top:5px}
+  .banner-rangos-v31 summary{min-height:44px;display:flex;align-items:center}
+  /* Guardar siempre a la vista, sobre la barra inferior */
+  .nota-foot{position:sticky;bottom:calc(62px + env(safe-area-inset-bottom));z-index:6;margin:0 -20px;padding:8px 20px 10px;background:var(--panel);border-top:1px solid var(--linea);box-shadow:0 -8px 16px -12px rgba(14,58,93,.25)}
+  .nota-foot .btn{width:100%;min-height:48px}
+}
+@media(max-width:880px){.nota-foot .form-ayuda{margin:0 0 6px;font-size:12.5px}}
+@media(max-width:880px){
+  .banner-rangos-v31 summary{justify-content:space-between;gap:10px;list-style:none}
+  .banner-rangos-v31 summary::-webkit-details-marker{display:none}
+  .banner-rangos-v31 summary::after{content:"";flex:none;width:9px;height:9px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-right:4px;transition:transform .15s}
+  .banner-rangos-v31[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
+}
