@@ -117,7 +117,7 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
     <div>
       <div className="buscador">
         <input aria-label="Buscar persona mayor" type="search" placeholder="Buscar por nombre o cédula" value={q} onChange={(e) => setQ(e.target.value)}
-          style={{ borderColor: q ? 'var(--vital)' : 'var(--borde-control)' }} />
+          style={{ borderColor: q ? 'var(--acento)' : 'var(--borde-control)' }} />
         {puedeCrear && <button className="btn btn-ghost" onClick={abrirImport}>Importar Excel o CSV</button>}
         {puedeCrear && <button className="btn btn-primary" onClick={abrirNuevo}>+ Registrar persona mayor</button>}
       </div>

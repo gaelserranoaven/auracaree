@@ -76,7 +76,7 @@ export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial =
               </button>
             ))}
           </div>
-          {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--vital-t)', fontWeight: 600 }}>Seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
+          {persona && <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--acento-t)', fontWeight: 600 }}>Seleccionada: {persona.nombres} {persona.apellidos} ({persona.doc})</div>}
         </div>
 
         <div className="form-grid">

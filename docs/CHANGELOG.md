@@ -2,6 +2,12 @@
 
 ## [Sin publicar]
 
+### Cambiado
+- **Accesibilidad (revisión HIG)**: la pestaña activa del celular ya no depende solo del color; el anillo de foco y el badge de cifrado cumplen contraste; los textos de 10 a 10.5 px suben a 11 o 12 px.
+- **Un color, un significado**: el azul `#1F4BE8` de la presentación es el acento de marca (botones primarios, selección, pestaña y menú activos, foco). El verde queda solo para estado: signos en rango, sello e integridad de la cadena.
+- Los avisos de error y alerta quedan en pantalla hasta cerrarlos. Las confirmaciones usan diálogos propios con verbos específicos en lugar del `confirm` del navegador.
+- Sesión: aviso de 60 s antes del cierre por inactividad, que conserva el borrador de la nota; salir con una nota sin guardar pide confirmación.
+
 ### Añadido
 - **Centro Día / Centro Noche**: el indicador de jornada de la barra superior ahora es un interruptor real. Por defecto sigue la hora de Bogotá; si se cambia a mano, vale en ese equipo hasta el próximo cambio de jornada (06:00 o 18:00).
 - Tema visual **Centro Noche** (paleta oscura en toda la app; el formato SDIS se mantiene en blanco como el papel) y animación de cielo al cambiar: el sol se oculta y sale la luna, o al revés. Se omite con "reducir movimiento".
