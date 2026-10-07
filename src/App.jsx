@@ -411,9 +411,9 @@ export const App = () => {
 
         <nav className="tabbar no-print" aria-label="Navegación principal (celular)">
           {enBarra.map(([id, , corta]) => (
-            <button key={id} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{corta}</button>
+            <button key={id} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} activo={esActivo(id)} />{corta}</button>
           ))}
-          <button aria-current={masActivo ? 'page' : undefined} aria-haspopup="dialog" aria-expanded={masAbierto} onClick={() => setMasAbierto(true)}><Icono n="mas" />Más</button>
+          <button aria-current={masActivo ? 'page' : undefined} aria-haspopup="dialog" aria-expanded={masAbierto} onClick={() => setMasAbierto(true)}><Icono n="mas" activo={masActivo} />Más</button>
         </nav>
         {masAbierto && (
           <div className="hoja-mas no-print" onClick={(e) => { if (e.target === e.currentTarget) setMasAbierto(false); }}

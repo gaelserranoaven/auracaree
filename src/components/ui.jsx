@@ -28,7 +28,7 @@ const ICONOS = {
   entrega: Handshake, sdis: FileText, config: GearSix, admin_usuarios: UsersThree, auditoria: MagnifyingGlass,
   atras: ArrowLeft, refrescar: ArrowClockwise, perfil: UserCircle, salir: SignOut, mas: DotsThree,
 };
-export const Icono = ({ n }) => { const C = ICONOS[n]; return C ? <C className="ico" aria-hidden="true" focusable="false" /> : null; };
+export const Icono = ({ n, activo }) => { const C = ICONOS[n]; return C ? <C className="ico" weight={activo ? "fill" : "regular"} aria-hidden="true" focusable="false" /> : null; };
 
 // Día / noche con íconos de sol y luna
 export const IconoJornada = ({ j }) => (j === 'dia' ? <Sun className="ico-txt" aria-hidden="true" /> : <Moon className="ico-txt" aria-hidden="true" />);

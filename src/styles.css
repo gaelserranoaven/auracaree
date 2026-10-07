@@ -10,7 +10,7 @@
     --borde-control:#7E919C; /* borde de campos: 3.2:1, mínimo 3:1 para componentes (WCAG 1.4.11) */
     --radio:16px;
     --sombra:0 2px 4px rgba(14,58,93,.04),0 12px 32px -12px rgba(14,58,93,.12);
-    --cifrado:#6366F1; --cifrado-suave:#EEF2FF;
+    --cifrado:#6366F1; --foco:#0E3A5D; --cifrado-t:#4338CA; --cifrado-suave:#EEF2FF;
     /* Superficies y variantes de texto: el tema Centro Noche las redefine más abajo */
     --tinta-solido:#0E3A5D; /* fondo de chips/pestañas activas (con texto blanco) */
     --superficie-2:#F2F7FA; --superficie-3:#EEF2F4; --campo:#FBFDFE; --apagado:#C7D4DB;
@@ -27,7 +27,7 @@
     --vital-t:#4FD1A5; --alerta-t:#FF8A70; --vigilancia-t:#F2B654;
     --vital-borde:rgba(79,209,165,.35); --alerta-borde:rgba(255,138,112,.35); --vigilancia-borde:rgba(242,182,84,.35);
     --sombra:0 1px 2px rgba(0,0,0,.3),0 12px 32px -12px rgba(0,0,0,.55);
-    --cifrado-suave:rgba(129,140,248,.14);
+    --cifrado-suave:rgba(129,140,248,.14); --foco:#4FD1A5; --cifrado-t:#C7CCFF;
     color-scheme:dark;
   }
   :root[data-centro="noche"] .sidebar{background:linear-gradient(180deg,#050E18 0%,#071524 60%,#030A12 100%)}
@@ -49,7 +49,9 @@
   .mono{font-family:'IBM Plex Mono',monospace}
   button{font-family:inherit;cursor:pointer;border:none}
   input,select,textarea{font-family:inherit;font-size:15px;color:var(--texto)}
-  :focus-visible{outline:3px solid rgba(15,164,122,.45);outline-offset:2px;border-radius:6px}
+  :focus-visible{outline:3px solid var(--foco);outline-offset:2px;border-radius:6px}
+  /* La barra lateral es azul oscuro en ambos temas: el anillo claro se ve sobre ella */
+  .sidebar :focus-visible{outline-color:#79D7BC}
   @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 
   /* LOGIN & REGISTRO */
@@ -176,7 +178,7 @@
   .centro-switch[aria-checked="true"] .astro{transform:translateX(116px) rotate(-30deg);background:radial-gradient(circle at 40% 40%,#FBFBF4 0%,#E3E6EE 70%,#C9CEDA 100%);box-shadow:0 0 0 4px rgba(220,228,255,.12),0 0 14px rgba(200,215,255,.45)}
   .centro-switch[aria-checked="true"] .astro::after{transform:scale(1);background:#14264A}
   .centro-switch[aria-checked="true"] .etiqueta{left:14px;color:#E6EEFF}
-  .centro-switch:focus-visible{outline:3px solid rgba(15,164,122,.55);outline-offset:3px}
+  .centro-switch:focus-visible{outline:3px solid var(--foco);outline-offset:3px}
   @media (hover:hover) and (pointer:fine){.centro-switch:hover .astro{box-shadow:0 0 0 6px rgba(255,214,90,.32),0 0 20px rgba(255,190,60,.8)}
     .centro-switch[aria-checked="true"]:hover .astro{box-shadow:0 0 0 6px rgba(220,228,255,.16),0 0 18px rgba(200,215,255,.55)}}
 
@@ -260,7 +262,7 @@
   .chip-signo{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;border-radius:7px;padding:3px 8px;background:var(--superficie-2);border:1px solid var(--linea);color:var(--texto)}
   .chip-signo.v{background:var(--vigilancia-suave);border-color:var(--vigilancia-borde);color:var(--vigilancia-t)}
   .chip-signo.c{background:var(--alerta-suave);border-color:var(--alerta-borde);color:var(--alerta-t)}
-  .badge-e2ee{background:var(--cifrado-suave);color:var(--cifrado);border:1px solid #C7D2FE;padding:2px 7px;border-radius:6px;font-weight:600;font-size:10.5px}
+  .badge-e2ee{background:var(--cifrado-suave);color:var(--cifrado-t);border:1px solid #C7D2FE;padding:2px 7px;border-radius:6px;font-weight:600;font-size:12px}
   .badge-hash{background:var(--superficie-3);color:var(--texto-2);border:1px solid var(--linea);padding:2px 7px;border-radius:6px;font-family:'IBM Plex Mono';font-size:11.5px}
 
   .buscador{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
@@ -443,7 +445,7 @@
   table.sdis-tabla{width:100%;border-collapse:collapse}
   table.sdis-tabla th{background:#EDF3F6;font-size:11px;text-transform:uppercase;letter-spacing:.03em;padding:7px 9px;border:1px solid #C9D6DE;text-align:left}
   table.sdis-tabla td{padding:7px 9px;border:1px solid #C9D6DE;vertical-align:top;font-size:12px}
-  .sdis-ley{padding:12px 18px;font-size:10px;color:#555;line-height:1.5;border-top:1.5px solid #9FB4C0}
+  .sdis-ley{padding:12px 18px;font-size:11px;color:#555;line-height:1.5;border-top:1.5px solid #9FB4C0}
   .print-only{display:none}
 
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tinta-solido);color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 12px 32px -8px rgba(14,58,93,.5);display:flex;gap:10px;align-items:center;animation:sube .25s cubic-bezier(.23,1,.32,1);z-index:200;max-width:90vw}
@@ -558,7 +560,7 @@ button,.btn,.tabbar a{touch-action:manipulation}
   .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:95;background:var(--panel);border-top:1px solid var(--linea);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
   .tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;background:none;color:var(--texto-2);font-size:11px;font-weight:600;border-radius:10px}
   .tabbar button .ico{width:22px;height:22px}
-  .tabbar button[aria-current="page"]{color:var(--vital-t)}
+  .tabbar button[aria-current="page"]{background:var(--tinta-solido);color:#fff;font-weight:700}
   .hoja-mas{display:block;position:fixed;inset:0;z-index:120;background:rgba(14,58,93,.45);animation:fade .15s}
   .hoja-mas .hoja{position:absolute;left:0;right:0;bottom:0;background:var(--panel);border-radius:18px 18px 0 0;padding:8px 12px calc(16px + env(safe-area-inset-bottom));animation:hoja .28s cubic-bezier(.32,.72,0,1)}
   .hoja-mas .asa{width:36px;height:5px;border-radius:99px;background:var(--apagado);margin:4px auto 10px}
