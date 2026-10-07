@@ -16,7 +16,7 @@ export const Logo = ({ dark }) => (
   <div className="brand">
     <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true">
       <rect x="1" y="1" width="32" height="32" rx="9" fill={dark ? '#FFFFFF14' : '#0E3A5D'} stroke={dark ? '#ffffff44' : 'none'} />
-      <polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0FA47A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0E9B72" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
     <span className="brand-name">Aura<em>Care</em></span>
   </div>
@@ -132,7 +132,7 @@ export const SdisHead = ({ titulo, sede, jornada, fecha, extra }) => (
   <>
     <div className="sdis-head">
       <div className="t">
-        <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" fill="#0E3A5D" /><polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0FA47A" strokeWidth="2.4" strokeLinecap="round" /></svg>
+        <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="6" fill="#0E3A5D" /><polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#0E9B72" strokeWidth="2.4" strokeLinecap="round" /></svg>
         <div className="txt">PROCESO PRESTACIÓN DE SERVICIOS SOCIALES<br />FORMATO ENTREGA ELEMENTOS Y REGISTRO DE ACTIVIDADES Y NOVEDADES</div>
       </div>
       <div className="codigo">
