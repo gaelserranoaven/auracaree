@@ -39,6 +39,7 @@ const TITULOS = {
   admin_usuarios: 'Gestión de usuarios', auditoria: 'Auditoría', perfil: 'Mi perfil',
 };
 
+const iniciales = (n) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 const upsert = (lista, item) => { const i = lista.findIndex((x) => x.id === item.id); if (i < 0) return [...lista, item]; const c = [...lista]; c[i] = item; return c; };
 const porFecha = (a, b) => (a.createdAt || '').localeCompare(b.createdAt || '');
 
@@ -399,15 +400,18 @@ export const App = () => {
             <CentroSwitch centro={centro} manual={centroManual} onCambiar={cambiarCentro} />
             <div className="nav-global">
               <button className="btn-nav-top" onClick={refrescar} aria-label="Actualizar datos" title="Actualizar datos"><Icono n="refrescar" /></button>
-              <button className="btn-nav-top" onClick={() => navegarA('perfil')} aria-label="Mi perfil"><Icono n="perfil" /><span className="txt">Mi perfil</span></button>
-              <button className="btn-nav-top" style={{ color: 'var(--alerta-t)', borderColor: 'var(--alerta-borde)' }} onClick={pedirSalida} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
+              <button className="btn-nav-top solo-escritorio" onClick={() => navegarA('perfil')} aria-label={`Mi perfil: ${perfil.nombre}`}>
+                <span className="yo-avatar" aria-hidden="true">{iniciales(perfil.nombre)}</span>
+                <span className="txt yo-txt"><b>{perfil.nombre}</b><small>{rol.nombre.split(' / ')[0]}</small></span>
+              </button>
+              <button className="btn-nav-top solo-escritorio" onClick={pedirSalida} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
             </div>
           </div>
 
           {vista === 'panel' && <Dashboard sede={sede} residentes={resSede} notas={notas} alertas={alertas} asistencias={asistencias} turnos={turnos}
             onAtender={acciones.atenderAlerta} puedeAtender={puede(rolId, 'atenderAlerta')} irFicha={irFicha} />}
 
-          {vista === 'residentes' && <Residentes residentes={resSede} irFicha={irFicha} puedeCrear={puede(rolId, 'crearResidente')}
+          {vista === 'residentes' && <Residentes residentes={resSede} alertas={alertas.filter((a) => a.sedeId === sede.id)} irFicha={irFicha} puedeCrear={puede(rolId, 'crearResidente')}
             abrirNuevo={() => setModal('nuevo')} abrirImport={() => setModal('import')} />}
 
           {vista === 'ficha' && fichaRes && <Ficha key={fichaRes.id} res={fichaRes} notas={notas} config={config[fichaRes.sedeId] || { glu: true, dolor: true }}
@@ -453,11 +457,15 @@ export const App = () => {
             onKeyDown={(e) => { if (e.key === 'Escape') setMasAbierto(false); }}>
             <div className="hoja" role="dialog" aria-modal="true" aria-label="Más opciones">
               <div className="asa" aria-hidden="true"></div>
+              <div className="yo-hoja">
+                <span className="yo-avatar" aria-hidden="true">{iniciales(perfil.nombre)}</span>
+                <div className="yo-txt"><b>{perfil.nombre}</b><small>{rol.nombre}</small></div>
+              </div>
               {enMas.map(([id, etiqueta]) => (
                 <button key={id} autoFocus={id === enMas[0][0]} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{etiqueta}</button>
               ))}
               <button autoFocus={!enMas.length} aria-current={vista === 'perfil' ? 'page' : undefined} onClick={() => { setMasAbierto(false); navegarA('perfil'); }}><Icono n="perfil" />Mi perfil</button>
-              <button onClick={() => { setMasAbierto(false); pedirSalida(); }} style={{ color: 'var(--alerta-t)' }}><Icono n="salir" />Cerrar sesión</button>
+              <button onClick={() => { setMasAbierto(false); pedirSalida(); }}><Icono n="salir" />Cerrar sesión</button>
             </div>
           </div>
         )}

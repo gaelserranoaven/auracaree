@@ -106,7 +106,7 @@ export const EgresoResidente = ({ res, onEgresar, cerrar }) => {
 };
 
 /* ---------- Lista ---------- */
-export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirImport }) => {
+export const Residentes = ({ residentes, alertas = [], irFicha, puedeCrear, abrirNuevo, abrirImport }) => {
   const [q, setQ] = useState('');
   const [verEgresados, setVerEgresados] = useState(false);
   const base = residentes.filter((r) => (verEgresados ? r.estado === 'egresado' : r.estado === 'activo'));
@@ -127,8 +127,11 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
       </div>
       {q && <div style={{ fontSize: '13px', color: 'var(--texto-2)', marginBottom: '14px' }}>Filtrando por: <b>"{q}"</b> ({filtrados.length} resultado(s))</div>}
       <div className="grid-res">
-        {filtrados.map((r) => (
-          <button key={r.id} className="res-card" onClick={() => irFicha(r.id)}>
+        {filtrados.map((r) => {
+          const mias = alertas.filter((a) => a.personaId === r.id && a.estado === 'activa');
+          const sev = mias.some((a) => a.sev === 'critica') ? 'c' : mias.length ? 'v' : '';
+          return (
+          <button key={r.id} className={'res-card' + (sev ? ' sev-' + sev : '')} onClick={() => irFicha(r.id)}>
             <div className="top">
               <div className="avatar" aria-hidden="true">{r.nombres[0]}{r.apellidos[0]}</div>
               <div>
@@ -138,11 +141,14 @@ export const Residentes = ({ residentes, irFicha, puedeCrear, abrirNuevo, abrirI
             </div>
             <div className="dx">{r.dx}</div>
             <div className="pie">
-              <span className={'estado-pill ' + (r.estado === 'activo' ? 'ok' : 'inactivo')}>{r.estado === 'activo' ? 'Activo' : 'Egresado'}</span>
+              {sev
+                ? <span className={'estado-pill ' + sev}><span aria-hidden="true">{sev === 'c' ? '▲' : '●'}</span>{sev === 'c' ? 'Alerta crítica' : 'En vigilancia'}</span>
+                : <span className={'estado-pill ' + (r.estado === 'activo' ? 'ok' : 'inactivo')}>{r.estado === 'activo' ? 'Activo' : 'Egresado'}</span>}
               <span style={{ marginLeft: 'auto' }}>Ver ficha →</span>
             </div>
           </button>
-        ))}
+          );
+        })}
         {filtrados.length === 0 && (
           <div className="vacio" style={{ gridColumn: '1/-1', background: 'var(--panel)', borderRadius: '14px', border: '1px solid var(--linea)' }}>
             {q ? <>No se encontró ninguna persona mayor con la cédula o nombre <b>"{q}"</b>.</> : 'No hay personas mayores en esta lista.'}

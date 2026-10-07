@@ -15,7 +15,7 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
   const ultimoTurno = turnos.find((t) => t.sedeId === sede.id);
 
   return (
-    <div>
+    <div className="dash">
       <div className="grid-kpi">
         <div className="kpi"><div className="lbl">Personas mayores activas</div>
           <div className="val">{activos.length}</div><div className="sub">de {sede.cupos} cupos</div></div>
@@ -30,7 +30,7 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
       </div>
 
       {ultimoTurno && (
-        <div className="panel" style={{ marginBottom: '18px' }}>
+        <div className="panel dash-entrega" style={{ marginBottom: '18px' }}>
           <div className="panel-head">
             <h3>Última entrega de turno</h3>
             <span className={'chip-turno ' + ultimoTurno.jornada}><TxtJornada j={ultimoTurno.jornada} /></span>
@@ -41,7 +41,7 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
       )}
 
       <div className="dos-col">
-        <div className="panel">
+        <div className="panel panel-notas">
           <div className="panel-head"><h3>Últimas notas de la jornada</h3></div>
           <div className="panel-body">
             {notasHoy.length === 0 ? <div className="vacio">Aún no hay notas hoy en esta sede.</div> :
@@ -65,7 +65,7 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
           </div>
         </div>
 
-        <div className="panel">
+        <div className="panel panel-alertas">
           <div className="panel-head"><h3>Alertas por signos vitales</h3></div>
           <div className="panel-body">
             {activas.length === 0 ? <div className="vacio">Sin alertas activas. Todos los signos dentro de rango.</div> :
@@ -80,7 +80,7 @@ export const Dashboard = ({ sede, residentes, notas, alertas, asistencias, turno
                       <span>{r ? r.lbl : a.parametro} fuera de rango · {a.hora}{r ? ' · normal ' + etiquetasRango(r).normal : ''}</span>
                     </div>
                     <span className={'val ' + (a.sev === 'critica' ? 'c' : 'v')}>{a.valor} {r ? r.uni : ''}</span>
-                    {puedeAtender && <button className="mini-btn" disabled={ocupado} onClick={() => ejecutar(() => onAtender(a.id))}>Atender</button>}
+                    {puedeAtender && <button className="mini-btn" disabled={ocupado} aria-label={`Atender alerta de ${nombreDe(a.personaId)}`} onClick={() => ejecutar(() => onAtender(a.id))}>Atender</button>}
                   </div>
                 );
               })}

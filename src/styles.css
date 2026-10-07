@@ -679,3 +679,38 @@ button,.btn,.tabbar a{touch-action:manipulation}
 .u-clave-caja code{font-size:22px;font-weight:600;letter-spacing:.06em;flex:1;min-width:200px;user-select:all;color:var(--tinta)}
 .u-clave .u-acciones{justify-content:flex-start}
 @media(max-width:880px){.u-nuevo-datos,.u-nuevo .u-campos{grid-template-columns:1fr}}
+
+/* ===== Identidad visible, cabecera móvil compacta, alertas primero ===== */
+.yo-avatar{width:26px;height:26px;border-radius:50%;background:var(--tinta-solido);color:#fff;display:inline-grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.yo-txt{display:flex;flex-direction:column;text-align:left;line-height:1.15}
+.yo-txt b{font-size:12.5px;color:var(--texto)}
+.yo-txt small{font-size:11px;color:var(--texto-2);font-weight:500}
+.yo-hoja{display:flex;align-items:center;gap:12px;padding:8px 12px 12px;margin-bottom:6px;border-bottom:1px solid var(--linea)}
+.yo-hoja .yo-avatar{width:36px;height:36px;font-size:13px}
+.yo-hoja .yo-txt b{font-size:15px}
+.yo-hoja .yo-txt small{font-size:12.5px}
+.res-card.sev-c{border-left:4px solid var(--alerta)}
+.res-card.sev-v{border-left:4px solid var(--vigilancia)}
+@media(max-width:1080px){
+  /* Una sola columna: la lista de alertas sube sobre la entrega de turno y las notas */
+  .dash{display:flex;flex-direction:column;gap:18px}
+  .dash>.grid-kpi{margin-bottom:0}
+  .dash>.panel{margin-bottom:0!important}
+  .dash .dos-col{display:contents}
+  .dash .panel-alertas{order:1}
+  .dash .dash-entrega{order:2}
+  .dash .panel-notas{order:3}
+}
+@media(max-width:880px){
+  .solo-escritorio{display:none!important}
+  /* Barra superior: logo y sede en una sola fila (perfil y salir viven en "Más") */
+  .sidebar{flex-direction:row;align-items:center;gap:12px;padding:10px 16px}
+  .sidebar .brand{flex:none}
+  .sede-box-v34{margin:0;padding:0;flex:1;min-width:0;background:none;border:0;box-shadow:none;backdrop-filter:none}
+  .sede-box-v34:hover{border-color:transparent;box-shadow:none}
+  .sede-header-v34{display:none}
+  .sede-select-v34{min-height:44px;text-overflow:ellipsis}
+  .topbar{background:none;border:0;box-shadow:none;padding:0;margin-bottom:14px}
+  .grid-kpi{grid-template-columns:1fr 1fr;gap:10px}
+  .grid-kpi .kpi{padding:12px 14px}
+}
