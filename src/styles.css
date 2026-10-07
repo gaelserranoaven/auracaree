@@ -769,8 +769,9 @@ button,.btn,.tabbar a{touch-action:manipulation}
 }
 
 /* ===== Asistencia ===== */
-/* "Firma" es un estado correcto (verde); "No firma" queda en ámbar */
+/* "Firma" en verde (positivo) y "No firma" en rojo (negativo) */
 .seg-asistencia button.si{background:var(--vital)}
+.seg-asistencia button.nf{background:var(--alerta)}
 .motivo-nf{margin-left:6px;padding:4px;font-size:12px}
 @media(max-width:880px){
   /* Cada persona en su bloque: nombre y cédula arriba, Firma / No firma a todo el ancho debajo */
