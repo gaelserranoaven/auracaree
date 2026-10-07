@@ -11,6 +11,7 @@ export const Ctx = createContext(null);
 export const useApp = () => useContext(Ctx);
 
 export const VERSION = 'v4.0';
+export const COMPILACION = typeof __COMPILACION__ !== 'undefined' ? __COMPILACION__ : 'local';
 
 export const Logo = ({ dark }) => (
   <div className="brand">

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from './lib/api.js';
 import { ROLES, RANGOS_DEFAULT, puede, esPsicosocial } from './lib/clinico.js';
 import { fmtFecha, hoyBogota, jornadaDe } from './lib/util.js';
-import { Ctx, Logo, VERSION, ErrorBoundary, Icono, IconoAviso, Modal } from './components/ui.jsx';
+import { Ctx, Logo, VERSION, COMPILACION, ErrorBoundary, Icono, IconoAviso, Modal } from './components/ui.jsx';
 import { CookieBanner, ModalLegal } from './components/Legal.jsx';
 import { Login } from './components/Login.jsx';
 import { AdminUsuarios } from './components/AdminUsuarios.jsx';
@@ -467,6 +467,7 @@ export const App = () => {
               ))}
               <button autoFocus={!enMas.length} aria-current={vista === 'perfil' ? 'page' : undefined} onClick={() => { setMasAbierto(false); navegarA('perfil'); }}><Icono n="perfil" />Mi perfil</button>
               <button onClick={() => { setMasAbierto(false); pedirSalida(); }} style={{ color: 'var(--alerta-t)' }}><Icono n="salir" />Cerrar sesión</button>
+              <div className="version-hoja">AuraCare {VERSION} · compilación {COMPILACION}</div>
             </div>
           </div>
         )}

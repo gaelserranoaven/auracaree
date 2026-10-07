@@ -732,3 +732,4 @@ button,.btn,.tabbar a{touch-action:manipulation}
   .sidebar.sede-larga{flex-wrap:wrap}
   .sidebar.sede-larga .sede-box-v34{flex:1 1 100%}
 }
+.version-hoja{padding:10px 12px 0;font-size:12px;color:var(--texto-2)}
