@@ -9,6 +9,8 @@ const SV0 = { ta_s: '', ta_d: '', fc: '', fr: '', temp: '', spo2: '', glu: '', d
 /* El borrador vive en sessionStorage (se borra al cerrar la pestaña/sesión): evita perder una nota por un corte de red
    sin dejar datos clínicos persistentes en un equipo compartido. */
 const leerBorrador = (uid) => { try { return JSON.parse(sessionStorage.getItem(claveBorrador(uid)) || 'null'); } catch { return null; } };
+/* Hay borrador con contenido (el efecto de abajo guarda también el vacío al abrir la pantalla) */
+export const hayBorrador = (uid) => { const b = leerBorrador(uid); return !!b && !!(b.personaId || (b.desc || '').trim() || Object.values(b.sv || {}).some((v) => v !== '' && v != null)); };
 export const borrarBorrador = (uid) => { try { sessionStorage.removeItem(claveBorrador(uid)); } catch { /* sin storage */ } };
 
 export const NuevaNota = ({ sede, residentes, presel, config, uid, psicosocial = false, onGuardar }) => {

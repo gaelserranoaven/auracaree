@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from './lib/api.js';
 import { ROLES, RANGOS_DEFAULT, puede, esPsicosocial } from './lib/clinico.js';
 import { fmtFecha, hoyBogota, jornadaDe } from './lib/util.js';
-import { Ctx, Logo, VERSION, ErrorBoundary, Icono, IconoAviso } from './components/ui.jsx';
+import { Ctx, Logo, VERSION, ErrorBoundary, Icono, IconoAviso, Modal } from './components/ui.jsx';
 import { CookieBanner, ModalLegal } from './components/Legal.jsx';
 import { Login } from './components/Login.jsx';
 import { AdminUsuarios } from './components/AdminUsuarios.jsx';
@@ -10,7 +10,7 @@ import { PerfilUsuario } from './components/Perfil.jsx';
 import { Dashboard } from './components/Dashboard.jsx';
 import { Residentes, Importador, NuevoResidente, EditarResidente, EgresoResidente } from './components/Residentes.jsx';
 import { Ficha } from './components/Ficha.jsx';
-import { NuevaNota } from './components/NuevaNota.jsx';
+import { NuevaNota, hayBorrador, borrarBorrador } from './components/NuevaNota.jsx';
 import { Asistencia } from './components/Asistencia.jsx';
 import { Dotacion } from './components/Dotacion.jsx';
 import { EntregaTurno } from './components/EntregaTurno.jsx';
@@ -21,6 +21,18 @@ import { useCentro, CentroSwitch, CieloCambio } from './components/Centro.jsx';
 import { CambioClave } from './components/CambioClave.jsx';
 
 const INACTIVIDAD_MS = 20 * 60 * 1000;
+const AVISO_INACTIVIDAD_MS = 60 * 1000; // aviso antes de cerrar la sesión
+
+/* Cuenta regresiva antes del cierre por inactividad. Esc o el botón mantienen la sesión. */
+const AvisoInactividad = ({ limite, onSeguir }) => {
+  const [seg, setSeg] = useState(() => Math.max(0, Math.ceil((limite - Date.now()) / 1000)));
+  useEffect(() => { const t = setInterval(() => setSeg(Math.max(0, Math.ceil((limite - Date.now()) / 1000))), 1000); return () => clearInterval(t); }, [limite]);
+  return (
+    <Modal titulo="¿Sigues ahí?" sub={`Tu sesión se cerrará en ${seg} s por inactividad.`} cerrar={onSeguir}>
+      <div className="modal-foot"><button className="btn btn-primary" onClick={onSeguir}>Seguir en la sesión</button></div>
+    </Modal>
+  );
+};
 const TITULOS = {
   panel: 'Panel general', residentes: 'Personas mayores', ficha: 'Ficha clínica', nueva: 'Nueva nota', asistencia: 'Asistencia y actividades',
   dotacion: 'Dotación de elementos', entrega: 'Entrega de turno', sdis: 'Registro SDIS FOR-PSS-729', config: 'Configuración',
@@ -61,6 +73,10 @@ export const App = () => {
   const [preselNota, setPreselNota] = useState('');
   const [modal, setModal] = useState(null);
   const [masAbierto, setMasAbierto] = useState(false);
+  const [avisoInact, setAvisoInact] = useState(0); // marca de tiempo del cierre; 0 si no hay aviso
+  const [confirmarSalida, setConfirmarSalida] = useState(false);
+  const avisoRef = useRef(0);
+  const reiniciarInactividad = useRef(() => {});
   const [showCookie, setShowCookie] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
   const [toast, setToast] = useState(null);
@@ -145,11 +161,13 @@ export const App = () => {
     avisar(requiereConfirmarCorreo ? 'Solicitud enviada. Confirma tu correo y espera la aprobación.' : 'Solicitud enviada. Pendiente de aprobación.');
     return true;
   };
-  const logout = useCallback(async (mensaje) => {
+  // conservarBorrador: solo en el cierre por inactividad, para no perder una nota clínica a medias (vuelve al mismo usuario al entrar)
+  const logout = useCallback(async (mensaje, conservarBorrador = false) => {
     try { await api.cerrarSesion(); } catch { /* ya cerrada */ }
-    try { Object.keys(sessionStorage).filter((k) => k.startsWith('auracare_')).forEach((k) => sessionStorage.removeItem(k)); } catch { /* sin storage */ }
+    try { Object.keys(sessionStorage).filter((k) => k.startsWith('auracare_') && !(conservarBorrador && k.startsWith('auracare_borrador_'))).forEach((k) => sessionStorage.removeItem(k)); } catch { /* sin storage */ }
     setPerfil(null); setPerfiles([]); setResidentes([]); setNotas([]); setAlertas([]); setAsistencias({}); setActividades([]);
     setEntregas([]); setPertenencias([]); setTurnos([]); setRecepciones([]); setFichaId(null); setModal(null);
+    setConfirmarSalida(false);
     setNavStack(['panel']); setView('panel'); setPantalla('login');
     avisar(mensaje || 'Sesión cerrada con seguridad');
   }, [avisar]);
@@ -157,12 +175,18 @@ export const App = () => {
   // Cierre automático por inactividad (equipos compartidos con datos sensibles)
   useEffect(() => {
     if (pantalla !== 'app') return undefined;
-    let t;
-    const reiniciar = () => { clearTimeout(t); t = setTimeout(() => logout('Sesión cerrada por inactividad.'), INACTIVIDAD_MS); };
+    let tAviso; let tSalir;
+    const reiniciar = () => {
+      if (avisoRef.current) return; // con el aviso abierto solo "Seguir en la sesión" cuenta
+      clearTimeout(tAviso); clearTimeout(tSalir);
+      tAviso = setTimeout(() => { avisoRef.current = Date.now() + AVISO_INACTIVIDAD_MS; setAvisoInact(avisoRef.current); }, INACTIVIDAD_MS - AVISO_INACTIVIDAD_MS);
+      tSalir = setTimeout(() => { avisoRef.current = 0; setAvisoInact(0); logout('Sesión cerrada por inactividad.', true); }, INACTIVIDAD_MS);
+    };
+    reiniciarInactividad.current = () => { avisoRef.current = 0; setAvisoInact(0); reiniciar(); };
     const eventos = ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'];
     eventos.forEach((e) => window.addEventListener(e, reiniciar, { passive: true }));
     reiniciar();
-    return () => { clearTimeout(t); eventos.forEach((e) => window.removeEventListener(e, reiniciar)); };
+    return () => { clearTimeout(tAviso); clearTimeout(tSalir); avisoRef.current = 0; eventos.forEach((e) => window.removeEventListener(e, reiniciar)); };
   }, [pantalla, logout]);
 
   /* ---------- Tiempo real ---------- */
@@ -318,6 +342,8 @@ export const App = () => {
       ['sdis', 'Registro SDIS', 'SDIS'], ['config', 'Configuración', 'Ajustes'], ['admin_usuarios', 'Usuarios', 'Usuarios'], ['auditoria', 'Auditoría', 'Auditoría'],
     ].filter(([id]) => puedeVer(id));
     const esActivo = (id) => vista === id || (id === 'residentes' && vista === 'ficha');
+    // Con una nota a medias, salir pide confirmación (se descartaría el borrador)
+    const pedirSalida = () => { if (hayBorrador(perfil.id)) setConfirmarSalida(true); else logout(); };
     const ir = (id) => { setMasAbierto(false); if (id === 'nueva') setPreselNota(''); navegarA(id); };
     const enBarra = destinos.slice(0, 4);
     const enMas = destinos.slice(4);
@@ -367,7 +393,7 @@ export const App = () => {
             <div className="nav-global">
               <button className="btn-nav-top" onClick={refrescar} aria-label="Actualizar datos" title="Actualizar datos"><Icono n="refrescar" /></button>
               <button className="btn-nav-top" onClick={() => navegarA('perfil')} aria-label="Mi perfil"><Icono n="perfil" /><span className="txt">Mi perfil</span></button>
-              <button className="btn-nav-top" style={{ color: 'var(--alerta-t)', borderColor: 'var(--alerta-borde)' }} onClick={() => logout()} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
+              <button className="btn-nav-top" style={{ color: 'var(--alerta-t)', borderColor: 'var(--alerta-borde)' }} onClick={pedirSalida} aria-label="Cerrar sesión"><Icono n="salir" /><span className="txt">Cerrar sesión</span></button>
             </div>
           </div>
 
@@ -405,7 +431,7 @@ export const App = () => {
 
           {vista === 'auditoria' && <Auditoria nombresPorId={nombresPorId} sedes={sedes} onCargar={api.cargarAuditoria} />}
 
-          {vista === 'perfil' && <PerfilUsuario usuario={perfil} rol={rol} sede={sedes.find((s) => s.id === perfil.sedeId)} onLogout={() => logout()}
+          {vista === 'perfil' && <PerfilUsuario usuario={perfil} rol={rol} sede={sedes.find((s) => s.id === perfil.sedeId)} onLogout={pedirSalida}
             onActualizarNombre={acciones.actualizarNombre} onCambiarPassword={api.cambiarPassword} />}
         </main>
 
@@ -424,11 +450,19 @@ export const App = () => {
                 <button key={id} autoFocus={id === enMas[0][0]} aria-current={esActivo(id) ? 'page' : undefined} onClick={() => ir(id)}><Icono n={id} />{etiqueta}</button>
               ))}
               <button autoFocus={!enMas.length} aria-current={vista === 'perfil' ? 'page' : undefined} onClick={() => { setMasAbierto(false); navegarA('perfil'); }}><Icono n="perfil" />Mi perfil</button>
-              <button onClick={() => { setMasAbierto(false); logout(); }} style={{ color: 'var(--alerta-t)' }}><Icono n="salir" />Cerrar sesión</button>
+              <button onClick={() => { setMasAbierto(false); pedirSalida(); }} style={{ color: 'var(--alerta-t)' }}><Icono n="salir" />Cerrar sesión</button>
             </div>
           </div>
         )}
 
+        {confirmarSalida && (
+          <Modal titulo="¿Salir con una nota sin guardar?" sub="Tienes una nota en borrador. Si sales ahora, se descarta." cerrar={() => setConfirmarSalida(false)}>
+            <div className="modal-foot">
+              <button className="btn btn-ghost" onClick={() => setConfirmarSalida(false)}>Cancelar</button>
+              <button className="btn btn-peligro" onClick={() => { borrarBorrador(perfil.id); logout(); }}>Descartar y salir</button>
+            </div>
+          </Modal>
+        )}
         {modal === 'nuevo' && <NuevoResidente sede={sede} onCrear={acciones.crearResidente} cerrar={() => setModal(null)} />}
         {modal === 'import' && <Importador sede={sede} onImportar={acciones.importar} cerrar={() => setModal(null)} />}
         {modal === 'editar' && fichaRes && <EditarResidente res={fichaRes} onGuardar={(f) => acciones.editarResidente(fichaRes.id, { nombres: f.nombres, apellidos: f.apellidos, doc: f.doc, edad: f.edad, dx: f.dx })} cerrar={() => setModal(null)} />}
@@ -441,6 +475,7 @@ export const App = () => {
     <ErrorBoundary>
       <Ctx.Provider value={ctx}>
         {contenido}
+        {avisoInact > 0 && pantalla === 'app' && <AvisoInactividad limite={avisoInact} onSeguir={() => reiniciarInactividad.current()} />}
         {showLegal && <ModalLegal cerrar={() => setShowLegal(false)} />}
         {toast && <div className={'toast ' + toast.tipo} role="status"><IconoAviso t={toast.tipo} /><span>{toast.msg}</span></div>}
         {animCentro && <CieloCambio key={animCentro.id} hacia={animCentro.hacia} />}
