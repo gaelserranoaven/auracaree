@@ -1,4 +1,4 @@
-import { Check } from '@phosphor-icons/react';
+import { Check, DownloadSimple } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { MOTIVOS_NF } from '../lib/clinico.js';
 import { useApp, useAccion, SdisHead, LeySdis } from './ui.jsx';
@@ -9,6 +9,7 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
   const [ocupado, ejecutar] = useAccion();
   const activos = residentes.filter((r) => r.estado === 'activo');
   const llave = (rid) => sede.id + '|' + hoy + '|' + rid;
+  const registradas = activos.filter((r) => asistencias[llave(r.id)]?.estado).length;
   const actsHoy = actividades.filter((a) => a.sedeId === sede.id && a.fecha === hoy);
 
   const crearAct = () => ejecutar(async () => {
@@ -23,14 +24,14 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
       <div className="topbar no-print" style={{ marginBottom: '16px' }}>
         <div className="titulo"><p>Sección 5 SDIS · Registro de asistencia a la unidad operativa (solo del día de hoy)</p></div>
         <div className="spacer"></div>
-        <button className="btn btn-tinta" onClick={() => window.print()}>⬇ Exportar Sección 5 (PDF)</button>
+        <button className="btn btn-tinta" onClick={() => window.print()}><DownloadSimple className="ico-txt" aria-hidden="true" />Exportar Sección 5 (PDF)</button>
       </div>
 
       <div className="dos-col">
         <div className="panel no-print">
-          <div className="panel-head"><h3>Ingreso de residentes hoy</h3></div>
+          <div className="panel-head"><h3>Ingreso de personas mayores hoy</h3><span className="panel-sub">{registradas} de {activos.length} registradas</span></div>
           <div className="panel-body tabla-scroll">
-            <table className="op">
+            <table className="op tabla-asistencia">
               <thead><tr><th>Persona mayor</th><th>Firma / Motivo</th></tr></thead>
               <tbody>
                 {activos.map((r) => {
@@ -39,12 +40,12 @@ export const Asistencia = ({ sede, residentes, asistencias, actividades, puedeEd
                     <tr key={r.id}>
                       <td><b>{r.nombres} {r.apellidos}</b><br /><span style={{ fontSize: '12px', color: 'var(--texto-2)' }} className="mono">{r.doc}</span></td>
                       <td>
-                        <span className="seg">
-                          <button disabled={!puedeEditar || ocupado} className={a?.estado === 'firma' ? 'si' : ''} onClick={() => marcar(r.id, 'firma')}>Firma</button>
-                          <button disabled={!puedeEditar || ocupado} className={a?.estado === 'no_firma' ? 'nf' : ''} onClick={() => marcar(r.id, 'no_firma', a?.motivo || MOTIVOS_NF[0])}>No firma</button>
+                        <span className="seg seg-asistencia" role="group" aria-label={`Asistencia de ${r.nombres} ${r.apellidos}`}>
+                          <button disabled={!puedeEditar || ocupado} aria-pressed={a?.estado === 'firma'} className={a?.estado === 'firma' ? 'si' : ''} onClick={() => marcar(r.id, 'firma')}>Firma</button>
+                          <button disabled={!puedeEditar || ocupado} aria-pressed={a?.estado === 'no_firma'} className={a?.estado === 'no_firma' ? 'nf' : ''} onClick={() => marcar(r.id, 'no_firma', a?.motivo || MOTIVOS_NF[0])}>No firma</button>
                         </span>
                         {a?.estado === 'no_firma' && (
-                          <select disabled={!puedeEditar} style={{ marginLeft: '6px', padding: '4px', fontSize: '12px' }} value={a.motivo} onChange={(e) => marcar(r.id, 'no_firma', e.target.value)}>
+                          <select disabled={!puedeEditar} className="motivo-nf" aria-label={`Motivo por el que ${r.nombres} ${r.apellidos} no firma`} value={a.motivo} onChange={(e) => marcar(r.id, 'no_firma', e.target.value)}>
                             {MOTIVOS_NF.map((m) => <option key={m}>{m}</option>)}
                           </select>
                         )}

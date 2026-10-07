@@ -767,3 +767,22 @@ button,.btn,.tabbar a{touch-action:manipulation}
   .banner-rangos-v31 summary::after{content:"";flex:none;width:9px;height:9px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);margin-right:4px;transition:transform .15s}
   .banner-rangos-v31[open] summary::after{transform:rotate(-135deg) translateY(-2px)}
 }
+
+/* ===== Asistencia ===== */
+/* "Firma" es un estado correcto (verde); "No firma" queda en ámbar */
+.seg-asistencia button.si{background:var(--vital)}
+.motivo-nf{margin-left:6px;padding:4px;font-size:12px}
+@media(max-width:880px){
+  /* Cada persona en su bloque: nombre y cédula arriba, Firma / No firma a todo el ancho debajo */
+  table.tabla-asistencia thead{display:none}
+  table.tabla-asistencia,table.tabla-asistencia tbody{display:block}
+  table.tabla-asistencia tr{display:grid;gap:10px;padding:12px 0;border-bottom:1px dashed var(--linea)}
+  table.tabla-asistencia tr:last-child{border-bottom:0}
+  table.tabla-asistencia td{display:block;padding:0;border:0}
+  table.tabla-asistencia td:first-child{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 10px}
+  table.tabla-asistencia td:first-child br{display:none}
+  .seg-asistencia{display:flex;width:100%}
+  .seg-asistencia button{flex:1;min-height:44px;font-size:14px}
+  .motivo-nf{display:block;width:100%;margin:8px 0 0;min-height:44px;padding:8px 10px}
+  .chip-particip{min-height:44px;padding:8px 14px;font-size:13.5px}
+}
