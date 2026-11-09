@@ -20,15 +20,18 @@ npm install
 npm run build          # genera src/dist (se versiona: GitHub Pages sirve estáticos)
 npx http-server -p 8000   # o cualquier servidor estático
 # abrir http://localhost:8000/src/
-npm test               # 29 pruebas (reglas clínicas, render de todas las pantallas, indexación, sitio publicado)
+npm test               # 35 pruebas (reglas clínicas, render de pantallas, indexación, enlaces, sitio publicado)
 npm run dev            # build en modo watch
 npm run sitio          # arma _site/ con lo que publica GitHub Pages (lista permitida)
+npm run iconos         # regenera icons/ y og/og-image.png (solo al cambiar la marca; usa sharp y Chrome)
 ```
 
 ## Estructura
 
 ```
 index.html, landing.css   landing pública (estática, sin JavaScript)
+404.html, robots.txt, sitemap.xml
+icons/, og/               íconos (landing, app, PWA) e imagen para compartir
 src/
   index.html, main.jsx, App.jsx, styles.css
   components/   pantallas (Dashboard, Ficha, NuevaNota, Asistencia, Dotacion, RegistroSdis, ...)
@@ -38,7 +41,7 @@ supabase/
   migrations/   SQL versionado 01–07 (todas aplicadas en el piloto)
   functions/    Edge Function crear-usuario
 tests/          node:test: reglas clínicas, render de pantallas, guardias de indexación y del sitio publicado
-tools/          armar-sitio.mjs (lista de archivos que publica GitHub Pages)
+tools/          armar-sitio.mjs (lista que publica GitHub Pages) · iconos.mjs y og/ (íconos e imagen para compartir)
 .github/        workflow de publicación en GitHub Pages
 docs/           CHANGELOG, OPERACION (guía de puesta en producción), MOBILE-Y-PRIVACIDAD (pre-lanzamiento), versiones históricas
 ```

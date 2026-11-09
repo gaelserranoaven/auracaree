@@ -69,7 +69,7 @@ a{color:inherit;text-underline-offset:3px}
 .ventana{margin-right:132px;background:var(--d-suelo-2);border-radius:18px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.06),0 30px 60px -20px rgba(16,24,64,.28)}
 .ventana-barra{display:flex;align-items:center;gap:7px;height:34px;padding:0 14px;background:color-mix(in srgb,var(--d-suelo-2) 92%,var(--d-tinta))}
 .ventana-barra span{width:10px;height:10px;border-radius:50%;background:color-mix(in srgb,var(--d-tinta) 18%,transparent)}
-.ventana-barra b{margin:0 auto;font-size:.75rem;font-weight:500;color:var(--d-tinta-2);transform:translateX(-18px)}
+.ventana-barra b{margin:0 auto;font-size:.75rem;font-weight:500;color:color-mix(in srgb,var(--d-tinta-2) 75%,var(--d-tinta));transform:translateX(-18px)}
 .app{display:grid;grid-template-columns:190px 1fr;min-height:430px;font-size:.8125rem}
 .app-lado{background:#0B0D14;color:#C9CCD6;padding:16px 12px}
 .app-marca{display:flex;align-items:center;gap:8px;color:#fff;font-weight:600;font-size:.875rem;margin-bottom:14px}
@@ -290,6 +290,10 @@ section h2{font-size:clamp(2.25rem,5.4vw,4rem);line-height:1.06;letter-spacing:-
 .cierre .enlace-flecha{color:var(--acento-noche);margin:0 8px}
 .secundario{margin-top:28px;color:var(--n-tinta-2)}
 .enlaces-cierre{display:flex;justify-content:center;gap:4px 24px;flex-wrap:wrap}
+
+/* ---------- 404 (mismo capítulo de noche que el cierre) ---------- */
+.no-existe{min-height:calc(100svh - 52px);display:grid;align-items:center}
+.no-existe h1{font-size:clamp(2.25rem,5.4vw,4rem);line-height:1.06;letter-spacing:-.035em}
 
 /* ---------- Pie ---------- */
 .pie{background:var(--d-suelo-2);padding:28px 0 calc(28px + env(safe-area-inset-bottom))}

@@ -1,0 +1,10 @@
+# AuraCare
+# Sin Disallow para /src/: la app se mantiene fuera del índice con <meta name="robots" content="noindex, nofollow">,
+# y un Disallow impediría que el buscador lea ese noindex.
+# Nota: en un sitio de proyecto de GitHub Pages este archivo vive en /auracaree/robots.txt y los buscadores
+# solo leen /robots.txt en la raíz del dominio. Será efectivo al tener dominio propio; mientras tanto el
+# sitemap se envía directamente desde Search Console.
+User-agent: *
+Allow: /
+
+Sitemap: https://gaelserranoaven.github.io/auracaree/sitemap.xml

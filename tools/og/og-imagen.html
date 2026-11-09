@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!-- Plantilla de la imagen para compartir (og:image, 1200×630). No se publica: la renderiza tools/iconos.mjs con Chrome.
+     Tokens de DESIGN.md (capítulo de noche). Datos de ejemplo, rotulados como tales. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1200px;height:630px;overflow:hidden}
+  body{background:#000;color:#F5F5F7;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+    display:grid;grid-template-columns:1fr 452px;align-items:center;gap:56px;padding:0 80px}
+  .mono{font-family:'Geist Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .marca{display:flex;align-items:center;gap:14px;font-size:30px;font-weight:500;letter-spacing:-.01em}
+  .marca svg{width:46px;height:46px}
+  h1{font-size:84px;line-height:1.02;letter-spacing:-.04em;font-weight:700;margin-top:52px}
+  p.sub{font-size:28px;line-height:1.35;color:#A1A1A6;letter-spacing:-.01em;margin-top:24px;max-width:15em}
+  .nota{background:#1C1C1E;border-radius:24px;padding:30px 30px 26px;display:grid;gap:18px}
+  .cab{display:flex;justify-content:space-between;align-items:center;font-size:18px}
+  .tag{background:#2C2C2E;border-radius:8px;padding:6px 12px;font-size:16px;font-weight:500;color:#F2B654}
+  .texto{font-size:20px;line-height:1.45;color:#F5F5F7}
+  dl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px solid #2C2C2E;padding-top:16px}
+  dt{font-size:13px;color:#A1A1A6;text-transform:uppercase;letter-spacing:.06em}
+  dd{font-size:18px;margin-top:4px}
+  .sello{background:#050608;border-radius:14px;padding:14px 16px}
+  .sello small{display:block;font-size:13px;color:#A1A1A6;text-transform:uppercase;letter-spacing:.06em}
+  .sello b{display:block;font-size:20px;font-weight:500;margin-top:6px;color:#7B96FF}
+  .integra{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:500;color:#4FD1A5}
+  .integra svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .ejemplo{font-size:13px;color:#6E6E73;text-align:right;margin-top:-6px}
+</style>
+</head>
+<body>
+  <div>
+    <div class="marca">
+      <svg viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="32" height="32" rx="9" fill="#1F4BE8"/><polyline points="5,18 11,18 13.5,11 17,24 20.5,14 22.5,18 29,18" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      AuraCare
+    </div>
+    <h1>Cada nota, sellada.</h1>
+    <p class="sub">El registro de cuidado para centros de protección de persona mayor.</p>
+  </div>
+  <div>
+    <article class="nota">
+      <div class="cab"><span class="tag">Novedad de salud</span><span class="mono" style="color:#A1A1A6">#3b7d02c95e11</span></div>
+      <p class="texto">Refiere mareo al levantarse. Se deja en reposo y se avisa a jefe de enfermería.</p>
+      <dl>
+        <div><dt>Fecha</dt><dd class="mono">28-09-2026</dd></div>
+        <div><dt>Hora</dt><dd class="mono">10:15:08</dd></div>
+        <div><dt>Autor</dt><dd>Aux. L. Gómez</dd></div>
+      </dl>
+      <div class="sello"><small>Sello SHA-256</small><b class="mono">3b7d02c95e11a8f0d6c4…</b></div>
+      <div class="integra"><svg viewBox="0 0 12 12"><path d="M2 6.5 5 9.5 10 3"/></svg>Cadena íntegra</div>
+    </article>
+    <p class="ejemplo" style="margin-top:12px">Datos de ejemplo.</p>
+  </div>
+</body>
+</html>
