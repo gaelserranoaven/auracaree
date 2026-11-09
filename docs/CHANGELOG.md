@@ -2,6 +2,13 @@
 
 ## [Sin publicar]
 
+### Pre-lanzamiento, Fase A: base y superficie pública (rama `feature/prelanzamiento`)
+- **Estado inicial (2026-11-08)**: rama creada desde `master` en `3b2af1e`; versión 4.0.0; `npm test` con 23 pruebas en verde. El repositorio es **público** en GitHub y Pages servía el repo completo: `docs/OPERACION.md`, `ARCHITECTURE.md`, las migraciones SQL, las pruebas, el código fuente de `src/` y las capturas de `.impeccable/` respondían 200.
+- **Publicación por lista permitida**: nuevo `.github/workflows/pages.yml`, que corre `npm ci` y `npm test` (si fallan, no publica) y sube solo lo que arma `tools/armar-sitio.mjs`: `index.html`, `landing.css`, `src/index.html` y `src/dist/`, más las páginas y recursos de fases siguientes cuando existan (`404.html`, `robots.txt`, `sitemap.xml`, `privacidad.html`, `terminos.html`, `fonts/`, `icons/`, `og/`, manifiesto y service worker). No compila: publica el `src/dist` versionado, igual que hoy. Requiere cambiar *Settings → Pages → Source* a *GitHub Actions*.
+- Verificado en local sirviendo `_site/` bajo `/auracaree/`: la landing, la app, `dist/app.js`, `app.css` y los dos chunks responden 200; `docs/`, `supabase/`, `tests/`, `tools/`, `.impeccable/`, `*.md`, `package.json`, `build.mjs` y `src/*.jsx` responden 404.
+- **Pruebas nuevas** (23 → 29): `tests/indexacion.test.mjs` (la landing no tiene `noindex`; `src/index.html` conserva `noindex, nofollow`; ningún HTML ni el bundle cargan analítica o píxeles) y `tests/sitio.test.mjs` (el sitio armado incluye landing y app, y no publica documentación, esquema, pruebas ni código fuente).
+- **Deriva de documentación**: el README pasa de "17 pruebas" a 29, lista las migraciones 01–07 como aplicadas, documenta `tools/`, `.github/` y la publicación; `docs/versions/v3-4-features.md` queda marcado como histórico; `package.json` suma `npm run sitio`; `_site/` se ignora en git.
+
 ### Cambiado
 - **Accesibilidad (revisión HIG)**: la pestaña activa del celular ya no depende solo del color; el anillo de foco y el badge de cifrado cumplen contraste; los textos de 10 a 10.5 px suben a 11 o 12 px.
 - **Un color, un significado**: el azul `#1F4BE8` de la presentación es el acento de marca (botones primarios, selección, pestaña y menú activos, foco). El verde queda solo para estado: signos en rango, sello e integridad de la cadena.

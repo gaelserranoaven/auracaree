@@ -1,7 +1,9 @@
 # AuraCare v3.4 - Features & Release Notes
 
+> **Documento histórico.** Describe la v3.4 (agosto de 2026), anterior al backend. La versión vigente es la **v4.0** (Supabase Auth, Postgres con RLS, Realtime), en piloto desde el 2026-09-28. La referencia actual es [`ARCHITECTURE.md`](../../ARCHITECTURE.md) y [`docs/OPERACION.md`](../OPERACION.md). Las "limitaciones" y "siguientes pasos" de abajo ya no aplican.
+
 **Release Date:** 2026-08-17  
-**Status:** Current Production
+**Status:** Histórico (reemplazado por v4.0)
 
 ## Overview
 

@@ -1,0 +1,50 @@
+# Publica en GitHub Pages solo la lista permitida de tools/armar-sitio.mjs (no todo el repo).
+# Requiere: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions" (lo cambia Gael).
+# src/dist se versiona, así que aquí no se compila: se publica exactamente lo que está en master.
+name: Publicar sitio
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Si las pruebas fallan, no se publica: el piloto sigue con la última versión buena.
+      - name: Pruebas
+        run: |
+          npm ci
+          npm test
+
+      - name: Armar sitio (lista permitida)
+        run: node tools/armar-sitio.mjs _site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: despliegue
+        uses: actions/deploy-pages@v4
