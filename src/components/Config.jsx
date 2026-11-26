@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ORDEN_SIGNOS } from '../lib/clinico.js';
-import { useApp, useAccion, IconoAviso } from './ui.jsx';
+import { useApp, useAccion, IconoAviso, RejillaRangos } from './ui.jsx';
 
 const RangosGlobales = ({ onGuardar }) => {
   const { rangos, avisar, confirmar } = useApp();
@@ -22,15 +22,7 @@ const RangosGlobales = ({ onGuardar }) => {
       <div className="panel-head"><h3>Rangos clínicos generales (todas las sedes)</h3></div>
       <div className="panel-body">
         <div className="nota-aviso rojo" style={{ marginTop: 0, marginBottom: '12px' }}><IconoAviso t="alerta" /><span>Referencia de la Fundación, <b>pendiente de validación por el equipo médico</b>. Cada cambio queda en el registro de auditoría. Para casos individuales usa los rangos personalizados de la ficha.</span></div>
-        <div className="grid-rangos-edit">
-          <span className="h">Parámetro</span><span className="h">Vig. mín</span><span className="h">Vig. máx</span><span className="h">Crít. &lt;</span><span className="h">Crít. ≥</span>
-          {claves.map((k) => (
-            <div key={k} style={{ display: 'contents' }}>
-              <span><b>{rangos[k].lbl}</b> <small style={{ color: 'var(--texto-2)' }}>{rangos[k].uni}</small></span>
-              {['vMin', 'vMax', 'cMin', 'cMax'].map((c) => <input key={c} type="number" step="any" aria-label={`${rangos[k].lbl} ${c}`} value={d[k][c]} onChange={(e) => set(k, c, e.target.value)} style={malo(k) ? { borderColor: 'var(--alerta)' } : undefined} />)}
-            </div>
-          ))}
-        </div>
+        <RejillaRangos claves={claves} rangos={rangos} valores={d} onCambio={set} invalido={malo} />
         <div className="form-foot">
           {claves.some(malo) && <p className="form-ayuda" role="status">Revisa los rangos: deben ir de menor a mayor (crítico, vigilancia mínima, vigilancia máxima, crítico).</p>}
           <button className="btn btn-primary" disabled={ocupado || !cambiados.length || claves.some(malo)} onClick={guardar}>{cambiados.length ? `Guardar rangos (${cambiados.length} ${cambiados.length === 1 ? 'cambio' : 'cambios'})` : 'Guardar rangos'}</button>

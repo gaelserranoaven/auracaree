@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
 import { ROLES } from '../lib/clinico.js';
-import { fmtFechaHora } from '../lib/util.js';
+import { correoValido, fmtFechaHora } from '../lib/util.js';
 import { useApp, useAccion, TxtJornada, IconoAviso } from './ui.jsx';
 
 const JORNADAS = [['ambos', 'Día y Noche'], ['dia', 'Solo Día'], ['noche', 'Solo Noche']];
@@ -46,7 +46,7 @@ const NuevoUsuario = ({ sedes, onCrear }) => {
   const [copiado, setCopiado] = useState(false);
   const [ocupado, ejecutar] = useAccion();
   const { avisar } = useApp();
-  const emailOk = /^[^s@]+@[^s@]+.[^s@]+$/.test(v.email.trim());
+  const emailOk = correoValido(v.email);
   const listo = v.nombre.trim().length >= 3 && emailOk && (v.sedeId || v.rolId === 'superadmin');
 
   const crear = () => ejecutar(async () => {

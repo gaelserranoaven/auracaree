@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RANGOS_DEFAULT, estadoSigno, errorSigno, errorDotacion, etiquetasRango, rangoEfectivo, puede, ROLES } from '../src/lib/clinico.js';
-import { hoyBogota, jornadaDe, mensajeError, proximoCambioJornada } from '../src/lib/util.js';
+import { correoValido, hoyBogota, jornadaDe, mensajeError, proximoCambioJornada } from '../src/lib/util.js';
 import { parseCSV, matrizAResidentes } from '../src/lib/importar.js';
 
 const R = RANGOS_DEFAULT;
@@ -125,6 +125,14 @@ test('proximoCambioJornada: el cambio manual de centro vence a las 06:00 o 18:00
   assert.equal(iso('2026-09-26T23:30:00Z'), '2026-09-27T11:00:00.000Z'); // 18:30 → 06:00 del día siguiente
   assert.equal(iso('2026-09-27T08:00:00Z'), '2026-09-27T11:00:00.000Z'); // 03:00 → 06:00 del mismo día
   assert.equal(iso('2026-09-26T11:00:00Z'), '2026-09-26T23:00:00.000Z'); // justo 06:00 → 18:00
+});
+
+test('correoValido acepta correos reales y rechaza los mal formados', () => {
+  // El patrón anterior de "Agregar usuario" había perdido las barras invertidas (\s y \.) y rechazaba
+  // cualquier correo con una "s" antes de la arroba. Estos casos son los que fallaban.
+  for (const ok of ['luisa.perez@construyendofuturo.org.co', 'jesus@gmail.com', 'carlos.rojas@gmail.com', 'ana@hotmail.es',
+    'rosa@outlook.com', 'andres@fundacion.org', 'ana@gmail.com', '  ana@gmail.com  ']) assert.equal(correoValido(ok), true, ok);
+  for (const mal of ['', 'sin arroba', 'a@b', 'a@@b.co', 'con espacio@b.co', 'a@b .co', '@b.co', 'a@.', null, undefined]) assert.equal(correoValido(mal), false, String(mal));
 });
 
 test('rol Profesional: escribe notas, asistencia y turno; no dotación, alertas ni configuración', () => {

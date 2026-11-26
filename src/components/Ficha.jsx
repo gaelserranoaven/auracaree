@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ORDEN_SIGNOS, TIPO_LBL, estadoSigno, rangoEfectivo } from '../lib/clinico.js';
 import { fmtFecha } from '../lib/util.js';
-import { useApp, useAccion, Sparkline, ChipsSignos, SelloNota } from './ui.jsx';
+import { useApp, useAccion, Sparkline, ChipsSignos, SelloNota, RejillaRangos } from './ui.jsx';
 
 const peor = (...e) => (e.includes('c') ? 'c' : e.includes('v') ? 'v' : e.includes('ok') ? 'ok' : null);
 
@@ -33,17 +33,7 @@ const EditorRangos = ({ res, config, onGuardar }) => {
       <p style={{ fontSize: '12.5px', color: 'var(--texto-2)', marginBottom: '10px' }}>
         Ajusta los umbrales solo por indicación médica (p. ej. EPOC: SpO₂ objetivo menor). Deben cumplir: crítico mín ≤ vigilancia mín ≤ vigilancia máx ≤ crítico máx. Las alertas futuras usan estos valores.
       </p>
-      <div className="grid-rangos-edit">
-        <span className="h">Parámetro</span><span className="h">Vig. mín</span><span className="h">Vig. máx</span><span className="h">Crít. &lt;</span><span className="h">Crít. ≥</span>
-        {claves.map((k) => (
-          <div key={k} style={{ display: 'contents' }}>
-            <span><b>{rangos[k].lbl}</b> <small style={{ color: 'var(--texto-2)' }}>{rangos[k].uni}</small></span>
-            {['vMin', 'vMax', 'cMin', 'cMax'].map((c) => (
-              <input key={c} type="number" step="any" aria-label={`${rangos[k].lbl} ${c}`} value={d[k][c]} onChange={(e) => set(k, c, e.target.value)} />
-            ))}
-          </div>
-        ))}
-      </div>
+      <RejillaRangos claves={claves} rangos={rangos} valores={d} onCambio={set} />
       <div className="form-foot">
         <button className="btn btn-primary" disabled={ocupado || invalido} onClick={guardar}>Guardar rangos personalizados</button>
         <button className="btn btn-ghost" disabled={ocupado || !Object.keys(res.rangos || {}).length} onClick={() => ejecutar(() => onGuardar({}))}>Restablecer a los generales</button>

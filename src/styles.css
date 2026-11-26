@@ -493,6 +493,9 @@
 .grid-rangos-edit{display:grid;grid-template-columns:1.2fr repeat(4,88px);gap:8px;align-items:center;font-size:13px}
 .grid-rangos-edit input{width:100%;padding:6px 8px;border:1.5px solid var(--borde-control);border-radius:8px}
 .grid-rangos-edit .h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--texto-2)}
+.grid-rangos-edit .rango-campo{display:block;min-width:0}
+/* En escritorio el encabezado de la columna ya nombra el campo; la etiqueta propia solo se muestra en celular */
+.grid-rangos-edit .rango-lbl{display:none}
 .chip-particip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;border:1.5px solid var(--linea);background:var(--panel);font-size:12px;margin:0 6px 6px 0;cursor:pointer}
 .chip-particip.on{background:var(--acento-suave);border-color:var(--acento-t);color:var(--acento-t);font-weight:600}
 .resultado-cadena{border-radius:10px;padding:10px 13px;font-size:13px;margin-top:10px}
@@ -501,7 +504,14 @@
 .est-pill-egreso{background:var(--superficie-3);color:var(--texto-2);border:1px solid var(--linea)}
 .tabla-scroll{overflow-x:auto}
 @media(max-width:880px){
-  .grid-rangos-edit{grid-template-columns:1fr 1fr}
+  /* Rangos en celular: el nombre del parámetro ocupa toda la fila y debajo van sus cuatro campos, de a dos, cada uno con su etiqueta.
+     Antes las cinco columnas se repartían en dos sin relación entre sí y no se sabía qué número era cuál. */
+  .grid-rangos-edit{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px 12px;align-items:end}
+  .grid-rangos-edit .h{display:none}
+  .grid-rangos-edit .rango-nombre{grid-column:1/-1;margin-top:6px;padding-top:12px;border-top:1px solid var(--linea);font-size:14px}
+  .grid-rangos-edit .rango-fila:first-of-type .rango-nombre{margin-top:0;padding-top:0;border-top:none}
+  .grid-rangos-edit .rango-lbl{display:block;font-size:12px;font-weight:600;color:var(--texto-2);margin-bottom:4px}
+  .grid-rangos-edit input{min-height:44px}
   .topbar{padding:10px 12px}
   .kpi .val{font-size:24px}
   table.op{font-size:12.5px}

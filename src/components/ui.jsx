@@ -126,6 +126,36 @@ export const ChipsSignos = ({ signos, overrides }) => {
   return chips.length ? <div className="nota-signos">{chips}</div> : null;
 };
 
+/* Editor de umbrales clínicos: una fila por parámetro con cuatro campos (lo usan Configuración y la ficha).
+   En escritorio los encabezados van arriba, en una fila. En celular la rejilla pasa a dos columnas y los
+   encabezados ya no quedan sobre su campo, así que cada campo muestra su propia etiqueta.
+   El nombre accesible de cada campo es "parámetro + umbral", en los dos tamaños. */
+const CAMPOS_RANGO = [['vMin', 'Vig. mín'], ['vMax', 'Vig. máx'], ['cMin', 'Crít. <'], ['cMax', 'Crít. ≥']];
+export const RejillaRangos = ({ claves, rangos, valores, onCambio, invalido }) => {
+  const id = useId();
+  return (
+    <div className="grid-rangos-edit">
+      <span className="h">Parámetro</span>
+      {CAMPOS_RANGO.map(([c, etiqueta]) => <span key={c} className="h">{etiqueta}</span>)}
+      {claves.map((k) => {
+        const malo = invalido ? invalido(k) : false;
+        return (
+          <div key={k} className="rango-fila" style={{ display: 'contents' }}>
+            <span className="rango-nombre" id={`${id}${k}`}><b>{rangos[k].lbl}</b> <small style={{ color: 'var(--texto-2)' }}>{rangos[k].uni}</small></span>
+            {CAMPOS_RANGO.map(([c, etiqueta]) => (
+              <label key={c} className="rango-campo">
+                <span className="rango-lbl" id={`${id}${k}${c}`}>{etiqueta}</span>
+                <input type="number" step="any" inputMode="decimal" aria-labelledby={`${id}${k} ${id}${k}${c}`} value={valores[k][c]}
+                  onChange={(e) => onCambio(k, c, e.target.value)} style={malo ? { borderColor: 'var(--alerta)' } : undefined} />
+              </label>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 /* Sello de integridad: solo se muestra si la nota realmente tiene hash del servidor */
 export const SelloNota = ({ hash }) => (hash ? <span className="badge-hash" title="Hash SHA-256 encadenado calculado por el servidor">#{hash.slice(0, 12)}</span> : null);
 

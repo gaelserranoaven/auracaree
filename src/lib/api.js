@@ -30,6 +30,11 @@ export const mRecepcion = (r) => ({ id: r.id, entregaId: r.entrega_id, sedeId: r
 export const mElemento = (e) => ({ key: e.key, nombre: e.nombre, regla: e.regla, limPersona: e.lim_persona_mes, limUnidad: e.lim_unidad_mes });
 export const mAuditoria = (a) => ({ id: a.id, userId: a.user_id, accion: a.accion, tabla: a.tabla, registroId: a.registro_id, sedeId: a.sede_id, detalle: a.detalle, createdAt: a.created_at });
 
+/* Las listas con tope se piden de la más nueva a la más vieja y se invierten aquí para pintarlas en orden.
+   Pedirlas en orden ascendente con `limit` devolvía las más ANTIGUAS y cortaba las recientes sin avisar
+   (tests/consultas.test.mjs lo vigila). */
+const enOrden = (filas) => [...filas].reverse();
+
 const restarDias = (iso, n) => {
   const d = new Date(iso + 'T12:00:00Z');
   d.setUTCDate(d.getUTCDate() - n);
@@ -57,6 +62,8 @@ export async function registrarse({ nombre, email, password }) {
 }
 
 export const cerrarSesion = () => db.auth.signOut();
+// Cierra solo la sesión de este navegador: no saca a la persona de otros equipos. Si no hay conexión, la sesión guardada se borra igual.
+export const cerrarSesionLocal = () => db.auth.signOut({ scope: 'local' });
 export const sesionActual = async () => (await db.auth.getSession()).data.session;
 export const cambiarPassword = async (password) => { ok(await db.auth.updateUser({ password })); };
 
@@ -74,12 +81,13 @@ export async function cargarTodo(perfil, hoy) {
   const res = await Promise.all([
     db.from('sedes').select('*').order('nombre'),
     db.from('residentes').select('*').order('apellidos'),
-    db.from('notas').select('*').gte('fecha', desde).order('seq', { ascending: true }).limit(1000),
+    db.from('notas').select('*').gte('fecha', desde).order('created_at', { ascending: false }).limit(1000),
     db.from('alertas').select('*').eq('estado', 'activa').order('created_at', { ascending: false }).limit(500),
     db.from('asistencias').select('*').eq('fecha', hoy),
     db.from('actividades').select('*').eq('fecha', hoy),
     db.from('entregas').select('*').gte('fecha', mes1).limit(2000),
-    db.from('pertenencias').select('*').order('fecha_recibo', { ascending: false }).limit(1000),
+    // Primero lo que sigue en custodia ('en_custodia' ordena después de 'devuelta'): si algún día se llega al tope, lo que se corta son devoluciones viejas
+    db.from('pertenencias').select('*').order('estado', { ascending: false }).order('fecha_recibo', { ascending: false }).limit(1000),
     db.from('config_sedes').select('*'),
     db.from('rangos_clinicos').select('*'),
     db.from('elementos_dotacion').select('*'),
@@ -101,7 +109,7 @@ export async function cargarTodo(perfil, hoy) {
   return {
     sedes: sedes.map(mSede),
     residentes: resid.map(mResidente),
-    notas: notas.map(mNota),
+    notas: enOrden(notas).map(mNota),
     alertas: alertas.map(mAlerta),
     asistencias,
     actividades: acts.map(mActividad),
@@ -117,10 +125,10 @@ export async function cargarTodo(perfil, hoy) {
 }
 
 export async function cargarNotasPersona(personaId) {
-  return ok(await db.from('notas').select('*').eq('persona_id', personaId).order('seq', { ascending: true }).limit(500)).map(mNota);
+  return enOrden(ok(await db.from('notas').select('*').eq('persona_id', personaId).order('seq', { ascending: false }).limit(500))).map(mNota);
 }
 export async function cargarNotasDia(sedeId, fecha) {
-  return ok(await db.from('notas').select('*').eq('sede_id', sedeId).eq('fecha', fecha).order('seq', { ascending: true }).limit(1000)).map(mNota);
+  return enOrden(ok(await db.from('notas').select('*').eq('sede_id', sedeId).eq('fecha', fecha).order('seq', { ascending: false }).limit(1000))).map(mNota);
 }
 export async function cargarAsistenciaDia(sedeId, fecha) {
   return ok(await db.from('asistencias').select('*').eq('sede_id', sedeId).eq('fecha', fecha)).map(mAsistencia);

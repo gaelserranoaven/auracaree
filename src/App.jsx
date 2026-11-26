@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as api from './lib/api.js';
 import { ROLES, RANGOS_DEFAULT, puede, esPsicosocial } from './lib/clinico.js';
 import { fmtFecha, hoyBogota, jornadaDe } from './lib/util.js';
+import { INACTIVIDAD_MS, borrarActividad, inactividadVencida, leerActividad, marcarActividad } from './lib/sesion.js';
 import { Ctx, Logo, VERSION, COMPILACION, ErrorBoundary, Icono, IconoAviso, Modal } from './components/ui.jsx';
 import { CookieBanner, ModalLegal } from './components/Legal.jsx';
 import { Login } from './components/Login.jsx';
@@ -20,8 +21,8 @@ import { Auditoria } from './components/Auditoria.jsx';
 import { useCentro, CentroSwitch, CieloCambio } from './components/Centro.jsx';
 import { CambioClave } from './components/CambioClave.jsx';
 
-const INACTIVIDAD_MS = 20 * 60 * 1000;
 const AVISO_INACTIVIDAD_MS = 60 * 1000; // aviso antes de cerrar la sesión
+const MARCA_ACTIVIDAD_MS = 15 * 1000; // cada cuánto se guarda la hora de la última actividad (no en cada movimiento del mouse)
 
 /* Cuenta regresiva antes del cierre por inactividad. Esc o el botón mantienen la sesión. */
 const AvisoInactividad = ({ limite, onSeguir }) => {
@@ -139,7 +140,14 @@ export const App = () => {
     (async () => {
       try {
         const s = await api.sesionActual();
-        if (s) await iniciarApp(s.user.id); else setPantalla('login');
+        if (!s) setPantalla('login');
+        else if (inactividadVencida(leerActividad())) {
+          // Quedó una sesión guardada sin actividad reciente (cerraron el navegador sin salir): se cierra antes de cargar datos
+          try { await api.cerrarSesionLocal(); } catch { /* sin almacenamiento */ }
+          borrarActividad();
+          setPantalla('login');
+          avisar('Tu sesión se cerró por inactividad. Ingresa de nuevo.', 'info');
+        } else { marcarActividad(); await iniciarApp(s.user.id); }
       } catch (e) {
         if (e instanceof ErrorCuenta) { setPantalla('login'); avisar(e.message, 'info'); }
         else { setErrorCarga(e.message); setPantalla('error'); }
@@ -161,6 +169,7 @@ export const App = () => {
   /* ---------- Sesión ---------- */
   const login = async (email, password) => {
     const user = await api.iniciarSesion(email, password);
+    marcarActividad();
     try { await iniciarApp(user.id); }
     catch (e) { if (e instanceof ErrorCuenta) throw e; await api.cerrarSesion(); throw e; }
   };
@@ -172,6 +181,7 @@ export const App = () => {
   // conservarBorrador: solo en el cierre por inactividad, para no perder una nota clínica a medias (vuelve al mismo usuario al entrar)
   const logout = useCallback(async (mensaje, conservarBorrador = false) => {
     try { await api.cerrarSesion(); } catch { /* ya cerrada */ }
+    borrarActividad();
     try { Object.keys(sessionStorage).filter((k) => k.startsWith('auracare_') && !(conservarBorrador && k.startsWith('auracare_borrador_'))).forEach((k) => sessionStorage.removeItem(k)); } catch { /* sin storage */ }
     setPerfil(null); setPerfiles([]); setResidentes([]); setNotas([]); setAlertas([]); setAsistencias({}); setActividades([]);
     setEntregas([]); setPertenencias([]); setTurnos([]); setRecepciones([]); setFichaId(null); setModal(null);
@@ -183,9 +193,12 @@ export const App = () => {
   // Cierre automático por inactividad (equipos compartidos con datos sensibles)
   useEffect(() => {
     if (pantalla !== 'app') return undefined;
-    let tAviso; let tSalir;
+    let tAviso; let tSalir; let ultimaMarca = 0;
     const reiniciar = () => {
       if (avisoRef.current) return; // con el aviso abierto solo "Seguir en la sesión" cuenta
+      // La hora de la última actividad queda guardada: si cierran el navegador sin salir, al volver a abrir se compara contra el límite
+      const ahora = Date.now();
+      if (ahora - ultimaMarca > MARCA_ACTIVIDAD_MS) { ultimaMarca = ahora; marcarActividad(ahora); }
       clearTimeout(tAviso); clearTimeout(tSalir);
       tAviso = setTimeout(() => { avisoRef.current = Date.now() + AVISO_INACTIVIDAD_MS; setAvisoInact(avisoRef.current); }, INACTIVIDAD_MS - AVISO_INACTIVIDAD_MS);
       tSalir = setTimeout(() => { avisoRef.current = 0; setAvisoInact(0); logout('Sesión cerrada por inactividad.', true); }, INACTIVIDAD_MS);

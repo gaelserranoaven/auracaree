@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="description" content="AuraCare es el registro de cuidado para centros de protección de persona mayor: notas clínicas selladas que nadie puede alterar, alertas de signos vitales y formatos SDIS listos para la visita.">
+<meta name="description" content="AuraCare es el registro de cuidado para centros de protección de persona mayor: notas clínicas selladas, que no se editan ni se borran desde la aplicación, alertas de signos vitales y formatos SDIS listos para imprimir.">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: dark)">
 <title>AuraCare · Cada nota, sellada.</title>
@@ -188,7 +188,7 @@
   <section id="signos" class="dia signos">
     <div class="contenedor">
       <h2 class="centrado">Un valor fuera de rango <br>avisa a todo el equipo.</h2>
-      <p class="intro centrado">Tensión, frecuencia cardiaca y respiratoria, temperatura, saturación y glucometría. AuraCare compara cada registro con los rangos de la sede y genera la alerta en el momento, para todos los que están de turno.</p>
+      <p class="intro centrado">Tensión, frecuencia cardiaca y respiratoria, temperatura, saturación y glucometría. AuraCare compara cada registro con los rangos configurados y genera la alerta en el momento, para todos los que están de turno.</p>
       <div class="monitor" role="img" aria-label="Monitor de signos de ejemplo: tensión arterial 172 sobre 104 crítica, frecuencia cardiaca 104 en vigilancia, saturación 95 por ciento y temperatura 36,8 en rango.">
         <svg class="ecg" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,40 90,40 104,40 112,14 124,70 136,26 146,40 250,40 264,40 272,14 284,70 296,26 306,40 410,40 424,40 432,14 444,70 456,26 466,40 600,40"/></svg>
         <div class="lecturas">
@@ -219,7 +219,7 @@
       <div class="bento">
         <article class="pieza pieza-sdis">
           <h3>Formatos SDIS, sin transcribir.</h3>
-          <p>Las secciones 1, 4, 5 y 6 del FOR-PSS-729 salen del registro diario, listas para imprimir en PDF.</p>
+          <p>Las secciones 5 y 6 del FOR-PSS-729 salen del registro diario, listas para imprimir y firmar. La dotación y las pertenencias (secciones 1 y 4) quedan registradas con quién y cuándo.</p>
           <div class="hoja" aria-hidden="true">
             <div class="hoja-cabeza"><b>FOR-PSS-729</b><span>Sección 5 · Asistencia</span></div>
             <div class="hoja-fila h"><span>Persona mayor</span><span>Documento</span><span>Firma</span></div>
@@ -235,11 +235,11 @@
         </article>
         <article class="pieza pieza-dotacion">
           <h3>Dotación con límites.</h3>
-          <p>Cada entrega se descuenta del límite mensual por persona.</p>
+          <p>Cada entrega se descuenta del límite mensual, por persona o por sede.</p>
           <ul class="usos" aria-hidden="true">
-            <li><span>Pañales, Jorge R.</span><b class="mono lim cerca">3 de 4</b></li>
-            <li><span>Crema, Rosa M.</span><b class="mono lim">1 de 2</b></li>
-            <li><span>Pañales, Carmen D.</span><b class="mono lim lleno">4 de 4</b></li>
+            <li><span>Ropa interior, sede</span><b class="mono lim cerca">8 de 10</b></li>
+            <li><span>Cepillo, Rosa M.</span><b class="mono lim">0 de 1</b></li>
+            <li><span>Desodorante, Jorge R.</span><b class="mono lim lleno">1 de 1</b></li>
           </ul>
         </article>
         <article class="pieza pieza-roles">
@@ -250,13 +250,13 @@
           </ul>
         </article>
         <article class="pieza pieza-auditoria">
-          <h3>Auditoría de cada consulta.</h3>
-          <p>Quién abrió qué ficha, quién cambió un permiso, cuándo.</p>
+          <h3>Registro de auditoría.</h3>
+          <p>Quién cambió un permiso o una configuración, quién abrió una ficha y quién exportó un formato, con fecha y hora.</p>
           <ol class="registro" aria-hidden="true">
             <li><span class="mono">10:21</span>ver_ficha · Rosa M.</li>
             <li><span class="mono">09:02</span>cambio de rol · usuario</li>
             <li><span class="mono">08:40</span>imprimir_sdis · Sección 6</li>
-            <li><span class="mono">07:55</span>verificar_cadena · Kennedy</li>
+            <li><span class="mono">07:55</span>alta · persona mayor</li>
             <li><span class="mono">07:31</span>ver_ficha · Jorge R.</li>
           </ol>
         </article>
@@ -286,7 +286,7 @@
       <h2>Hecho para la visita de la SDIS.</h2>
       <dl class="normas">
         <div><dt>Ley 1581 de 2012</dt><dd>La información de salud es dato sensible: solo la ve el personal autorizado de cada sede.</dd></div>
-        <div><dt>Resolución 1995 de 1999</dt><dd>Registros íntegros e inalterables, con fecha, hora y autor asignados por el servidor.</dd></div>
+        <div><dt>Resolución 1995 de 1999</dt><dd>Notas que no se editan ni se borran desde la aplicación, con fecha, hora y autor asignados por el servidor.</dd></div>
         <div><dt>Formato FOR-PSS-729</dt><dd>Dotación, pertenencias en custodia, asistencia y novedades de salud, desde el registro diario.</dd></div>
         <div><dt>Cuentas personales</dt><dd>Aprobadas por un administrador. La sesión se cierra sola tras 20 minutos sin uso.</dd></div>
       </dl>
@@ -310,7 +310,7 @@
 <footer class="pie">
   <div class="contenedor pie-in">
     <p><b>AuraCare</b>. Registro de cuidado para centros de protección de persona mayor en Bogotá, Colombia.</p>
-    <p>Tratamiento de datos conforme a la Ley 1581 de 2012. Los términos completos están dentro de la aplicación.</p>
+    <p>La información de salud es dato sensible (Ley 1581 de 2012). Los términos de uso están dentro de la aplicación; la política pública de tratamiento de datos está en preparación.</p>
     <p>© 2026 AuraCare</p>
   </div>
 </footer>

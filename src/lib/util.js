@@ -48,3 +48,7 @@ export const nuevoId = () =>
   (globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
 
 export const limpiar = (s, max = 200) => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
+
+// Correo con forma válida: algo@dominio.tld, sin espacios ni una segunda arroba.
+// Es el mismo patrón de la Edge Function crear-usuario: si cambias uno, cambia el otro.
+export const correoValido = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s ?? '').trim());

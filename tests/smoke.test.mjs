@@ -78,6 +78,18 @@ test('alta directa: formulario sin clave visible; primer ingreso obliga a crear 
   assert.match(html.cambioClave, /clave temporal/);
 });
 
+test('rangos clínicos: cada campo lleva su propia etiqueta y un nombre accesible con el parámetro', () => {
+  // En celular la rejilla pasa a dos columnas: sin etiqueta por campo no se sabía qué umbral era cada número
+  const campos = html.config.match(/<label class="rango-campo">/g) || [];
+  assert.equal(campos.length, 7 * 4, 'siete parámetros con cuatro umbrales cada uno');
+  for (const etiqueta of ['Vig. mín', 'Vig. máx', 'Crít. &lt;', 'Crít. ≥']) {
+    assert.match(html.config, new RegExp(`<span class="rango-lbl"[^>]*>${etiqueta.replace(/[.]/g, '\\.')}</span>`), etiqueta);
+  }
+  assert.doesNotMatch(html.config, /aria-label="[^"]*\b(vMin|vMax|cMin|cMax)"/); // antes el lector de pantalla decía "TA sistólica vMin"
+  const conNombre = html.config.match(/<input type="number"[^>]*aria-labelledby="[^"]+ [^"]+"/g) || [];
+  assert.equal(conNombre.length, 7 * 4);
+});
+
 test('sedes: no se eliminan, se suspenden y se pueden reactivar', () => {
   assert.match(html.configSuspendida, /Suspendida/);
   assert.match(html.configSuspendida, /Fin del contrato/);
