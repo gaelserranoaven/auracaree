@@ -20,6 +20,18 @@
         "value": "ibm plex mono",
         "createdAt": "2026-11-27T02:52:38.929Z",
         "reason": "Claude: tipografia existente de la app (src/styles.css desde v3); DESIGN.md documenta solo la landing. Fase C solo la aloja localmente."
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist",
+        "createdAt": "2026-11-27T03:34:45.539Z",
+        "reason": "Claude: Geist y Geist Mono son la tipografia documentada en DESIGN.md para la landing y sus paginas; las paginas legales la reutilizan a proposito."
+      },
+      {
+        "rule": "overused-font",
+        "value": "geist mono",
+        "createdAt": "2026-11-27T03:34:45.649Z",
+        "reason": "Claude: Geist y Geist Mono son la tipografia documentada en DESIGN.md para la landing y sus paginas; las paginas legales la reutilizan a proposito."
       }
     ]
   }
