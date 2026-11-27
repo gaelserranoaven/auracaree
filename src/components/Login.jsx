@@ -30,7 +30,7 @@ export const Login = ({ onLogin, onSolicitarCuenta, abrirTerminos }) => {
   const errPass = passReg ? errorPassword(passReg) : null;
 
   return (
-    <div className="login-wrap">
+    <main className="login-wrap">
       <div className="login-card">
         <a className="login-volver" href="../"><span aria-hidden="true">←</span> Conoce AuraCare</a>
         <Logo />
@@ -78,10 +78,10 @@ export const Login = ({ onLogin, onSolicitarCuenta, abrirTerminos }) => {
         )}
 
         <div style={{ marginTop: '18px', textAlign: 'center', fontSize: '12px' }}>
-          <button type="button" className="btn-enlace" onClick={abrirTerminos}>Términos, condiciones y política de privacidad</button>
+          <button type="button" className="btn-enlace" onClick={abrirTerminos}>Privacidad y términos de uso</button>
         </div>
         <p className="login-foot">AuraCare Plataforma Médica · Fundación Construyendo Futuro © 2026</p>
       </div>
-    </div>
+    </main>
   );
 };

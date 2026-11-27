@@ -388,8 +388,8 @@ Manual: iPhone con Safari y Android con Chrome; vista previa al compartir en Wha
 ## 9. Pendientes que dependen de Gael
 
 **Datos.**
-- [ ] Razón social, NIT y correo de contacto del responsable (o confirmar persona natural).
-- [ ] Teléfono y correo que deben aparecer como tocables en el pie.
+- [x] Responsable: **Gael, persona natural**, mientras se constituye la empresa (confirmado el 2026-11-26). Correo `gael.serranoaven@gmail.com`.
+- [x] Teléfono y correo tocables en el pie: `tel:+573108247722` (mismo número de ventas) y el correo anterior (Fase D).
 - [ ] Token de verificación de Search Console (y Bing, si se usa).
 
 **Decisiones.**
@@ -409,6 +409,27 @@ Manual: iPhone con Safari y Android con Chrome; vista previa al compartir en Wha
 - [ ] Ejecutar los scripts SQL que Claude Code prepare, tras respaldo y confirmación de la Fundación.
 - [ ] Llevar los borradores de `docs/legal/` a asesoría jurídica.
 - [ ] Pegar la lista de políticas en la sección 5.5.
+
+**Marcadores `[PENDIENTE]` de las páginas legales (Fase D), con responsable.** Gael = dato o decisión propia · Jurídica = asesoría jurídica · Contrato = se define en el contrato con cada centro.
+
+| # | Página | Marcador | Responsable |
+|---|---|---|---|
+| 1 | Ambas | Fecha de entrada en vigor | Gael, tras la revisión jurídica |
+| 2 | `privacidad.html` §1 | Apellidos completos del responsable | Gael |
+| 3 | `privacidad.html` §1 | Cédula o NIT del responsable | Gael |
+| 4 | `privacidad.html` §1 | Dirección para notificaciones | Gael |
+| 5 | `privacidad.html` §1 | Razón social y NIT de la empresa | Gael, al inscribirla en la Cámara de Comercio |
+| 6 | `privacidad.html` §2 | Quién es Responsable de las cuentas del personal | Jurídica |
+| 7 | `privacidad.html` §5 | Modelo de autorización del centro y excepciones para datos de salud | Jurídica |
+| 8 | `privacidad.html` §8 | Proveedor del correo definitivo (hoy un Gmail personal; ideal un buzón dedicado con dominio propio) | Gael |
+| 9 | `privacidad.html` §9 | Contrato de transmisión y requisitos del Decreto 1074 de 2015 para datos en EE. UU. | Jurídica |
+| 10 | `privacidad.html` §10 | Protocolo de incidentes y plazo de reporte a la SIC | Jurídica (protocolo) y Gael (ejecución) |
+| 11 | `privacidad.html` §11 | Plazo de conservación de la historia clínica | Jurídica |
+| 12 | `privacidad.html` §11 | Plazo de conservación de contactos comerciales | Gael |
+| 13 | `terminos.html` §7 | Niveles de servicio, soporte y contingencia | Gael · Contrato |
+| 14 | `terminos.html` §9 | Condiciones de la licencia de uso | Jurídica · Contrato |
+| 15 | `terminos.html` §10 | Alcance y límites de la responsabilidad de AuraCare | Jurídica · Contrato |
+| 16 | `terminos.html` §11 | Jurisdicción y solución de controversias | Jurídica |
 
 ---
 

@@ -1,33 +1,43 @@
 import { Modal } from './ui.jsx';
 
-export const CookieBanner = ({ onAceptar, onRechazar, abrirTerminos }) => (
-  <div className="cookie-banner" role="dialog" aria-label="Aviso de almacenamiento local">
+/* Textos legales: la versión completa vive en las páginas públicas (../privacidad.html y ../terminos.html), que se
+   leen sin iniciar sesión. Aquí solo va un resumen fiel con enlaces, para que haya una sola versión del texto.
+   Se abren en otra pestaña para no perder una nota a medio escribir. Borrador pendiente de revisión jurídica. */
+export const URL_PRIVACIDAD = '../privacidad.html';
+export const URL_TERMINOS = '../terminos.html';
+
+/* Aviso informativo, no de consentimiento: todo lo que guarda la app es necesario para funcionar (sesión, cierre por
+   inactividad, jornada elegida, este aviso y el borrador de la nota). No hay nada opcional que aceptar o rechazar,
+   así que no se ofrece una elección que no cambiaría nada. Inventario completo: privacidad.html#navegador. */
+export const CookieBanner = ({ onAceptar }) => (
+  <div className="cookie-banner" role="region" aria-label="Aviso de almacenamiento en tu navegador">
     <div className="cookie-txt">
-      <b>Almacenamiento técnico:</b> AuraCare guarda en tu navegador únicamente lo necesario para mantener tu sesión segura y recordar esta preferencia. No usamos cookies de terceros ni rastreo comercial. Consulta los <button type="button" className="btn-enlace" onClick={abrirTerminos}>Términos, condiciones y política de privacidad</button> (Ley 1581 de 2012).
+      <b>Almacenamiento en tu navegador:</b> AuraCare guarda solo lo necesario para funcionar: tu sesión, la hora de tu última actividad (para cerrarla tras 20 minutos sin uso), la jornada si la eliges a mano y, mientras escribes, el borrador de la nota en esta pestaña. No usamos cookies de terceros, publicidad ni analítica. Detalle en la{' '}
+      <a href={URL_PRIVACIDAD + '#navegador'} target="_blank" rel="noopener">política de privacidad</a>.
     </div>
     <div className="cookie-btns">
-      <button className="btn btn-ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.4)' }} onClick={onRechazar}>Solo necesarias</button>
-      <button className="btn btn-primary" onClick={onAceptar}>Entendido</button>
+      <button type="button" className="btn btn-primary" onClick={onAceptar}>Entendido</button>
     </div>
   </div>
 );
 
-/* TEXTO PROVISIONAL: debe ser revisado por asesoría jurídica de la Fundación antes de operar con datos reales. */
 export const ModalLegal = ({ cerrar }) => (
-  <Modal titulo="Términos, condiciones y tratamiento de datos (Ley 1581 / Res. 1995)" cerrar={cerrar}
-    sub="Marco de confidencialidad médica y protección de datos para la Fundación Construyendo Futuro.">
+  <Modal titulo="Privacidad y términos de uso" cerrar={cerrar}
+    sub="Resumen. El texto completo está en las páginas públicas, en borrador pendiente de revisión jurídica.">
       <div className="legal-box">
-        <h4>1. Datos sensibles de salud (Ley 1581 de 2012)</h4>
-        <p>La información de historias clínicas, diagnósticos y signos vitales es <b>DATO SENSIBLE DE SALUD</b>. Solo puede consultarla personal autorizado de la sede correspondiente, para el cuidado de la persona mayor y las obligaciones de vigilancia de la SDIS.</p>
-        <h4>2. Integridad de los registros (Resolución 1995 de 1999)</h4>
-        <p>Las notas clínicas se guardan con fecha, hora y autor asignados por el servidor y un sello SHA-256 encadenado. Desde la aplicación no pueden editarse ni eliminarse; las correcciones se registran como una nota nueva. El administrador puede verificar la integridad de la cadena en cualquier momento.</p>
-        <h4>3. Seguridad y trazabilidad</h4>
-        <p>El acceso requiere cuenta personal aprobada. Los cambios de permisos, altas de personas mayores y consultas de fichas clínicas quedan en un registro de auditoría. La conexión viaja cifrada (TLS) y los datos se almacenan cifrados en reposo por el proveedor de infraestructura.</p>
-        <h4>4. Deber de reserva</h4>
-        <p>Cada usuario es responsable de su contraseña, de cerrar sesión en equipos compartidos y de no divulgar información de las personas mayores. La sesión se cierra automáticamente tras un periodo de inactividad.</p>
+        <h4>Datos de salud</h4>
+        <p>La información de salud de las personas mayores es dato sensible (Ley 1581 de 2012). Solo la ve el personal autorizado de cada sede, para su cuidado y las obligaciones del centro. El centro es el Responsable de esos datos; AuraCare los trata por su cuenta y no los usa para nada más.</p>
+        <h4>Registros que no se editan ni se borran</h4>
+        <p>Las notas, las actas y las firmas de turno llevan fecha, hora y autor asignados por el servidor y un sello SHA-256 encadenado (Resolución 1995 de 1999). Las correcciones se registran como una nota nueva.</p>
+        <h4>Tu cuenta</h4>
+        <p>Es personal e intransferible: lo que se registra con ella queda a tu nombre. Cierra sesión en equipos compartidos; la sesión se cierra sola tras 20 minutos sin uso. Los cambios de permisos, las altas y la apertura de fichas quedan en un registro de auditoría.</p>
+        <h4>Tus derechos</h4>
+        <p>Puedes conocer, actualizar y rectificar tus datos, y hacer consultas o reclamos escribiendo a gael.serranoaven@gmail.com. Los plazos y el procedimiento están en la política de privacidad.</p>
       </div>
       <div className="modal-foot">
-        <button className="btn btn-primary" onClick={cerrar}>Entendido</button>
+        <a className="btn btn-ghost" href={URL_PRIVACIDAD} target="_blank" rel="noopener">Política de privacidad</a>
+        <a className="btn btn-ghost" href={URL_TERMINOS} target="_blank" rel="noopener">Términos de uso</a>
+        <button type="button" className="btn btn-primary" onClick={cerrar}>Entendido</button>
       </div>
   </Modal>
 );

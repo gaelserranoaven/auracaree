@@ -90,6 +90,16 @@ test('rangos clínicos: cada campo lleva su propia etiqueta y un nombre accesibl
   assert.equal(conNombre.length, 7 * 4);
 });
 
+test('aviso de almacenamiento y modal legal: resumen fiel con enlaces a las páginas públicas', () => {
+  assert.match(html.cookie, /href="\.\.\/privacidad\.html#navegador"/);
+  assert.match(html.cookie, /20 minutos/);
+  assert.equal((html.cookie.match(/<button/g) || []).length, 1, 'un solo botón: no hay nada opcional que rechazar');
+  assert.match(html.legal, /href="\.\.\/privacidad\.html"/);
+  assert.match(html.legal, /href="\.\.\/terminos\.html"/);
+  assert.match(html.legal, /revisión jurídica/);
+  assert.match(html.login, /Privacidad y términos de uso/);
+});
+
 test('sedes: no se eliminan, se suspenden y se pueden reactivar', () => {
   assert.match(html.configSuspendida, /Suspendida/);
   assert.match(html.configSuspendida, /Fin del contrato/);

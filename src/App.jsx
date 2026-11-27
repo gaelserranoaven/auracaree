@@ -330,9 +330,8 @@ export const App = () => {
       return (
         <>
           <Login onLogin={login} onSolicitarCuenta={solicitarCuenta} abrirTerminos={() => setShowLegal(true)} />
-          {showCookie && <CookieBanner abrirTerminos={() => setShowLegal(true)}
-            onAceptar={() => { try { localStorage.setItem('auracare_cookie_consent', 'all'); } catch { /* */ } setShowCookie(false); }}
-            onRechazar={() => { try { localStorage.setItem('auracare_cookie_consent', 'necessary'); } catch { /* */ } setShowCookie(false); }} />}
+          {showCookie && <CookieBanner
+            onAceptar={() => { try { localStorage.setItem('auracare_cookie_consent', 'necessary'); } catch { /* */ } setShowCookie(false); }} />}
         </>
       );
     }

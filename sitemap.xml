@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Solo páginas públicas e indexables. La app (/src/) no va aquí. privacidad.html y terminos.html se agregan en la Fase D. -->
+<!-- Solo páginas públicas e indexables. La app (/src/) no va aquí. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://gaelserranoaven.github.io/auracaree/</loc>
-    <lastmod>2026-11-08</lastmod>
+    <lastmod>2026-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://gaelserranoaven.github.io/auracaree/privacidad.html</loc>
+    <lastmod>2026-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://gaelserranoaven.github.io/auracaree/terminos.html</loc>
+    <lastmod>2026-11-26</lastmod>
   </url>
 </urlset>

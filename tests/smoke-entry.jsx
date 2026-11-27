@@ -43,7 +43,7 @@ const cfg = { glu: true, dolor: true };
 
 const pantallas = {
   login: <Login onLogin={noop} onSolicitarCuenta={noop} abrirTerminos={noop} />,
-  cookie: <CookieBanner onAceptar={noop} onRechazar={noop} abrirTerminos={noop} />,
+  cookie: <CookieBanner onAceptar={noop} />,
   legal: <ModalLegal cerrar={noop} />,
   dashboard: <Dashboard sede={sede} residentes={res} notas={notas} alertas={alertas} asistencias={asistencias} turnos={turnos} onAtender={noop} puedeAtender irFicha={noop} />,
   residentes: <Residentes residentes={res} irFicha={noop} puedeCrear abrirNuevo={noop} abrirImport={noop} />,

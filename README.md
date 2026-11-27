@@ -20,7 +20,7 @@ npm install
 npm run build          # genera src/dist (se versiona: GitHub Pages sirve estáticos)
 npx http-server -p 8000   # o cualquier servidor estático
 # abrir http://localhost:8000/src/
-npm test               # 50 pruebas (reglas clínicas, sesión, consultas, render de pantallas, indexación, enlaces, fuentes, sitio publicado)
+npm test               # 58 pruebas (reglas clínicas, sesión, consultas, render de pantallas, indexación, enlaces, fuentes, textos legales, sitio publicado)
 npm run dev            # build en modo watch
 npm run build -- --analizar  # build + peso del bundle por paquete
 npm run sitio          # arma _site/ con lo que publica GitHub Pages (lista permitida)
@@ -32,6 +32,7 @@ npm run fuentes        # copia las fuentes de la landing a fonts/ y reúne las l
 
 ```
 index.html, landing.css   landing pública (estática, sin JavaScript)
+privacidad.html, terminos.html   política de privacidad y términos de uso (públicos, en borrador)
 404.html, robots.txt, sitemap.xml
 icons/, og/               íconos (landing, app, PWA) e imagen para compartir
 fonts/                    fuentes de la landing (Geist) y LICENCIAS.txt de todas las familias (OFL 1.1)
@@ -72,10 +73,12 @@ La clave `sb_publishable_…` del código es pública por diseño; sin sesión a
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) — arquitectura, modelo de datos y decisiones
 - [`docs/MOBILE-Y-PRIVACIDAD.md`](docs/MOBILE-Y-PRIVACIDAD.md) — plan de pre-lanzamiento, privacidad y móvil
 - [`docs/CHANGELOG.md`](docs/CHANGELOG.md) — historial de versiones
+- [`docs/adr/`](docs/adr/) — decisiones de arquitectura desde el ADR-009 (las anteriores están en Obsidian)
+- [`docs/rendimiento-linea-base.md`](docs/rendimiento-linea-base.md) — medición de rendimiento antes y después de la Fase C
 - `docs/versions/` — notas de versiones anteriores a la v4.0 (históricas)
 
 ## Pendiente conocido
 
-Ver "Limitaciones conocidas" en `ARCHITECTURE.md` (medicación/MAR, modo offline completo, validación médica de rangos, revisión jurídica de textos legales).
+Ver "Limitaciones conocidas" en `ARCHITECTURE.md` (medicación/MAR, modo offline completo, validación médica de rangos, revisión jurídica de textos legales). Los datos legales pendientes y su responsable están en `docs/MOBILE-Y-PRIVACIDAD.md`, sección 9.
 
 **Mantenedor:** Gael (7mo Ingeniería) · **Cliente:** Fundación Construyendo Futuro

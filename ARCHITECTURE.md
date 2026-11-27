@@ -55,7 +55,7 @@ Esquema `private`: `rol()`, `tiene_rol()`, `puede_sede()`, `hash_nota()`, `estad
 1. **Sin modo offline completo.** Hay aviso de desconexión y borrador de nota; una cola de escrituras offline queda pendiente.
 2. **Sin módulo de medicación (MAR), alergias ni contactos familiares/EPS.** Los tipos de nota "administración de medicamento" existen, pero no hay control de dosis/horarios.
 3. **Rangos clínicos sin validar por un médico.** Los mismos umbrales aplican a todos salvo overrides individuales.
-4. **Textos legales provisionales.** Revisar con asesoría jurídica antes de operar con datos reales.
+4. **Textos legales en borrador.** `privacidad.html` y `terminos.html` son públicos y la app los enlaza (ADR-009, `docs/adr/`), pero falta la revisión jurídica y los datos marcados `[PENDIENTE]` (lista en `docs/MOBILE-Y-PRIVACIDAD.md`, sección 9).
 5. **Sin verificación de correo/MFA por defecto.** Ver `docs/OPERACION.md` para las opciones de Supabase Auth.
 6. **Plan gratuito de Supabase**: pausa el proyecto tras 1 semana de inactividad y no incluye respaldos. Para producción con datos de pacientes se requiere plan Pro.
 7. **Encabezados HTTP de seguridad** (frame-ancestors, HSTS) no configurables en GitHub Pages; la CSP se aplica por `<meta>`.

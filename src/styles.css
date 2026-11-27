@@ -85,6 +85,7 @@
   .btn:disabled{opacity:.5;cursor:not-allowed}
   .btn-primary{background:var(--acento);color:#fff;box-shadow:0 6px 16px -6px rgba(31,75,232,.45)}
   .btn-ghost{background:transparent;color:var(--tinta);border:1.5px solid var(--linea)}
+  a.btn{text-decoration:none;min-height:44px}
   .btn-tinta{background:var(--tinta-solido);color:#fff}
   .btn-peligro{background:var(--alerta-suave);color:var(--alerta-t);border:1px solid var(--alerta-borde)}
 
