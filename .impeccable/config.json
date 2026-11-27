@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "sora",
+        "createdAt": "2026-11-27T02:52:38.670Z",
+        "reason": "Claude: tipografia existente de la app (src/styles.css desde v3); DESIGN.md documenta solo la landing. Fase C solo la aloja localmente."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "ibm plex sans",
+        "createdAt": "2026-11-27T02:52:38.802Z",
+        "reason": "Claude: tipografia existente de la app (src/styles.css desde v3); DESIGN.md documenta solo la landing. Fase C solo la aloja localmente."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "ibm plex mono",
+        "createdAt": "2026-11-27T02:52:38.929Z",
+        "reason": "Claude: tipografia existente de la app (src/styles.css desde v3); DESIGN.md documenta solo la landing. Fase C solo la aloja localmente."
+      }
+    ]
+  }
+}

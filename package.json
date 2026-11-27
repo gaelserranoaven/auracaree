@@ -12,7 +12,8 @@
     "dev": "node build.mjs --watch",
     "test": "node --test \"tests/**/*.test.mjs\"",
     "sitio": "node tools/armar-sitio.mjs",
-    "iconos": "node tools/iconos.mjs"
+    "iconos": "node tools/iconos.mjs",
+    "fuentes": "node tools/fuentes.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -22,6 +23,11 @@
     "read-excel-file": "^9.3.10"
   },
   "devDependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/sora": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
     "esbuild": "^0.28.2",
     "sharp": "^0.34.5"
   }

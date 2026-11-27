@@ -92,7 +92,7 @@
   .cookie-banner{position:fixed;bottom:20px;left:20px;right:20px;max-width:880px;margin:0 auto;background:#0E3A5D;color:#fff;padding:20px 24px;border-radius:16px;box-shadow:0 16px 40px rgba(14,58,93,.35);z-index:100;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border:1px solid rgba(255,255,255,.15)}
   .cookie-txt{flex:1;min-width:280px;font-size:13.5px;line-height:1.45;color:#E0ECF4}
   .cookie-txt b{color:#fff}
-  .cookie-txt a{color:var(--vital-suave);text-decoration:underline;cursor:pointer}
+  .cookie-txt a{color:#fff;text-decoration:underline;cursor:pointer}
 
   /* MAIN SHELL */
   .shell{display:flex;min-height:100vh;min-height:100dvh}
@@ -525,7 +525,8 @@
 /* ===== v4.1: revisión de diseño (HIG / WCAG) ===== */
 /* Enlaces que ejecutan acciones: <button> accesible por teclado con aspecto de enlace */
 .btn-enlace{background:none;padding:0;color:var(--tinta);text-decoration:underline;font:inherit;font-size:inherit}
-.cookie-txt .btn-enlace{color:var(--vital-suave)}
+/* El aviso tiene fondo azul fijo en Día y Noche: el enlace va en blanco (antes usaba --vital-suave, que en Noche es casi transparente: 1,29:1) */
+.cookie-txt .btn-enlace{color:#fff}
 .alerta-row .que .btn-enlace{font-weight:700;font-size:13.5px;text-decoration:none;color:var(--texto)}
 /* Ítems del buscador de persona: ahora son botones (teclado + lector de pantalla) */
 button.picker-res-item{width:100%;background:var(--panel);text-align:left;border:none;border-bottom:1px solid var(--linea);color:var(--texto);font-size:13px;min-height:40px}

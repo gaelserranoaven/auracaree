@@ -4,8 +4,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@500&display=block" rel="stylesheet">
 <style>
+  /* Mismas fuentes locales de la landing (fonts/, `npm run fuentes`): la plantilla se renderiza sin red */
+  @font-face{font-family:'Geist';font-display:block;font-weight:100 900;src:url(../../fonts/geist-latin-wght-normal.woff2) format('woff2')}
+  @font-face{font-family:'Geist Mono';font-display:block;font-weight:100 900;src:url(../../fonts/geist-mono-latin-wght-normal.woff2) format('woff2')}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:1200px;height:630px;overflow:hidden}
   body{background:#000;color:#F5F5F7;font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased;

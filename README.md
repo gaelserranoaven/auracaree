@@ -20,10 +20,12 @@ npm install
 npm run build          # genera src/dist (se versiona: GitHub Pages sirve estáticos)
 npx http-server -p 8000   # o cualquier servidor estático
 # abrir http://localhost:8000/src/
-npm test               # 45 pruebas (reglas clínicas, sesión, consultas, render de pantallas, indexación, enlaces, sitio publicado)
+npm test               # 50 pruebas (reglas clínicas, sesión, consultas, render de pantallas, indexación, enlaces, fuentes, sitio publicado)
 npm run dev            # build en modo watch
+npm run build -- --analizar  # build + peso del bundle por paquete
 npm run sitio          # arma _site/ con lo que publica GitHub Pages (lista permitida)
 npm run iconos         # regenera icons/ y og/og-image.png (solo al cambiar la marca; usa sharp y Chrome)
+npm run fuentes        # copia las fuentes de la landing a fonts/ y reúne las licencias (tras actualizar @fontsource)
 ```
 
 ## Estructura
@@ -32,8 +34,9 @@ npm run iconos         # regenera icons/ y og/og-image.png (solo al cambiar la m
 index.html, landing.css   landing pública (estática, sin JavaScript)
 404.html, robots.txt, sitemap.xml
 icons/, og/               íconos (landing, app, PWA) e imagen para compartir
+fonts/                    fuentes de la landing (Geist) y LICENCIAS.txt de todas las familias (OFL 1.1)
 src/
-  index.html, main.jsx, App.jsx, styles.css
+  index.html, main.jsx, App.jsx, styles.css, fuentes.css (Sora e IBM Plex, locales)
   components/   pantallas (Dashboard, Ficha, NuevaNota, Asistencia, Dotacion, RegistroSdis, ...)
   lib/          supabase.js · api.js (todas las llamadas) · clinico.js (roles y reglas) · util.js (fechas Bogotá) · sesion.js (inactividad) · importar.js
   dist/         bundle generado (react + supabase locales, sin CDN ni Babel en el navegador)
@@ -41,7 +44,7 @@ supabase/
   migrations/   SQL versionado 01–07 (todas aplicadas en el piloto)
   functions/    Edge Function crear-usuario
 tests/          node:test: reglas clínicas, render de pantallas, guardias de indexación y del sitio publicado
-tools/          armar-sitio.mjs (lista que publica GitHub Pages) · iconos.mjs y og/ (íconos e imagen para compartir)
+tools/          armar-sitio.mjs (lista que publica GitHub Pages) · iconos.mjs y og/ (íconos e imagen para compartir) · fuentes.mjs
 .github/        workflow de publicación en GitHub Pages
 docs/           CHANGELOG, OPERACION (guía de puesta en producción), MOBILE-Y-PRIVACIDAD (pre-lanzamiento), versiones históricas
 ```
@@ -59,7 +62,7 @@ GitHub Pages publica desde el workflow `.github/workflows/pages.yml` (Source: *G
 | Notas | Trigger de servidor sella y encadena; UPDATE/DELETE/TRUNCATE bloqueados |
 | Alertas y límites de dotación | Calculados/validados en triggers (no confiables desde el cliente) |
 | Auditoría | Tabla append-only con consultas de fichas y cambios sensibles |
-| Cliente | CSP estricta (`script-src 'self'`), sin `eval`, sin HTML dinámico, `noindex` y cero analítica |
+| Cliente | CSP estricta (`script-src 'self'`, `font-src 'self'`), sin `eval`, sin HTML dinámico, `noindex`, cero analítica y sin peticiones a terceros fuera de Supabase (las fuentes se sirven desde el sitio) |
 
 La clave `sb_publishable_…` del código es pública por diseño; sin sesión aprobada no da acceso a nada.
 
